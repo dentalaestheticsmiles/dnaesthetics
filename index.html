@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Clinic - Dental and Aesthetics | Premium Dental Care</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            emailjs.init("2fdaHy-1vPUqWh23A"); // EmailJS Public Key
+        })();
+    </script>
+</head>
+<body>
+    <!-- Pop-up Modal -->
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <i class="fas fa-tooth modal-icon"></i>
+                <h2>Welcome to DNA Clinic</h2>
+                <p>Your journey to a perfect smile starts here!</p>
+                <div class="modal-buttons">
+                    <a href="#contact" class="btn btn-primary">Book Appointment</a>
+                    <a href="tel:+1234567890" class="btn btn-secondary">Call Us Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expert Dentist Consultation Popup - Grand Design -->
+    <div id="expertConsultationModal" class="modal expert-consultation-modal">
+        <div class="expert-modal-backdrop"></div>
+        <div class="modal-content expert-consultation-content">
+            <span class="close-modal expert-close-btn">&times;</span>
+            <div class="expert-modal-body">
+                <!-- Animated Background Elements -->
+                <div class="expert-bg-decoration">
+                    <div class="expert-circle-1"></div>
+                    <div class="expert-circle-2"></div>
+                    <div class="expert-circle-3"></div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="expert-content-wrapper">
+                    <div class="expert-icon-wrapper">
+                        <div class="expert-icon-circle">
+                            <div class="expert-icon-inner">
+                                <i class="fas fa-user-md expert-icon"></i>
+                            </div>
+                            <div class="expert-icon-ring"></div>
+                            <div class="expert-sparkles">
+                                <i class="fas fa-tooth"></i>
+                                <i class="fas fa-smile"></i>
+                                <i class="fas fa-heart"></i>
+                                <i class="fas fa-sparkles"></i>
+                                <i class="fas fa-gem"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="expert-text-content">
+                        <h2 class="expert-title">
+                            <span class="expert-title-line1">Still Have Questions?</span>
+                        </h2>
+                        <h3 class="expert-subtitle">Talk to an Expert Dentist</h3>
+                        <p class="expert-description">Get personalized advice from our world-class dental professionals. We'll get back to you soon!</p>
+                    </div>
+                    
+                    <div class="expert-features">
+                        <div class="expert-feature-item">
+                            <div class="expert-feature-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <span>Free Consultation</span>
+                        </div>
+                        <div class="expert-feature-item">
+                            <div class="expert-feature-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <span>Expert Advice</span>
+                        </div>
+                        <div class="expert-feature-item">
+                            <div class="expert-feature-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <span>Quick Response</span>
+                        </div>
+                    </div>
+                    
+                    <div class="expert-buttons">
+                        <a href="https://wa.me/918072980232" target="_blank" class="btn expert-whatsapp-btn">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>Chat on WhatsApp</span>
+                        </a>
+                        <a href="tel:+918072980232" class="btn expert-call-btn">
+                            <i class="fas fa-phone"></i>
+                            <span>Call Us Now</span>
+                        </a>
+                    </div>
+                    
+                    <div class="expert-trust-badges">
+                        <div class="expert-badge">
+                            <i class="fas fa-award"></i>
+                            <span>Certified Experts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <div class="brand-icon-wrapper">
+                    <i class="fas fa-tooth brand-icon"></i>
+                    <div class="brand-images">
+                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=50" alt="Smile" class="brand-mini-img">
+                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=50" alt="Dental" class="brand-mini-img">
+                    </div>
+                </div>
+                <div class="brand-text">
+                    <h1>DNA <span>Clinic</span></h1>
+                    <p class="tagline">Dental and Aesthetics</p>
+                </div>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#about" class="nav-link">About Us</a></li>
+                <li><a href="#services" class="nav-link">Services</a></li>
+                <li><a href="#kids" class="nav-link">Kids Care</a></li>
+                <li><a href="#tour" class="nav-link">Take a Tour</a></li>
+                <li><a href="#team" class="nav-link">Our Team</a></li>
+                <li><a href="#referral" class="nav-link">Referral Doctors</a></li>
+                <li><a href="#blogs" class="nav-link">Blogs</a></li>
+                <li><a href="#contact" class="nav-link">Contact Us</a></li>
+                <li><a href="tel:+1234567890" class="nav-link call-btn"><i class="fas fa-phone"></i> Call Us</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="container">
+                <h1 class="hero-title">Transform Your Smile, Transform Your Life</h1>
+                <p class="hero-subtitle">Experience world-class dental and aesthetic treatments in a state-of-the-art facility</p>
+                <div class="hero-buttons">
+                    <a href="#contact" class="btn btn-hero-primary">Book Your Appointment</a>
+                    <a href="#services" class="btn btn-hero-secondary">Explore Services</a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <a href="#about"><i class="fas fa-chevron-down"></i></a>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">About DNA Clinic</h2>
+                <p class="section-subtitle">Excellence in Dental and Aesthetic Care</p>
+            </div>
+            <div class="about-content">
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800" alt="Modern Dental Clinic">
+                </div>
+                <div class="about-text">
+                    <h3>Your Trusted Partner in Dental Health</h3>
+                    <p>At DNA Clinic, we combine cutting-edge dental technology with aesthetic expertise to provide you with comprehensive care that enhances both your oral health and your appearance. Our team of experienced professionals is dedicated to delivering personalized treatments in a comfortable, welcoming environment.</p>
+                    <div class="about-features">
+                        <div class="feature-item">
+                            <i class="fas fa-award"></i>
+                            <h4>Expert Team</h4>
+                            <p>Certified professionals with years of experience</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-microscope"></i>
+                            <h4>Advanced Technology</h4>
+                            <p>State-of-the-art equipment and techniques</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-heart"></i>
+                            <h4>Patient-Centered</h4>
+                            <p>Personalized care tailored to your needs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Our Services</h2>
+                <p class="section-subtitle">Comprehensive Dental and Aesthetic Solutions</p>
+            </div>
+            <div class="services-grid">
+                <!-- Dental Services -->
+                <div class="service-category">
+                    <h3 class="category-title"><i class="fas fa-tooth"></i> Dental Services</h3>
+                    <div class="services-list">
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-smile"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Teeth Whitening">
+                            <h4>Teeth Whitening</h4>
+                            <p>Professional in-office and take-home whitening solutions for a brighter smile</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-teeth"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400" alt="Dental Implants">
+                            <h4>Dental Implants</h4>
+                            <p>Permanent tooth replacement solutions that look and feel natural</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-teeth-open"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400" alt="Orthodontics">
+                            <h4>Orthodontics</h4>
+                            <p>Invisalign, braces, and clear aligners for perfectly aligned teeth</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-tooth"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400" alt="Root Canal">
+                            <h4>Root Canal Treatment</h4>
+                            <p>Pain-free root canal therapy to save your natural teeth</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-teeth"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Cosmetic Dentistry">
+                            <h4>Cosmetic Dentistry</h4>
+                            <p>Veneers, bonding, and smile makeovers for your dream smile</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-teeth-open"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="General Dentistry">
+                            <h4>General Dentistry</h4>
+                            <p>Cleanings, fillings, and preventive care for optimal oral health</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aesthetic Services -->
+                <div class="service-category">
+                    <h3 class="category-title"><i class="fas fa-spa"></i> Aesthetic Services</h3>
+                    <div class="services-list">
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-face-smile"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Botox">
+                            <h4>Botox & Fillers</h4>
+                            <p>Non-surgical facial rejuvenation to reduce wrinkles and restore volume</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-sparkles"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Dermal Fillers">
+                            <h4>Dermal Fillers</h4>
+                            <p>Enhance facial contours and restore youthful appearance</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Chemical Peels">
+                            <h4>Chemical Peels</h4>
+                            <p>Improve skin texture and reduce signs of aging</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Laser Treatments">
+                            <h4>Laser Skin Treatments</h4>
+                            <p>Advanced laser therapy for skin rejuvenation and pigmentation</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Facial Treatments">
+                            <h4>Facial Aesthetics</h4>
+                            <p>Comprehensive facial treatments for glowing, healthy skin</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Anti-Aging">
+                            <h4>Anti-Aging Solutions</h4>
+                            <p>Comprehensive anti-aging treatments for a youthful appearance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kids Treatment Section -->
+    <section id="kids" class="kids-treatment">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Pediatric Dental Care</h2>
+                <p class="section-subtitle">Gentle, Fun, and Caring Dental Experience for Your Little Ones</p>
+            </div>
+            <div class="kids-intro">
+                <div class="kids-intro-content">
+                    <h3>Creating Healthy Smiles from an Early Age</h3>
+                    <p>At DNA Clinic, we understand that children need special care and attention. Our pediatric dental services are designed to make dental visits a positive, stress-free experience for both children and parents. We create a welcoming, child-friendly environment where your little ones can feel comfortable and safe.</p>
+                    <div class="kids-features">
+                        <div class="kids-feature-item">
+                            <i class="fas fa-smile"></i>
+                            <h4>Child-Friendly Environment</h4>
+                            <p>Colorful, welcoming spaces designed to put children at ease</p>
+                        </div>
+                        <div class="kids-feature-item">
+                            <i class="fas fa-heart"></i>
+                            <h4>Gentle Approach</h4>
+                            <p>Experienced pediatric specialists who understand children's needs</p>
+                        </div>
+                        <div class="kids-feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <h4>Preventive Care</h4>
+                            <p>Early intervention to prevent future dental problems</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="kids-intro-image">
+                    <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600" alt="Happy child at dentist">
+                </div>
+            </div>
+            <div class="kids-services-grid">
+                <div class="kids-service-card">
+                    <div class="kids-service-image">
+                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400" alt="Child dental checkup">
+                        <div class="kids-service-icon">
+                            <i class="fas fa-tooth"></i>
+                        </div>
+                    </div>
+                    <div class="kids-service-content">
+                        <h4>First Dental Visit</h4>
+                        <p>Comprehensive examination and gentle introduction to dental care for toddlers and young children</p>
+                        <ul class="kids-service-list">
+                            <li><i class="fas fa-check"></i> Age-appropriate oral health assessment</li>
+                            <li><i class="fas fa-check"></i> Parent education on oral hygiene</li>
+                            <li><i class="fas fa-check"></i> Preventive care recommendations</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="kids-service-card">
+                    <div class="kids-service-image">
+                        <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400" alt="Dental cleaning for kids">
+                        <div class="kids-service-icon">
+                            <i class="fas fa-sparkles"></i>
+                        </div>
+                    </div>
+                    <div class="kids-service-content">
+                        <h4>Teeth Cleaning & Fluoride</h4>
+                        <p>Professional cleaning sessions designed to be fun and educational, with fluoride treatments to strengthen young teeth</p>
+                        <ul class="kids-service-list">
+                            <li><i class="fas fa-check"></i> Gentle professional cleaning</li>
+                            <li><i class="fas fa-check"></i> Fluoride application</li>
+                            <li><i class="fas fa-check"></i> Plaque removal techniques</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="kids-service-card">
+                    <div class="kids-service-image">
+                        <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400" alt="Dental sealants">
+                        <div class="kids-service-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                    </div>
+                    <div class="kids-service-content">
+                        <h4>Dental Sealants</h4>
+                        <p>Protective sealants applied to prevent cavities in hard-to-clean areas of children's teeth</p>
+                        <ul class="kids-service-list">
+                            <li><i class="fas fa-check"></i> Painless application process</li>
+                            <li><i class="fas fa-check"></i> Long-lasting protection</li>
+                            <li><i class="fas fa-check"></i> Cavity prevention</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="kids-service-card">
+                    <div class="kids-service-image">
+                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400" alt="Kids orthodontics">
+                        <div class="kids-service-icon">
+                            <i class="fas fa-smile-beam"></i>
+                        </div>
+                    </div>
+                    <div class="kids-service-content">
+                        <h4>Early Orthodontic Evaluation</h4>
+                        <p>Assessment and early intervention for bite issues, crowding, and jaw development problems</p>
+                        <ul class="kids-service-list">
+                            <li><i class="fas fa-check"></i> Growth and development monitoring</li>
+                            <li><i class="fas fa-check"></i> Early intervention options</li>
+                            <li><i class="fas fa-check"></i> Custom treatment plans</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="kids-service-card">
+                    <div class="kids-service-image">
+                        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Pediatric fillings">
+                        <div class="kids-service-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                    </div>
+                    <div class="kids-service-content">
+                        <h4>Pediatric Fillings</h4>
+                        <p>Tooth-colored fillings that restore decayed teeth while maintaining a natural appearance</p>
+                        <ul class="kids-service-list">
+                            <li><i class="fas fa-check"></i> Composite resin fillings</li>
+                            <li><i class="fas fa-check"></i> Minimal discomfort</li>
+                            <li><i class="fas fa-check"></i> Aesthetic results</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="kids-service-card">
+                    <div class="kids-service-image">
+                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Emergency dental care for kids">
+                        <div class="kids-service-icon">
+                            <i class="fas fa-ambulance"></i>
+                        </div>
+                    </div>
+                    <div class="kids-service-content">
+                        <h4>Emergency Pediatric Care</h4>
+                        <p>Immediate attention for dental emergencies, injuries, or sudden tooth pain in children</p>
+                        <ul class="kids-service-list">
+                            <li><i class="fas fa-check"></i> 24/7 emergency availability</li>
+                            <li><i class="fas fa-check"></i> Trauma treatment</li>
+                            <li><i class="fas fa-check"></i> Pain management</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="kids-cta">
+                <div class="kids-cta-content">
+                    <h3>Schedule Your Child's First Visit Today</h3>
+                    <p>Give your child the gift of a healthy, beautiful smile. Our team is here to make dental care a positive experience for your family.</p>
+                    <a href="#" class="btn btn-primary btn-large" id="kidsAppointmentBtn">Book Appointment for Your Child</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Take a Tour Section -->
+    <section id="tour" class="tour">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Take a Tour</h2>
+                <p class="section-subtitle">Experience Our State-of-the-Art Facility</p>
+            </div>
+            <div class="tour-gallery">
+                <div class="tour-item">
+                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600" alt="Reception Area">
+                    <div class="tour-overlay">
+                        <h4>Modern Reception</h4>
+                        <p>Welcoming and comfortable waiting area</p>
+                    </div>
+                </div>
+                <div class="tour-item">
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600" alt="Treatment Room">
+                    <div class="tour-overlay">
+                        <h4>Treatment Rooms</h4>
+                        <p>Advanced equipment in a serene environment</p>
+                    </div>
+                </div>
+                <div class="tour-item">
+                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600" alt="Consultation Room">
+                    <div class="tour-overlay">
+                        <h4>Consultation Space</h4>
+                        <p>Private areas for patient consultations</p>
+                    </div>
+                </div>
+                <div class="tour-item">
+                    <img src="https://images.unsplash.com/photo-1624976509935-5c9c49a0c5b0?w=600" alt="Technology">
+                    <div class="tour-overlay">
+                        <h4>Advanced Technology</h4>
+                        <p>Latest dental and aesthetic equipment</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Referral Doctors Section -->
+    <section id="referral" class="referral">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Referral Doctors</h2>
+                <p class="section-subtitle">Partner with DNA Clinic for Your Patients</p>
+            </div>
+            <div class="referral-content">
+                <div class="referral-text">
+                    <h3>Join Our Network of Healthcare Professionals</h3>
+                    <p>DNA Clinic welcomes referrals from medical and dental professionals. We provide seamless coordination of care and timely communication to ensure the best outcomes for your patients.</p>
+                    <ul class="referral-benefits">
+                        <li><i class="fas fa-check-circle"></i> Fast and efficient referral process</li>
+                        <li><i class="fas fa-check-circle"></i> Detailed treatment reports</li>
+                        <li><i class="fas fa-check-circle"></i> Direct communication channels</li>
+                        <li><i class="fas fa-check-circle"></i> Continuing education opportunities</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-primary">Become a Referral Partner</a>
+                </div>
+                <div class="referral-image">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600" alt="Medical Professionals">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Meet Our Team Section -->
+    <section id="team" class="team">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Meet Our World Class Team</h2>
+                <p class="section-subtitle">Expert Professionals Dedicated to Your Smile</p>
+            </div>
+            <div class="team-carousel-wrapper">
+                <button class="carousel-btn carousel-btn-left" id="teamPrevBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="team-carousel" id="teamCarousel">
+                    <div class="team-member active">
+                        <div class="member-image">
+                            <img src="deepika.png" alt="Dr. Deepika Rajkumar - Managing Director" id="deepikaImage">
+                            <div class="member-overlay">
+                                <div class="member-social">
+                                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                                    <a href="#"><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3 class="member-name">Dr. Deepika Rajkumar</h3>
+                            <p class="member-role">Managing Director</p>
+                            <p class="member-bio">With years of expertise in dental and aesthetic care, our Managing Director leads our team with passion and dedication to delivering exceptional patient outcomes.</p>
+                            <div class="member-qualifications">
+                                <span class="qual-badge"><i class="fas fa-graduation-cap"></i> BDS</span>
+                                <span class="qual-badge"><i class="fas fa-award"></i> AACD, USA</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Placeholder for future team members -->
+                    <div class="team-member">
+                        <div class="member-image">
+                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400" alt="Team Member">
+                            <div class="member-overlay">
+                                <div class="member-social">
+                                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                                    <a href="#"><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3 class="member-name">Dr. [Future Doctor]</h3>
+                            <p class="member-role">Senior Dentist</p>
+                            <p class="member-bio">Expert in advanced dental procedures with a focus on patient comfort and care.</p>
+                            <div class="member-qualifications">
+                                <span class="qual-badge"><i class="fas fa-graduation-cap"></i> DDS</span>
+                                <span class="qual-badge"><i class="fas fa-award"></i> Specialist</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-btn carousel-btn-right" id="teamNextBtn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="team-dots" id="teamDots">
+                <span class="dot active" data-index="0"></span>
+                <span class="dot" data-index="1"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blogs Section -->
+    <section id="blogs" class="blogs">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Latest Blogs</h2>
+                <p class="section-subtitle">Stay Informed About Dental and Aesthetic Care</p>
+            </div>
+            <div class="blogs-grid">
+                <article class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Blog Post">
+                    <div class="blog-content">
+                        <span class="blog-date">March 15, 2024</span>
+                        <h3>5 Tips for Maintaining Your Perfect Smile</h3>
+                        <p>Discover essential practices to keep your teeth healthy and your smile bright...</p>
+                        <a href="#" class="blog-link">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                <article class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400" alt="Blog Post">
+                    <div class="blog-content">
+                        <span class="blog-date">March 10, 2024</span>
+                        <h3>The Benefits of Invisalign Treatment</h3>
+                        <p>Learn how clear aligners can transform your smile discreetly and comfortably...</p>
+                        <a href="#" class="blog-link">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                <article class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Blog Post">
+                    <div class="blog-content">
+                        <span class="blog-date">March 5, 2024</span>
+                        <h3>Anti-Aging Aesthetic Treatments Explained</h3>
+                        <p>Explore the latest non-surgical options for maintaining youthful skin...</p>
+                        <a href="#" class="blog-link">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Contact Us</h2>
+                <p class="section-subtitle">Get in Touch - We're Here to Help</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Address</h4>
+                            <p>123 Dental Avenue, Health District<br>City, State 12345</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Phone</h4>
+                            <p><a href="tel:+1234567890">+1 (234) 567-8900</a></p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email</h4>
+                            <p><a href="mailto:dentalaestheticsmiles@gmail.com">dentalaestheticsmiles@gmail.com</a></p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <h4>Hours</h4>
+                            <p>Mon-Fri: 9:00 AM - 6:00 PM<br>Sat: 10:00 AM - 4:00 PM<br>Sun: Closed</p>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <a href="https://instagram.com" target="_blank" class="social-link instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://facebook.com" target="_blank" class="social-link facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://wa.me/918072980232" target="_blank" class="social-link whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form id="appointmentForm">
+                        <div class="form-group">
+                            <input type="text" id="contactName" name="contactName" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="contactEmail" name="contactEmail" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="contactPhone" name="contactPhone" placeholder="Phone Number" required>
+                        </div>
+                        <div class="form-group">
+                            <select id="contactService" name="contactService" required>
+                                <option value="">Select Service</option>
+                                <option>Teeth Whitening</option>
+                                <option>Dental Implants</option>
+                                <option>Orthodontics</option>
+                                <option>Cosmetic Dentistry</option>
+                                <option>Botox & Fillers</option>
+                                <option>Laser Treatments</option>
+                                <option>Pediatric Dental Care</option>
+                                <option>General Consultation</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="contactMessage" name="contactMessage" placeholder="Message (Optional)" rows="5"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Book Appointment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DNA Clinic</h3>
+                    <p>Dental and Aesthetics</p>
+                    <p>Transforming smiles, enhancing lives with excellence in dental and aesthetic care.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#services">Dental Services</a></li>
+                        <li><a href="#services">Aesthetic Services</a></li>
+                        <li><a href="#tour">Virtual Tour</a></li>
+                        <li><a href="#blogs">Blogs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect With Us</h4>
+                    <div class="footer-social">
+                        <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://wa.me/918072980232" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                    <p class="footer-contact">
+                        <a href="tel:+1234567890"><i class="fas fa-phone"></i> +1 (234) 567-8900</a>
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DNA Clinic. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/918072980232" target="_blank" class="whatsapp-float">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Kids Appointment Modal -->
+    <div id="kidsAppointmentModal" class="modal kids-modal">
+        <div class="modal-content kids-modal-content">
+            <span class="close-modal kids-close-modal">&times;</span>
+            <div class="kids-modal-header">
+                <div class="kids-modal-icon-wrapper">
+                    <i class="fas fa-smile kids-modal-icon"></i>
+                    <div class="kids-modal-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <h2 class="kids-modal-title">Book Your Child's Appointment</h2>
+                <p class="kids-modal-subtitle">Let's make their smile shine bright! ✨</p>
+            </div>
+            <form id="kidsAppointmentForm" class="kids-appointment-form">
+                <div class="kids-form-row">
+                    <div class="kids-form-group">
+                        <label for="parentName"><i class="fas fa-user"></i> Your Name</label>
+                        <input type="text" id="parentName" name="parentName" placeholder="Enter your name" required>
+                    </div>
+                    <div class="kids-form-group">
+                        <label for="kidName"><i class="fas fa-child"></i> Kid's Name</label>
+                        <input type="text" id="kidName" name="kidName" placeholder="Enter your child's name" required>
+                    </div>
+                </div>
+                <div class="kids-form-row">
+                    <div class="kids-form-group">
+                        <label for="kidEmail"><i class="fas fa-envelope"></i> E-Mail</label>
+                        <input type="email" id="kidEmail" name="kidEmail" placeholder="your.email@example.com" required>
+                    </div>
+                    <div class="kids-form-group">
+                        <label for="kidPhone"><i class="fas fa-phone"></i> Phone No</label>
+                        <input type="tel" id="kidPhone" name="kidPhone" placeholder="+1 (234) 567-8900" required>
+                    </div>
+                </div>
+                <div class="kids-form-group">
+                    <label for="kidService"><i class="fas fa-tooth"></i> Select Service</label>
+                    <select id="kidService" name="kidService" required>
+                        <option value="">Choose a service for your child</option>
+                        <option value="First Dental Visit">First Dental Visit (Age 1-3)</option>
+                        <option value="Teeth Cleaning & Fluoride">Teeth Cleaning & Fluoride</option>
+                        <option value="Dental Sealants">Dental Sealants</option>
+                        <option value="Early Orthodontic Evaluation">Early Orthodontic Evaluation</option>
+                        <option value="Pediatric Fillings">Pediatric Fillings</option>
+                        <option value="Emergency Pediatric Care">Emergency Pediatric Care</option>
+                        <option value="Space Maintainers">Space Maintainers</option>
+                        <option value="Pulpotomy (Baby Root Canal)">Pulpotomy (Baby Root Canal)</option>
+                        <option value="Crowns for Children">Crowns for Children</option>
+                        <option value="Habit Breaking Appliances">Habit Breaking Appliances</option>
+                        <option value="Sports Mouthguards">Sports Mouthguards</option>
+                        <option value="Preventive Care Consultation">Preventive Care Consultation</option>
+                    </select>
+                </div>
+                <div class="kids-form-row">
+                    <div class="kids-form-group">
+                        <label for="kidDate"><i class="fas fa-calendar-alt"></i> Date</label>
+                        <input type="date" id="kidDate" name="kidDate" required>
+                    </div>
+                    <div class="kids-form-group">
+                        <label for="kidTime"><i class="fas fa-clock"></i> Time</label>
+                        <select id="kidTime" name="kidTime" required>
+                            <option value="">Select time</option>
+                            <option value="09:00 AM">09:00 AM</option>
+                            <option value="09:30 AM">09:30 AM</option>
+                            <option value="10:00 AM">10:00 AM</option>
+                            <option value="10:30 AM">10:30 AM</option>
+                            <option value="11:00 AM">11:00 AM</option>
+                            <option value="11:30 AM">11:30 AM</option>
+                            <option value="12:00 PM">12:00 PM</option>
+                            <option value="12:30 PM">12:30 PM</option>
+                            <option value="01:00 PM">01:00 PM</option>
+                            <option value="01:30 PM">01:30 PM</option>
+                            <option value="02:00 PM">02:00 PM</option>
+                            <option value="02:30 PM">02:30 PM</option>
+                            <option value="03:00 PM">03:00 PM</option>
+                            <option value="03:30 PM">03:30 PM</option>
+                            <option value="04:00 PM">04:00 PM</option>
+                            <option value="04:30 PM">04:30 PM</option>
+                            <option value="05:00 PM">05:00 PM</option>
+                            <option value="05:30 PM">05:30 PM</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="kids-form-group">
+                    <label for="kidMessage"><i class="fas fa-comment"></i> Message <span class="optional-text">(Optional)</span></label>
+                    <textarea id="kidMessage" name="kidMessage" rows="4" placeholder="Any special requests or information about your child..."></textarea>
+                </div>
+                <button type="submit" class="btn kids-submit-btn">
+                    <i class="fas fa-heart"></i> Book Appointment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

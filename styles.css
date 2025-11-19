@@ -3748,8 +3748,11 @@ section {
     background: rgba(0, 0, 0, 0.4);
     cursor: pointer;
     transition: 0.3s ease;
-    z-index: 1;
+    z-index: 3;
     border-radius: inherit;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .video-play-btn:hover {
@@ -3965,6 +3968,8 @@ video:-ms-fullscreen {
 
 /* Ensure video shows first frame instead of black screen */
 .dna-video {
+    opacity: 1;
+    background-color: #000;
     background: #000;
     /* Ensure video displays first frame */
     object-fit: cover;

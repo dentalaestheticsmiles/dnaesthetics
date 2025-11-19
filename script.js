@@ -1100,47 +1100,68 @@ document.addEventListener("DOMContentLoaded", function() {
     // ============================================
     // VIDEO PLAYBACK FIX (DESKTOP + MOBILE)
     // ============================================
-    const videos = document.querySelectorAll('video');
+    // Custom play button overlay for all videos
+    const videoWrappers = document.querySelectorAll('.video-wrapper');
     
-    if (videos && videos.length > 0) {
-        videos.forEach(video => {
+    if (videoWrappers && videoWrappers.length > 0) {
+        videoWrappers.forEach(wrapper => {
+            if (!wrapper) return;
+            
+            const video = wrapper.querySelector('.dna-video');
+            const playBtn = wrapper.querySelector('.video-play-btn');
+            
             if (!video) return;
+            
+            // Initial state - ensure video is paused
+            video.pause();
             
             // Set iOS-specific attributes
             video.setAttribute('playsinline', 'true');
             video.setAttribute('webkit-playsinline', 'true');
             
-            // Play video on tap or click
+            // Click play button → start video
+            if (playBtn) {
+                playBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (video) {
+                        playBtn.style.display = "none";
+                        video.play().catch(function(error) {
+                            // Silently handle autoplay restrictions
+                            playBtn.style.display = "flex";
+                        });
+                    }
+                });
+            }
+            
+            // Clicking video toggles play/pause
             video.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 if (video.paused) {
+                    if (playBtn) playBtn.style.display = "none";
                     video.play().catch(function(error) {
                         // Silently handle autoplay restrictions
+                        if (playBtn) playBtn.style.display = "flex";
                     });
                 } else {
                     video.pause();
+                    if (playBtn) playBtn.style.display = "flex";
                 }
             }, { passive: false });
             
-            // For mobile touch devices
-            video.addEventListener('touchstart', function(e) {
-                // Allow native video controls to work
-            }, { passive: true });
+            // When video ends, show play button again
+            video.addEventListener('ended', function() {
+                if (playBtn) playBtn.style.display = "flex";
+            });
             
-            // Ensure video container doesn't block clicks
-            const videoContainer = video.closest('.video-container');
-            if (videoContainer) {
-                videoContainer.style.pointerEvents = 'auto';
-                videoContainer.addEventListener('click', function(e) {
-                    if (e.target === videoContainer || e.target === video) {
-                        if (video.paused) {
-                            video.play().catch(function() {});
-                        }
-                    }
-                });
-            }
+            // When video is paused (by user or system), show play button
+            video.addEventListener('pause', function() {
+                if (playBtn && video.paused) {
+                    playBtn.style.display = "flex";
+                }
+            });
         });
     }
 

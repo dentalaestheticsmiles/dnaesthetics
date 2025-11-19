@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="visibility:hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Favicon - Simple SVG dental icon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%237C3AED' d='M50 20c-15 0-25 10-25 25 0 10 5 15 10 20 5 5 10 10 15 15 5-5 10-10 15-15 5-5 10-10 10-20 0-15-10-25-25-25z'/%3E%3C/svg%3E">
+    <!-- Favicon removed - No icon in browser tab or URL -->
     
     <!-- SEO Meta Tags -->
     <title>DNA Clinic - Dental and Aesthetics | Premium Dental Care</title>
@@ -38,20 +37,20 @@
     <link rel="dns-prefetch" href="https://images.unsplash.com">
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
     
-    <!-- Preload critical resources for LCP - Performance Optimization -->
+    <!-- Performance: Preload critical resources for LCP -->
     <link rel="preload" href="styles.css" as="style">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style" crossorigin="anonymous">
-    <!-- Preload LCP images: brand mini images and deepika.png (above-the-fold) -->
+    <!-- Preload LCP images: brand mini images (above-the-fold, critical for LCP) -->
     <link rel="preload" href="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=40&q=75&auto=format&fit=crop" as="image" fetchpriority="high" crossorigin="anonymous">
     <link rel="preload" href="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=40&q=75&auto=format&fit=crop" as="image" fetchpriority="high" crossorigin="anonymous">
-    <link rel="preload" href="deepika.png" as="image" type="image/png" fetchpriority="high">
     
-    <!-- Critical CSS Inline - Prevents FOUC -->
+    <!-- Critical CSS Inline - Prevents FOUC: Hide content until CSS loads -->
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--primary-color:#7C3AED;--secondary-color:#6B46C1;--accent-color:#F59E0B;--dark-color:#1E293B;--light-color:#F3E8FF;--text-dark:#1a1a1a;--text-light:#666;--white:#ffffff}
-        html{scroll-behavior:smooth}
-        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:var(--text-dark);line-height:1.6;overflow-x:hidden}
+        html{scroll-behavior:smooth;visibility:hidden}
+        html.css-loaded{visibility:visible}
+        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:var(--text-dark);line-height:1.6;overflow-x:hidden;visibility:hidden}
+        body.css-loaded{visibility:visible}
         .navbar{position:fixed;top:0;width:100%;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,0.1);z-index:1000;transition:all 0.3s ease;padding:1rem 0}
         .nav-brand{display:flex;align-items:center;gap:1rem}
         .brand-icon-wrapper{display:flex;align-items:center;position:relative}
@@ -77,13 +76,17 @@
         @media(max-width:768px){.hero-title{font-size:2rem}.nav-menu{display:none}.hamburger{display:flex}}
     </style>
     
-    <!-- Deferred CSS with FOUC prevention - Optimized for performance -->
-    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="styles.css"></noscript>
+    <!-- Deferred CSS with FOUC prevention - Load async, show content when ready -->
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet';document.documentElement.classList.add('css-loaded');document.body.classList.add('css-loaded')">
+    <noscript><link rel="stylesheet" href="styles.css"><script>document.documentElement.classList.add('css-loaded');document.body.classList.add('css-loaded')</script></noscript>
+    <script>
+        // Fallback: Show content if CSS doesn't load within 1s
+        setTimeout(function(){if(!document.documentElement.classList.contains('css-loaded')){document.documentElement.classList.add('css-loaded');document.body.classList.add('css-loaded')}},1000);
+    </script>
     
-    <!-- Fonts with font-display: swap and crossorigin -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous"></noscript>
+    <!-- Fonts Optimization: Only load weights 400,600,700 (removed 300,800), display=swap, async load -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" crossorigin="anonymous" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" crossorigin="anonymous"></noscript>
     
     <!-- Font Awesome - Deferred with crossorigin -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
@@ -170,35 +173,33 @@
     }
     </script>
     
-    <!-- EmailJS SDK - Load after LCP to avoid blocking -->
+    <!-- EmailJS SDK - Lazy load after user interaction or 2s idle (Performance: Non-blocking) -->
     <script>
-        // Load EmailJS after page is interactive (non-blocking)
-        if('requestIdleCallback' in window){
-            requestIdleCallback(function(){
-                var script=document.createElement('script');
-                script.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-                script.defer=true;
-                script.crossOrigin='anonymous';
-                script.onload=function(){if(typeof emailjs!=='undefined'){emailjs.init('2fdaHy-1vPUqWh23A')}};
-                document.head.appendChild(script);
-            },{timeout:2000});
-        }else{
-            setTimeout(function(){
-                var script=document.createElement('script');
-                script.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-                script.defer=true;
-                script.crossOrigin='anonymous';
-                script.onload=function(){if(typeof emailjs!=='undefined'){emailjs.init('2fdaHy-1vPUqWh23A')}};
-                document.head.appendChild(script);
-            },1000);
+        // Load EmailJS only after first user interaction or 2s idle - prevents blocking
+        function loadEmailJS(){
+            var script=document.createElement('script');
+            script.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+            script.defer=true;
+            script.crossOrigin='anonymous';
+            script.onload=function(){if(typeof emailjs!=='undefined'){emailjs.init('2fdaHy-1vPUqWh23A')}};
+            document.head.appendChild(script);
         }
+        var emailJSLoaded=false;
+        function initEmailJS(){
+            if(emailJSLoaded)return;
+            emailJSLoaded=true;
+            if('requestIdleCallback' in window){
+                requestIdleCallback(loadEmailJS,{timeout:2000});
+            }else{
+                setTimeout(loadEmailJS,2000);
+            }
+        }
+        // Load on first user interaction
+        ['click','touchstart','scroll'].forEach(function(e){document.addEventListener(e,initEmailJS,{once:true,passive:true})});
+        // Or load after 2s if no interaction
+        setTimeout(initEmailJS,2000);
     </script>
     
-    <!-- Load CSS asynchronously script with FOUC prevention -->
-    <script>
-        !function(e){"use strict";var t=function(t,n,o){var i,r=e.document,a=r.createElement("link");if(n)i=n;else{var l=(r.body||r.getElementsByTagName("head")[0]).childNodes;i=l[l.length-1]}var d=r.styleSheets;a.rel="stylesheet",a.href=t,a.media="only x",function e(t){if(r.body)return t();setTimeout(function(){e(t)})}(function(){i.parentNode.insertBefore(a,n?i:i.nextSibling)});var f=function(e){for(var t=a.href,n=r.styleSheets,o=0;o<n.length;o++)if(n[o].href===t)return e();setTimeout(function(){f(e)})};return a.addEventListener&&a.addEventListener("load",function(){this.media=o||"all";e.document.documentElement.classList.add('loaded');e.document.body.classList.add('loaded')}),a.onloadcssdefined=f,f(function(){a.media!==o&&(a.media=o||"all");e.document.documentElement.classList.add('loaded');e.document.body.classList.add('loaded')}),a};"undefined"!=typeof exports?exports.loadCSS=t:e.loadCSS=t}("undefined"!=typeof global?global:this);
-        loadCSS("styles.css");
-    </script>
 </head>
 <body>
     <!-- Pop-up Modal -->

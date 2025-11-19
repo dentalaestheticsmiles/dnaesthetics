@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="visibility:hidden" class="no-js">
+<html lang="en" class="no-js">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,22 +40,15 @@
     
     <!-- Performance: Preload critical resources for LCP -->
     <link rel="preload" href="styles.css" as="style">
-    <!-- Preload LCP images removed - images load naturally with lazy loading -->
     
     <!-- Critical CSS Inline - Prevents FOUC: Hide content until CSS loads -->
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--primary-color:#7C3AED;--secondary-color:#6B46C1;--accent-color:#F59E0B;--dark-color:#1E293B;--light-color:#F3E8FF;--text-dark:#1a1a1a;--text-light:#666;--white:#ffffff}
-        html{scroll-behavior:smooth;visibility:hidden}
-        html.css-loaded,html.loaded,html:not(.no-js),html[style*="visibility: visible"]{visibility:visible !important}
-        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:var(--text-dark);line-height:1.6;overflow-x:hidden;visibility:hidden}
-        body.css-loaded,body.loaded,html:not(.no-js) body,body[style*="visibility: visible"]{visibility:visible !important}
-        /* Fallback: If JavaScript is disabled, show content anyway */
-        html.no-js{visibility:visible !important}
-        html.no-js body{visibility:visible !important}
-        /* Emergency fallback: Show content after 500ms regardless */
-        @keyframes showContent{to{visibility:visible}}
-        html{animation:showContent 0.01s 0.5s forwards}
+        html{scroll-behavior:smooth}
+        html.no-js{opacity:1}
+        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:var(--text-dark);line-height:1.6;overflow-x:hidden;opacity:0;transition:opacity 0.3s ease}
+        body.css-loaded,body.loaded,html.no-js body{opacity:1}
         .navbar{position:fixed;top:0;width:100%;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,0.1);z-index:1000;transition:all 0.3s ease;padding:1rem 0}
         .nav-brand{display:flex;align-items:center;gap:1rem}
         .brand-icon-wrapper{display:flex;align-items:center;position:relative;flex-shrink:0}
@@ -81,82 +74,39 @@
         @media(max-width:768px){.hero-title{font-size:2rem}.nav-menu{display:none}.hamburger{display:flex}}
     </style>
     
-    <!-- CSS Loading with FOUC prevention - Mobile-optimized -->
-    <link rel="stylesheet" href="styles.css" media="print" onload="
-        this.media='all';
-        this.onload=null;
-        var html = document.documentElement;
-        html.classList.add('css-loaded','loaded');
-        html.style.visibility = 'visible';
-        var addBodyClass = function(){
-            if(document.body){
-                document.body.classList.add('css-loaded','loaded');
-                document.body.style.visibility = 'visible';
-            }
-        };
-        if(document.body){addBodyClass();}else{window.addEventListener('DOMContentLoaded',addBodyClass);}
-    ">
-    <noscript><link rel="stylesheet" href="styles.css"><script>var h=document.documentElement;h.classList.add('css-loaded','loaded');h.style.visibility='visible';if(document.body){document.body.classList.add('css-loaded','loaded');document.body.style.visibility='visible'}</script></noscript>
+    <!-- CSS Loading - Safari-safe, no CSP violations -->
+    <link rel="stylesheet" href="styles.css">
+    <noscript><link rel="stylesheet" href="styles.css"></noscript>
     <script>
-        // CRITICAL: Remove no-js class and show content IMMEDIATELY (prevents blank screen)
+        // Safari-safe: Remove no-js class and show content (no eval, no CSP violations)
         (function(){
             var html = document.documentElement;
-            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            var body = document.body;
             
             // Remove no-js class immediately
             html.classList.remove('no-js');
             
-            // AGGRESSIVE FALLBACK: Show content immediately for mobile (100ms), desktop (150ms)
-            // This ensures page is NEVER blank for more than 100-150ms
-            var immediateTimeout = isMobile ? 100 : 150;
-            setTimeout(function(){
+            // Show content when CSS loads or after short delay
+            function showContent(){
                 html.classList.add('css-loaded', 'loaded');
-                html.style.visibility = 'visible'; // Force override inline style
-                if(document.body){
-                    document.body.classList.add('css-loaded', 'loaded');
-                    document.body.style.visibility = 'visible'; // Force override inline style
-                }
-            }, immediateTimeout);
-            
-            // Secondary fallback: Show content after CSS should have loaded
-            setTimeout(function(){
-                html.classList.add('css-loaded', 'loaded');
-                html.style.visibility = 'visible';
-                if(document.body){
-                    document.body.classList.add('css-loaded', 'loaded');
-                    document.body.style.visibility = 'visible';
-                }
-            }, isMobile ? 300 : 600);
-            
-            // DOMContentLoaded fallback (ensures content shows when DOM is ready)
-            if(document.readyState === 'loading'){
-                document.addEventListener('DOMContentLoaded', function(){
-                    html.classList.add('css-loaded', 'loaded');
-                    html.style.visibility = 'visible';
-                    if(document.body){
-                        document.body.classList.add('css-loaded', 'loaded');
-                        document.body.style.visibility = 'visible';
-                    }
-                });
-            }else{
-                // DOM already loaded, show immediately
-                html.classList.add('css-loaded', 'loaded');
-                html.style.visibility = 'visible';
-                if(document.body){
-                    document.body.classList.add('css-loaded', 'loaded');
-                    document.body.style.visibility = 'visible';
+                if(body){
+                    body.classList.add('css-loaded', 'loaded');
                 }
             }
             
-            // Window load fallback (absolute last resort - should never be needed)
-            window.addEventListener('load', function(){
-                html.classList.add('css-loaded', 'loaded');
-                html.style.visibility = 'visible';
-                if(document.body){
-                    document.body.classList.add('css-loaded', 'loaded');
-                    document.body.style.visibility = 'visible';
-                }
-            }, { once: true });
+            // Show content on DOMContentLoaded (Safari-safe)
+            if(document.readyState === 'loading'){
+                document.addEventListener('DOMContentLoaded', showContent);
+            }else{
+                showContent();
+            }
+            
+            // Fallback: Show after 200ms (mobile) or 400ms (desktop)
+            var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            setTimeout(showContent, isMobile ? 200 : 400);
+            
+            // Final fallback on window load
+            window.addEventListener('load', showContent, {once: true});
         })();
     </script>
     
@@ -164,9 +114,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" crossorigin="anonymous" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" crossorigin="anonymous"></noscript>
     
-    <!-- Font Awesome - Deferred with crossorigin -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous"></noscript>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
     
     <!-- TailwindCSS replaced with custom CSS - see styles.css for testimonial section styles -->
     
@@ -1354,7 +1303,8 @@
                                 class="dna-video absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
                                 playsinline
                                 webkit-playsinline
-                                preload="auto"
+                                preload="metadata"
+                                muted
                                 disablePictureInPicture
                                 controlsList="nodownload noremoteplayback"
                                 width="400" 
@@ -1391,7 +1341,8 @@
                                 class="dna-video absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
                                 playsinline
                                 webkit-playsinline
-                                preload="auto"
+                                preload="metadata"
+                                muted
                                 disablePictureInPicture
                                 controlsList="nodownload noremoteplayback"
                                 width="400" 
@@ -1427,7 +1378,8 @@
                                 class="dna-video absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
                                 playsinline
                                 webkit-playsinline
-                                preload="auto"
+                                preload="metadata"
+                                muted
                                 disablePictureInPicture
                                 controlsList="nodownload noremoteplayback"
                                 width="400" 
@@ -1463,7 +1415,8 @@
                                 class="dna-video absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
                                 playsinline
                                 webkit-playsinline
-                                preload="auto"
+                                preload="metadata"
+                                muted
                                 disablePictureInPicture
                                 controlsList="nodownload noremoteplayback"
                                 width="400" 
@@ -1499,7 +1452,8 @@
                                 class="dna-video absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
                                 playsinline
                                 webkit-playsinline
-                                preload="auto"
+                                preload="metadata"
+                                muted
                                 disablePictureInPicture
                                 controlsList="nodownload noremoteplayback"
                                 width="400" 

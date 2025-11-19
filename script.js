@@ -1162,16 +1162,21 @@ document.addEventListener("DOMContentLoaded", function() {
             
             // CRITICAL: Ensure video NEVER autoplays (prevent autoplay on desktop and mobile)
             video.removeAttribute('autoplay');
-            video.removeAttribute('muted');
             video.removeAttribute('loop');
             video.setAttribute('autoplay', 'false');
-            video.muted = false;
             video.autoplay = false;
             video.loop = false;
             
-            // Set iOS-specific attributes
+            // Set iOS-specific attributes for mobile Safari
             video.setAttribute('playsinline', 'true');
             video.setAttribute('webkit-playsinline', 'true');
+            
+            // For mobile: Keep muted initially for preview, will unmute on play
+            var isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobileDevice) {
+                video.muted = true; // Required for iOS autoplay of preview
+                video.setAttribute('muted', 'true');
+            }
             
             // Function to show first frame preview (works on desktop and mobile)
             function showFirstFrame() {
@@ -1180,18 +1185,39 @@ document.addEventListener("DOMContentLoaded", function() {
                     try {
                         video.currentTime = 0.1;
                         video.pause();
+                        // Ensure video is visible (not black)
+                        video.style.opacity = '1';
                     } catch (e) {
                         // If seeking fails, try 0.01
                         try {
                             video.currentTime = 0.01;
                             video.pause();
+                            video.style.opacity = '1';
                         } catch (e2) {
                             // If that also fails, just pause at current position
                             video.pause();
+                            video.style.opacity = '1';
                         }
                     }
                 }
             }
+            
+            // Ensure video shows preview immediately when metadata loads
+            video.addEventListener('loadedmetadata', function() {
+                showFirstFrame();
+                // Force video to show first frame
+                if (video.readyState >= 1) {
+                    try {
+                        video.currentTime = 0.1;
+                    } catch (e) {
+                        try {
+                            video.currentTime = 0.01;
+                        } catch (e2) {
+                            // Ignore
+                        }
+                    }
+                }
+            }, { once: true });
             
             // Prevent any accidental autoplay
             video.addEventListener('play', function(e) {
@@ -1203,10 +1229,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }, { once: false });
             
             // Load first frame to show preview instead of black screen (desktop + mobile)
-            video.addEventListener('loadedmetadata', function() {
-                showFirstFrame();
-            }, { once: true });
-            
             video.addEventListener('loadeddata', function() {
                 showFirstFrame();
             }, { once: true });
@@ -1315,22 +1337,40 @@ document.addEventListener("DOMContentLoaded", function() {
             fullscreenBtn.setAttribute('type', 'button');
             wrapper.appendChild(fullscreenBtn);
             
-            // Click play button → start video (user-initiated)
+            // Click play button → start video (user-initiated) - Mobile Safari compatible
             if (playBtn) {
-                playBtn.addEventListener('click', function(e) {
+                var handlePlayClick = function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     if (video) {
                         video.userInitiated = true; // Mark as user-initiated
                         playBtn.style.display = "none";
-                        video.play().then(function() {
-                            video.userInitiated = false; // Reset after play starts
-                        }).catch(function(error) {
-                            // Silently handle autoplay restrictions
-                            playBtn.style.display = "flex";
-                            video.userInitiated = false;
-                        });
+                        
+                        // For mobile Safari: Unmute before playing
+                        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                        if (isMobile && video.muted) {
+                            video.muted = false;
+                            video.removeAttribute('muted');
+                        }
+                        
+                        var playPromise = video.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(function() {
+                                video.userInitiated = false; // Reset after play starts
+                            }).catch(function(error) {
+                                // Silently handle autoplay restrictions
+                                playBtn.style.display = "flex";
+                                video.userInitiated = false;
+                            });
+                        }
                     }
+                };
+                
+                // Add both click and touchstart for mobile Safari
+                playBtn.addEventListener('click', handlePlayClick);
+                playBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    handlePlayClick(e);
                 });
             }
             
@@ -1361,8 +1401,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
             
-            // Clicking video toggles play/pause (single click) - user-initiated only
-            video.addEventListener('click', function(e) {
+            // Clicking video toggles play/pause (single click/tap) - Mobile Safari compatible
+            var handleVideoClick = function(e) {
                 // Don't interfere if clicking the fullscreen button
                 if (e.target === fullscreenBtn || e.target.closest('.video-fullscreen-btn')) {
                     return;
@@ -1374,18 +1414,36 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (video.paused) {
                     video.userInitiated = true; // Mark as user-initiated
                     if (playBtn) playBtn.style.display = "none";
-                    video.play().then(function() {
-                        video.userInitiated = false; // Reset after play starts
-                    }).catch(function(error) {
-                        // Silently handle autoplay restrictions
-                        if (playBtn) playBtn.style.display = "flex";
-                        video.userInitiated = false;
-                    });
+                    
+                    // For mobile Safari: Unmute before playing
+                    var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    if (isMobile && video.muted) {
+                        video.muted = false;
+                        video.removeAttribute('muted');
+                    }
+                    
+                    var playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(function() {
+                            video.userInitiated = false; // Reset after play starts
+                        }).catch(function(error) {
+                            // Silently handle autoplay restrictions
+                            if (playBtn) playBtn.style.display = "flex";
+                            video.userInitiated = false;
+                        });
+                    }
                 } else {
                     video.pause();
                     if (playBtn) playBtn.style.display = "flex";
                     video.userInitiated = false;
                 }
+            };
+            
+            // Add both click and touchstart for mobile Safari
+            video.addEventListener('click', handleVideoClick, { passive: false });
+            video.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                handleVideoClick(e);
             }, { passive: false });
             
             // Double-click video to enter/exit fullscreen (desktop and mobile)

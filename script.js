@@ -1,6 +1,6 @@
 // ============================================
 // DNA CLINIC WEBSITE - MAIN JAVASCRIPT FILE
-// All code wrapped in DOMContentLoaded to prevent null errors
+// Fully error-proof with all null checks and safe DOM handling
 // ============================================
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -37,21 +37,32 @@ document.addEventListener("DOMContentLoaded", function() {
         const navMenu = document.getElementById('navMenu');
         
         if (hamburger && navMenu) {
-            hamburger.addEventListener('click', function() {
-                hamburger.classList.toggle('active');
-                navMenu.classList.toggle('active');
-                const isExpanded = hamburger.classList.contains('active');
-                hamburger.setAttribute('aria-expanded', isExpanded);
-            });
+            // Remove any existing listeners to prevent duplicates
+            const newHamburger = hamburger.cloneNode(true);
+            hamburger.parentNode.replaceChild(newHamburger, hamburger);
+            const newNavMenu = navMenu.cloneNode(true);
+            navMenu.parentNode.replaceChild(newNavMenu, navMenu);
             
-            // Close mobile menu when clicking on a link
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    hamburger.classList.remove('active');
-                    navMenu.classList.remove('active');
+            const freshHamburger = document.getElementById('hamburger');
+            const freshNavMenu = document.getElementById('navMenu');
+            
+            if (freshHamburger && freshNavMenu) {
+                freshHamburger.addEventListener('click', function() {
+                    freshHamburger.classList.toggle('active');
+                    freshNavMenu.classList.toggle('active');
+                    const isExpanded = freshHamburger.classList.contains('active');
+                    freshHamburger.setAttribute('aria-expanded', isExpanded);
                 });
-            });
+                
+                // Close mobile menu when clicking on a link
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (freshHamburger) freshHamburger.classList.remove('active');
+                        if (freshNavMenu) freshNavMenu.classList.remove('active');
+                    });
+                });
+            }
         }
     }
     initMobileMenu();
@@ -62,18 +73,22 @@ document.addEventListener("DOMContentLoaded", function() {
     let sections, navLinksAll, scrollTicking = false;
     
     function activeLink() {
-        if (!sections || !navLinksAll) return;
+        if (!sections || !navLinksAll || sections.length === 0 || navLinksAll.length === 0) return;
         let current = '';
         sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            if (window.scrollY >= sectionTop - 200) {
-                current = section.getAttribute('id');
+            if (section && section.offsetTop !== undefined) {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
             }
         });
         navLinksAll.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${current}`) {
-                link.classList.add('active');
+            if (link) {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
             }
         });
     }
@@ -140,32 +155,43 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Close modal
+    // Close modal handlers
     if (closeModal && welcomeModal) {
-        closeModal.addEventListener('click', function() {
-            if (welcomeModal) {
-                welcomeModal.classList.remove('show');
-                // Show expert modal after welcome modal closes (if enough time has passed)
-                setTimeout(() => {
-                    if (typeof showExpertModal === 'function') {
-                        showExpertModal();
-                    }
-                }, 2000);
-            }
-        });
+        // Remove any existing listeners
+        const newCloseModal = closeModal.cloneNode(true);
+        closeModal.parentNode.replaceChild(newCloseModal, closeModal);
+        const freshCloseModal = document.querySelector('.close-modal');
+        
+        if (freshCloseModal) {
+            freshCloseModal.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (welcomeModal) {
+                    welcomeModal.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                    // Show expert modal after welcome modal closes (if enough time has passed)
+                    setTimeout(() => {
+                        if (typeof showExpertModal === 'function') {
+                            showExpertModal();
+                        }
+                    }, 2000);
+                }
+            });
 
-        // Close modal when clicking outside
-        welcomeModal.addEventListener('click', function(event) {
-            if (event.target === welcomeModal) {
-                welcomeModal.classList.remove('show');
-                // Show expert modal after welcome modal closes (if enough time has passed)
-                setTimeout(() => {
-                    if (typeof showExpertModal === 'function') {
-                        showExpertModal();
-                    }
-                }, 2000);
-            }
-        });
+            // Close modal when clicking outside
+            welcomeModal.addEventListener('click', function(event) {
+                if (event.target === welcomeModal) {
+                    welcomeModal.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                    // Show expert modal after welcome modal closes
+                    setTimeout(() => {
+                        if (typeof showExpertModal === 'function') {
+                            showExpertModal();
+                        }
+                    }, 2000);
+                }
+            });
+        }
     }
 
     // ============================================
@@ -219,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let lastScrollY = window.pageYOffset;
         let scrollDirection = 'down';
         
-        // Optimized scroll behavior tracking (using requestAnimationFrame)
+        // Optimized scroll behavior tracking
         let behaviorScrollTicking = false;
         function trackScrollBehavior() {
             const currentScrollY = window.pageYOffset || window.scrollY;
@@ -227,7 +253,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
             const scrollPercent = (scrollTop / docHeight) * 100;
             
-            // Track scroll history (last 10 positions)
+            // Track scroll history
             userBehavior.scrollHistory.push({
                 position: scrollTop,
                 time: Date.now()
@@ -236,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 userBehavior.scrollHistory.shift();
             }
             
-            // Detect scroll direction changes (indicates confusion/indecision)
+            // Detect scroll direction changes
             const newDirection = currentScrollY > lastScrollY ? 'down' : 'up';
             if (newDirection !== scrollDirection && Math.abs(currentScrollY - lastScrollY) > 100) {
                 userBehavior.scrollDirectionChanges++;
@@ -247,15 +273,12 @@ document.addEventListener("DOMContentLoaded", function() {
             // Track if user is in services section
             const inServices = scrollTop >= servicesSectionTop - 200 && scrollTop <= servicesSectionBottom + 200;
             if (inServices && !isInServicesSection) {
-                // User just entered services section
                 isInServicesSection = true;
                 userBehavior.servicesSectionVisited = true;
             } else if (!inServices && isInServicesSection) {
-                // User left services section
                 isInServicesSection = false;
                 userBehavior.servicesScrollCount++;
                 
-                // If user scrolls back to services, they might be confused
                 if (scrollTop < servicesSectionTop) {
                     userBehavior.scrollBackToServices++;
                 }
@@ -273,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }, { passive: true });
 
-        // Track clicks (user taking action)
+        // Track clicks
         document.addEventListener('click', function() {
             userBehavior.clicksCount++;
             userBehavior.lastActionTime = Date.now();
@@ -287,25 +310,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Check if user seems clueless/confused
     function userSeemsClueless() {
-        // User has been on page for a while without taking action
         const timeSinceLastAction = Date.now() - userBehavior.lastActionTime;
         const noActionForAWhile = timeSinceLastAction > EXPERT_CONFIG.CONFUSION_TIME;
-        
-        // User has scrolled through services multiple times (looking but not sure)
         const scrolledServicesMultipleTimes = userBehavior.servicesScrollCount >= EXPERT_CONFIG.SERVICES_SCROLL_THRESHOLD;
-        
-        // User is scrolling back and forth (indecision)
         const scrollingBackAndForth = userBehavior.scrollDirectionChanges > 8;
-        
-        // User scrolled back to services after leaving (reconsidering)
         const reconsideringServices = userBehavior.scrollBackToServices >= 2;
-        
-        // User has been on page for a while, scrolled through services, but hasn't clicked much
         const engagedButInactive = userBehavior.timeOnPage > 60 * 1000 && 
                                     userBehavior.servicesSectionVisited && 
                                     userBehavior.clicksCount < 3;
         
-        // Return true if any of these "clueless" indicators are present
         return (noActionForAWhile && userBehavior.servicesSectionVisited) ||
                scrolledServicesMultipleTimes ||
                (scrollingBackAndForth && userBehavior.servicesSectionVisited) ||
@@ -323,39 +336,47 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Check if modal was closed by user
     function wasModalClosed() {
-        return localStorage.getItem(EXPERT_CONFIG.CLOSED_KEY) === 'true';
+        try {
+            return localStorage.getItem(EXPERT_CONFIG.CLOSED_KEY) === 'true';
+        } catch (e) {
+            return false;
+        }
     }
 
     // Check if enough time has passed since last shown
     function shouldShowBasedOnTime() {
-        const lastShown = localStorage.getItem(EXPERT_CONFIG.MODAL_KEY);
-        if (!lastShown) {
-            return true; // Never shown before
+        try {
+            const lastShown = localStorage.getItem(EXPERT_CONFIG.MODAL_KEY);
+            if (!lastShown) {
+                return true;
+            }
+            const timeSinceLastShown = Date.now() - parseInt(lastShown);
+            return timeSinceLastShown >= EXPERT_CONFIG.INTERVAL;
+        } catch (e) {
+            return true;
         }
-        const timeSinceLastShown = Date.now() - parseInt(lastShown);
-        return timeSinceLastShown >= EXPERT_CONFIG.INTERVAL;
     }
 
     // Check if enough time has passed since user closed it
     function enoughTimeAfterClose() {
-        const closedTime = localStorage.getItem(EXPERT_CONFIG.CLOSED_KEY + '_time');
-        if (!closedTime) {
-            return true; // Never closed before
+        try {
+            const closedTime = localStorage.getItem(EXPERT_CONFIG.CLOSED_KEY + '_time');
+            if (!closedTime) {
+                return true;
+            }
+            const timeSinceClose = Date.now() - parseInt(closedTime);
+            return timeSinceClose >= EXPERT_CONFIG.MIN_TIME_AFTER_CLOSE;
+        } catch (e) {
+            return true;
         }
-        const timeSinceClose = Date.now() - parseInt(closedTime);
-        return timeSinceClose >= EXPERT_CONFIG.MIN_TIME_AFTER_CLOSE;
     }
 
     // Determine if modal should be shown
     function shouldShowExpertModal() {
-        // Don't show if modal is already visible
         if (!expertConsultationModal || expertConsultationModal.classList.contains('show')) {
             return false;
         }
         
-        // If never closed, show when:
-        // 1. User is browsing services section
-        // 2. Enough time has passed
         if (!wasModalClosed()) {
             if (shouldShowBasedOnTime() && isBrowsingServices()) {
                 return true;
@@ -363,10 +384,6 @@ document.addEventListener("DOMContentLoaded", function() {
             return false;
         }
         
-        // If closed before, only show if:
-        // 1. Enough time has passed since last shown
-        // 2. Enough time has passed since user closed it
-        // 3. User seems clueless/confused (needs help)
         if (shouldShowBasedOnTime() && enoughTimeAfterClose() && userSeemsClueless()) {
             return true;
         }
@@ -381,9 +398,12 @@ document.addEventListener("DOMContentLoaded", function() {
         if (shouldShowExpertModal()) {
             expertConsultationModal.classList.add('show');
             document.body.style.overflow = 'hidden';
-            localStorage.setItem(EXPERT_CONFIG.MODAL_KEY, Date.now().toString());
+            try {
+                localStorage.setItem(EXPERT_CONFIG.MODAL_KEY, Date.now().toString());
+            } catch (e) {
+                // localStorage not available
+            }
             
-            // Reset some behavior tracking to avoid immediate re-triggering
             userBehavior.scrollDirectionChanges = 0;
             userBehavior.scrollBackToServices = 0;
         }
@@ -394,21 +414,31 @@ document.addEventListener("DOMContentLoaded", function() {
         if (expertConsultationModal) {
             expertConsultationModal.classList.remove('show');
             document.body.style.overflow = 'auto';
-            localStorage.setItem(EXPERT_CONFIG.CLOSED_KEY, 'true');
-            localStorage.setItem(EXPERT_CONFIG.CLOSED_KEY + '_time', Date.now().toString());
+            try {
+                localStorage.setItem(EXPERT_CONFIG.CLOSED_KEY, 'true');
+                localStorage.setItem(EXPERT_CONFIG.CLOSED_KEY + '_time', Date.now().toString());
+            } catch (e) {
+                // localStorage not available
+            }
             
-            // Reset behavior tracking when user closes
             userBehavior.lastActionTime = Date.now();
         }
     }
 
-    // Set up close handlers
+    // Set up close handlers for expert modal
     if (expertCloseBtn && expertConsultationModal) {
-        expertCloseBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeExpertModal();
-        });
+        // Remove any existing listeners
+        const newExpertCloseBtn = expertCloseBtn.cloneNode(true);
+        expertCloseBtn.parentNode.replaceChild(newExpertCloseBtn, expertCloseBtn);
+        const freshExpertCloseBtn = document.querySelector('.expert-close-btn');
+        
+        if (freshExpertCloseBtn) {
+            freshExpertCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeExpertModal();
+            });
+        }
     }
 
     if (expertConsultationModal) {
@@ -419,34 +449,29 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Initialize behavior tracking immediately (lightweight, non-blocking)
+    // Initialize behavior tracking
     initBehaviorTracking();
     
-    // Defer expert modal logic to avoid blocking LCP
+    // Defer expert modal logic
     function initExpertModalSystem() {
-        // Check if welcome modal is showing
         const checkWelcomeModal = setInterval(function() {
             const welcomeShowing = welcomeModal && welcomeModal.classList.contains('show');
             
             if (!welcomeShowing) {
                 clearInterval(checkWelcomeModal);
                 
-                // Initial delay before first check (to avoid immediate popup)
                 setTimeout(function() {
-                    // Check periodically if modal should be shown (every 8 seconds - faster)
                     setInterval(function() {
                         if (expertConsultationModal && !expertConsultationModal.classList.contains('show')) {
                             showExpertModal();
                         }
-                    }, 8 * 1000); // Check every 8 seconds
+                    }, 8 * 1000);
                 }, EXPERT_CONFIG.INITIAL_DELAY);
             }
         }, 500);
         
-        // Also check when user scrolls through services (faster response)
         window.addEventListener('scroll', function() {
             if (isBrowsingServices() && expertConsultationModal && !expertConsultationModal.classList.contains('show')) {
-                // Debounce: only check after user stops scrolling for 1 second
                 clearTimeout(window.servicesScrollTimeout);
                 window.servicesScrollTimeout = setTimeout(function() {
                     if (shouldShowExpertModal()) {
@@ -457,7 +482,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }, { passive: true });
     }
     
-    // Use requestIdleCallback to defer modal initialization (non-blocking)
     if ('requestIdleCallback' in window) {
         requestIdleCallback(initExpertModalSystem, { timeout: 3000 });
     } else {
@@ -467,14 +491,16 @@ document.addEventListener("DOMContentLoaded", function() {
     // ============================================
     // SMOOTH SCROLLING FOR ANCHOR LINKS
     // ============================================
+    // IMPORTANT: Skip the kids appointment button to prevent conflicts
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        // Skip the kids appointment button
-        if (anchor.id === 'kidsAppointmentBtn') {
+        // Skip the kids appointment button - it should open modal, not scroll
+        if (anchor.id === 'kidsAppointmentBtn' || anchor.getAttribute('href') === '#kidsAppointmentModal') {
             return;
         }
+        
         anchor.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
-            if (href !== '#' && href !== '') {
+            if (href && href !== '#' && href !== '') {
                 e.preventDefault();
                 const target = document.querySelector(href);
                 if (target) {
@@ -496,7 +522,7 @@ document.addEventListener("DOMContentLoaded", function() {
         appointmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form data
+            // Get form data with null checks
             const nameInput = document.getElementById('contactName');
             const emailInput = document.getElementById('contactEmail');
             const phoneInput = document.getElementById('contactPhone');
@@ -504,14 +530,20 @@ document.addEventListener("DOMContentLoaded", function() {
             const messageInput = document.getElementById('contactMessage');
             
             if (!nameInput || !emailInput || !phoneInput || !serviceInput || !messageInput) {
+                alert('Please fill in all required fields.');
                 return;
             }
             
-            const name = nameInput.value;
-            const email = emailInput.value;
-            const phone = phoneInput.value;
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const phone = phoneInput.value.trim();
             const service = serviceInput.value;
-            const message = messageInput.value;
+            const message = messageInput.value.trim();
+
+            if (!name || !email || !phone || !service) {
+                alert('Please fill in all required fields.');
+                return;
+            }
 
             // Create contact data object
             const contactData = {
@@ -559,7 +591,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(function(response) {
                     // Email sent successfully
                 }, function(error) {
-                    // Email sending failed - show user-friendly message
+                    // Email sending failed
                     alert('⚠️ There was an issue sending your contact request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your contact details have been saved.');
                 });
             }
@@ -590,157 +622,180 @@ document.addEventListener("DOMContentLoaded", function() {
             kidDateInput.setAttribute('min', today);
         }
 
-        // Open Kids Modal
+        // Open Kids Modal - with proper event handling
         if (kidsAppointmentBtn && kidsAppointmentModal) {
-            // Remove href to prevent navigation
-            kidsAppointmentBtn.setAttribute('href', 'javascript:void(0);');
+            // Remove any existing listeners by cloning
+            const newBtn = kidsAppointmentBtn.cloneNode(true);
+            kidsAppointmentBtn.parentNode.replaceChild(newBtn, kidsAppointmentBtn);
+            const freshBtn = document.getElementById('kidsAppointmentBtn');
             
-            // Add click handler with capture phase for higher priority
-            kidsAppointmentBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                if (kidsAppointmentModal) {
-                    kidsAppointmentModal.classList.add('show');
-                    document.body.style.overflow = 'hidden';
-                }
-                return false;
-            }, true);
-            
-            // Also add as regular listener as backup
-            kidsAppointmentBtn.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (kidsAppointmentModal) {
-                    kidsAppointmentModal.classList.add('show');
-                    document.body.style.overflow = 'hidden';
-                }
-                return false;
-            };
+            if (freshBtn) {
+                // Remove href to prevent navigation
+                freshBtn.setAttribute('href', 'javascript:void(0);');
+                
+                // Single click handler with proper event handling
+                freshBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
+                    if (kidsAppointmentModal) {
+                        kidsAppointmentModal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+                    }
+                    return false;
+                }, true); // Use capture phase
+            }
         }
 
         // Close Kids Modal
         if (kidsCloseModal && kidsAppointmentModal) {
-            kidsCloseModal.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (kidsAppointmentModal) {
-                    kidsAppointmentModal.classList.remove('show');
-                    document.body.style.overflow = 'auto';
-                }
-            });
+            // Remove any existing listeners
+            const newCloseBtn = kidsCloseModal.cloneNode(true);
+            kidsCloseModal.parentNode.replaceChild(newCloseBtn, kidsCloseModal);
+            const freshCloseBtn = document.querySelector('.kids-close-modal');
+            
+            if (freshCloseBtn) {
+                freshCloseBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (kidsAppointmentModal) {
+                        kidsAppointmentModal.classList.remove('show');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            }
         }
 
         // Kids Form Submission
         if (kidsAppointmentForm) {
-            kidsAppointmentForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Get form data with null checks
-                const parentNameInput = document.getElementById('parentName');
-                const kidNameInput = document.getElementById('kidName');
-                const emailInput = document.getElementById('kidEmail');
-                const phoneInput = document.getElementById('kidPhone');
-                const serviceInput = document.getElementById('kidService');
-                const dateInput = document.getElementById('kidDate');
-                const timeInput = document.getElementById('kidTime');
-                const messageInput = document.getElementById('kidMessage');
-                
-                if (!parentNameInput || !kidNameInput || !emailInput || !phoneInput || 
-                    !serviceInput || !dateInput || !timeInput || !messageInput) {
-                    return;
-                }
-                
-                const parentName = parentNameInput.value;
-                const kidName = kidNameInput.value;
-                const email = emailInput.value;
-                const phone = phoneInput.value;
-                const service = serviceInput.value;
-                const date = dateInput.value;
-                const time = timeInput.value;
-                const message = messageInput.value;
+            // Remove any existing listeners
+            const newForm = kidsAppointmentForm.cloneNode(true);
+            kidsAppointmentForm.parentNode.replaceChild(newForm, kidsAppointmentForm);
+            const freshForm = document.getElementById('kidsAppointmentForm');
+            
+            if (freshForm) {
+                freshForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form data with null checks
+                    const parentNameInput = document.getElementById('parentName');
+                    const kidNameInput = document.getElementById('kidName');
+                    const emailInput = document.getElementById('kidEmail');
+                    const phoneInput = document.getElementById('kidPhone');
+                    const serviceInput = document.getElementById('kidService');
+                    const dateInput = document.getElementById('kidDate');
+                    const timeInput = document.getElementById('kidTime');
+                    const messageInput = document.getElementById('kidMessage');
+                    
+                    if (!parentNameInput || !kidNameInput || !emailInput || !phoneInput || 
+                        !serviceInput || !dateInput || !timeInput) {
+                        alert('Please fill in all required fields.');
+                        return;
+                    }
+                    
+                    const parentName = parentNameInput.value.trim();
+                    const kidName = kidNameInput.value.trim();
+                    const email = emailInput.value.trim();
+                    const phone = phoneInput.value.trim();
+                    const service = serviceInput.value;
+                    const date = dateInput.value;
+                    const time = timeInput.value;
+                    const message = messageInput ? messageInput.value.trim() : '';
 
-                // Format date for display
-                const formattedDate = new Date(date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
+                    if (!parentName || !kidName || !email || !phone || !service || !date || !time) {
+                        alert('Please fill in all required fields.');
+                        return;
+                    }
+
+                    // Format date for display
+                    let formattedDate = date;
+                    try {
+                        formattedDate = new Date(date).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                    } catch (e) {
+                        formattedDate = date;
+                    }
+
+                    // Create appointment data object
+                    const appointmentData = {
+                        parentName: parentName,
+                        kidName: kidName,
+                        email: email,
+                        phone: phone,
+                        service: service,
+                        date: date,
+                        formattedDate: formattedDate,
+                        time: time,
+                        message: message,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // Save to localStorage as backup
+                    try {
+                        let savedAppointments = JSON.parse(localStorage.getItem('dnaKidsAppointments') || '[]');
+                        savedAppointments.push(appointmentData);
+                        localStorage.setItem('dnaKidsAppointments', JSON.stringify(savedAppointments));
+                    } catch (error) {
+                        // localStorage not available or quota exceeded
+                    }
+
+                    // Send email using EmailJS
+                    const EMAILJS_CONFIG = {
+                        PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
+                        SERVICE_ID: 'service_13xdgm3',
+                        TEMPLATE_ID: 'template_lpjsx54'
+                    };
+
+                    // Prepare email data
+                    const emailData = {
+                        to_email: 'dentalaestheticsmiles@gmail.com',
+                        parent_name: parentName,
+                        kid_name: kidName,
+                        parent_email: email,
+                        phone: phone,
+                        service: service,
+                        appointment_date: formattedDate,
+                        appointment_time: time,
+                        message: message || 'No additional message'
+                    };
+
+                    // Send email via EmailJS
+                    if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
+                        emailjs.send(
+                            EMAILJS_CONFIG.SERVICE_ID,
+                            EMAILJS_CONFIG.TEMPLATE_ID,
+                            emailData,
+                            EMAILJS_CONFIG.PUBLIC_KEY
+                        )
+                        .then(function(response) {
+                            // Email sent successfully
+                        }, function(error) {
+                            // Email sending failed
+                            alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
+                        });
+                    }
+
+                    // Success message
+                    const successMessage = `🎉 Thank you, ${parentName}!\n\nWe're excited to meet ${kidName}!\n\nAppointment Details:\n📅 Date: ${formattedDate}\n⏰ Time: ${time}\n🦷 Service: ${service}\n\nWe'll contact you at ${phone} to confirm the appointment. See you soon! 😊`;
+                    
+                    alert(successMessage);
+                    
+                    // Reset form
+                    this.reset();
+                    
+                    // Close modal
+                    if (kidsAppointmentModal) {
+                        kidsAppointmentModal.classList.remove('show');
+                        document.body.style.overflow = 'auto';
+                    }
                 });
-
-                // Create appointment data object
-                const appointmentData = {
-                    parentName: parentName,
-                    kidName: kidName,
-                    email: email,
-                    phone: phone,
-                    service: service,
-                    date: date,
-                    formattedDate: formattedDate,
-                    time: time,
-                    message: message,
-                    timestamp: new Date().toISOString()
-                };
-
-                // Save to localStorage as backup
-                try {
-                    let savedAppointments = JSON.parse(localStorage.getItem('dnaKidsAppointments') || '[]');
-                    savedAppointments.push(appointmentData);
-                    localStorage.setItem('dnaKidsAppointments', JSON.stringify(savedAppointments));
-                } catch (error) {
-                    // localStorage not available or quota exceeded
-                }
-
-                // Send email using EmailJS
-                const EMAILJS_CONFIG = {
-                    PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
-                    SERVICE_ID: 'service_13xdgm3',
-                    TEMPLATE_ID: 'template_lpjsx54'
-                };
-
-                // Prepare email data
-                const emailData = {
-                    to_email: 'dentalaestheticsmiles@gmail.com',
-                    parent_name: parentName,
-                    kid_name: kidName,
-                    parent_email: email,
-                    phone: phone,
-                    service: service,
-                    appointment_date: formattedDate,
-                    appointment_time: time,
-                    message: message || 'No additional message'
-                };
-
-                // Send email via EmailJS
-                if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
-                    emailjs.send(
-                        EMAILJS_CONFIG.SERVICE_ID,
-                        EMAILJS_CONFIG.TEMPLATE_ID,
-                        emailData,
-                        EMAILJS_CONFIG.PUBLIC_KEY
-                    )
-                    .then(function(response) {
-                        // Email sent successfully
-                    }, function(error) {
-                        // Email sending failed - show user-friendly message
-                        alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
-                    });
-                }
-
-                // Success message
-                const successMessage = `🎉 Thank you, ${parentName}!\n\nWe're excited to meet ${kidName}!\n\nAppointment Details:\n📅 Date: ${formattedDate}\n⏰ Time: ${time}\n🦷 Service: ${service}\n\nWe'll contact you at ${phone} to confirm the appointment. See you soon! 😊`;
-                
-                alert(successMessage);
-                
-                // Reset form
-                this.reset();
-                
-                // Close modal
-                if (kidsAppointmentModal) {
-                    kidsAppointmentModal.classList.remove('show');
-                    document.body.style.overflow = 'auto';
-                }
-            });
+            }
         }
     }
     initKidsModal();
@@ -756,7 +811,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
         const observer = new IntersectionObserver(function(entries) {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                if (entry.isIntersecting && entry.target) {
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translate3d(0, 0, 0)';
                     observer.unobserve(entry.target);
@@ -769,13 +824,17 @@ document.addEventListener("DOMContentLoaded", function() {
             if (animationsLoaded) return;
             animationsLoaded = true;
             const animateElements = document.querySelectorAll('.service-card, .blog-card, .tour-item, .feature-item, .testimonial-card');
-            animateElements.forEach(el => {
-                el.style.opacity = '0';
-                el.style.transform = 'translate3d(0, 30px, 0)';
-                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                el.style.willChange = 'opacity, transform';
-                observer.observe(el);
-            });
+            if (animateElements && animateElements.length > 0) {
+                animateElements.forEach(el => {
+                    if (el) {
+                        el.style.opacity = '0';
+                        el.style.transform = 'translate3d(0, 30px, 0)';
+                        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                        el.style.willChange = 'opacity, transform';
+                        observer.observe(el);
+                    }
+                });
+            }
         }
         
         ['click', 'touchstart', 'scroll'].forEach(function(e) {
@@ -806,29 +865,36 @@ document.addEventListener("DOMContentLoaded", function() {
         hoverEffectsLoaded = true;
         
         const serviceCards = document.querySelectorAll('.service-card');
-        serviceCards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translate3d(0, -10px, 0) scale(1.02)';
+        if (serviceCards && serviceCards.length > 0) {
+            serviceCards.forEach(card => {
+                if (card) {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translate3d(0, -10px, 0) scale(1.02)';
+                    });
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translate3d(0, 0, 0) scale(1)';
+                    });
+                }
             });
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translate3d(0, 0, 0) scale(1)';
-            });
-        });
+        }
         
         const tourItems = document.querySelectorAll('.tour-item');
-        tourItems.forEach(item => {
-            item.addEventListener('mouseenter', function() {
-                const img = this.querySelector('img');
-                if (img) img.style.transform = 'scale3d(1.15, 1.15, 1)';
+        if (tourItems && tourItems.length > 0) {
+            tourItems.forEach(item => {
+                if (item) {
+                    item.addEventListener('mouseenter', function() {
+                        const img = this.querySelector('img');
+                        if (img) img.style.transform = 'scale3d(1.15, 1.15, 1)';
+                    });
+                    item.addEventListener('mouseleave', function() {
+                        const img = this.querySelector('img');
+                        if (img) img.style.transform = 'scale3d(1, 1, 1)';
+                    });
+                }
             });
-            item.addEventListener('mouseleave', function() {
-                const img = this.querySelector('img');
-                if (img) img.style.transform = 'scale3d(1, 1, 1)';
-            });
-        });
+        }
     }
     
-    // Load on first mouse move or after 2s
     document.addEventListener('mousemove', function() {
         if ('requestIdleCallback' in window) {
             requestIdleCallback(initHoverEffects, { timeout: 1000 });
@@ -873,7 +939,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if ('IntersectionObserver' in window) {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                if (entry.isIntersecting && entry.target) {
                     const img = entry.target;
                     if (img.dataset.src) {
                         img.src = img.dataset.src;
@@ -884,9 +950,12 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
 
-        document.querySelectorAll('img[data-src]').forEach(img => {
-            imageObserver.observe(img);
-        });
+        const lazyImages = document.querySelectorAll('img[data-src]');
+        if (lazyImages && lazyImages.length > 0) {
+            lazyImages.forEach(img => {
+                if (img) imageObserver.observe(img);
+            });
+        }
     }
 
     // ============================================
@@ -897,7 +966,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const revealElements = document.querySelectorAll('.about-content, .referral-content, .contact-content');
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                if (entry.isIntersecting && entry.target) {
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translate3d(0, 0, 0)';
                     revealObserver.unobserve(entry.target);
@@ -908,13 +977,17 @@ document.addEventListener("DOMContentLoaded", function() {
         function initReveal() {
             if (revealLoaded) return;
             revealLoaded = true;
-            revealElements.forEach(el => {
-                el.style.opacity = '0';
-                el.style.transform = 'translate3d(0, 30px, 0)';
-                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-                el.style.willChange = 'opacity, transform';
-                revealObserver.observe(el);
-            });
+            if (revealElements && revealElements.length > 0) {
+                revealElements.forEach(el => {
+                    if (el) {
+                        el.style.opacity = '0';
+                        el.style.transform = 'translate3d(0, 30px, 0)';
+                        el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                        el.style.willChange = 'opacity, transform';
+                        revealObserver.observe(el);
+                    }
+                });
+            }
         }
         
         window.addEventListener('scroll', initReveal, { once: true, passive: true });
@@ -1005,10 +1078,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function handleSwipe() {
         if (touchEndX < touchStartX - 50) {
-            nextTeamMember(); // Swipe left - next
+            nextTeamMember();
         }
         if (touchEndX > touchStartX + 50) {
-            prevTeamMember(); // Swipe right - previous
+            prevTeamMember();
         }
     }
 
@@ -1017,7 +1090,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // ============================================
     const deepikaImg = document.getElementById('deepikaImage');
     if (deepikaImg && !deepikaImg.complete) {
-        // Preload the image for better LCP
         const link = document.createElement('link');
         link.rel = 'preload';
         link.as = 'image';
@@ -1028,49 +1100,48 @@ document.addEventListener("DOMContentLoaded", function() {
     // ============================================
     // VIDEO PLAYBACK FIX (DESKTOP + MOBILE)
     // ============================================
-    // Ensure all videos play on tap/click for iPhone, Android, and Desktop
     const videos = document.querySelectorAll('video');
     
-    videos.forEach(video => {
-        if (!video) return;
-        
-        // Set iOS-specific attributes
-        video.setAttribute('playsinline', 'true');
-        video.setAttribute('webkit-playsinline', 'true');
-        
-        // Play video on tap or click (works on all devices)
-        video.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+    if (videos && videos.length > 0) {
+        videos.forEach(video => {
+            if (!video) return;
             
-            if (video.paused) {
-                video.play().catch(function(error) {
-                    // Silently handle autoplay restrictions
-                    // User can still use native controls
-                });
-            } else {
-                video.pause();
-            }
-        }, { passive: false });
-        
-        // For mobile touch devices - ensure tap works
-        video.addEventListener('touchstart', function(e) {
-            // Allow native video controls to work
-            // This ensures tap-to-play works on iOS/Android
-        }, { passive: true });
-        
-        // Ensure video container doesn't block clicks
-        const videoContainer = video.closest('.video-container');
-        if (videoContainer) {
-            videoContainer.style.pointerEvents = 'auto';
-            videoContainer.addEventListener('click', function(e) {
-                if (e.target === videoContainer || e.target === video) {
-                    if (video.paused) {
-                        video.play().catch(function() {});
-                    }
+            // Set iOS-specific attributes
+            video.setAttribute('playsinline', 'true');
+            video.setAttribute('webkit-playsinline', 'true');
+            
+            // Play video on tap or click
+            video.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (video.paused) {
+                    video.play().catch(function(error) {
+                        // Silently handle autoplay restrictions
+                    });
+                } else {
+                    video.pause();
                 }
-            });
-        }
-    });
+            }, { passive: false });
+            
+            // For mobile touch devices
+            video.addEventListener('touchstart', function(e) {
+                // Allow native video controls to work
+            }, { passive: true });
+            
+            // Ensure video container doesn't block clicks
+            const videoContainer = video.closest('.video-container');
+            if (videoContainer) {
+                videoContainer.style.pointerEvents = 'auto';
+                videoContainer.addEventListener('click', function(e) {
+                    if (e.target === videoContainer || e.target === video) {
+                        if (video.paused) {
+                            video.play().catch(function() {});
+                        }
+                    }
+                });
+            }
+        });
+    }
 
 }); // End of DOMContentLoaded

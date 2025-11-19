@@ -3702,3 +3702,45 @@ section {
     left: 100%;
 }
 
+/* ============================================
+   VIDEO WRAPPER AND PLAY BUTTON STYLES
+   ============================================ */
+.video-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 100%;
+}
+
+.video-wrapper video {
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+}
+
+.video-play-btn {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4rem;
+    color: white;
+    background: rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    transition: 0.3s ease;
+    z-index: 1;
+    border-radius: inherit;
+}
+
+.video-play-btn:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Ensure play button is visible on mobile */
+@media (max-width: 768px) {
+    .video-play-btn {
+        font-size: 3rem;
+    }
+}
+

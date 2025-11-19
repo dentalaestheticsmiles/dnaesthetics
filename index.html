@@ -3,32 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
     <title>DNA Clinic - Dental and Aesthetics | Premium Dental Care</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="DNA Clinic offers world-class dental and aesthetic treatments. Expert care for teeth whitening, implants, orthodontics, Botox, fillers, and pediatric dental services. Book your appointment today!">
+    <meta name="keywords" content="dental clinic, aesthetic treatments, teeth whitening, dental implants, orthodontics, Botox, fillers, pediatric dentistry, cosmetic dentistry, DNA Clinic">
+    <meta name="author" content="DNA Clinic">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://dnaesthetics.in">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dnaesthetics.in">
+    <meta property="og:title" content="DNA Clinic - Dental and Aesthetics | Premium Dental Care">
+    <meta property="og:description" content="Transform your smile with world-class dental and aesthetic treatments at DNA Clinic. Expert care, advanced technology, personalized service.">
+    <meta property="og:image" content="https://dnaesthetics.in/og-image.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://dnaesthetics.in">
+    <meta property="twitter:title" content="DNA Clinic - Dental and Aesthetics">
+    <meta property="twitter:description" content="Transform your smile with world-class dental and aesthetic treatments at DNA Clinic.">
+    <meta property="twitter:image" content="https://dnaesthetics.in/og-image.jpg">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https:; connect-src 'self' https://api.emailjs.com; frame-ancestors 'none';">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
+    
+    <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- EmailJS SDK -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function(){
-            emailjs.init("2fdaHy-1vPUqWh23A"); // EmailJS Public Key
-        })();
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://api.emailjs.com">
+    
+    <!-- Critical CSS Inline -->
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--primary-color:#7C3AED;--secondary-color:#6B46C1;--accent-color:#F59E0B;--dark-color:#1E293B;--light-color:#F3E8FF;--text-dark:#1a1a1a;--text-light:#666;--white:#ffffff}
+        html{scroll-behavior:smooth}
+        body{font-family:'Poppins',sans-serif;color:var(--text-dark);line-height:1.6;overflow-x:hidden}
+        .navbar{position:fixed;top:0;width:100%;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,0.1);z-index:1000;transition:all 0.3s ease}
+        .container{max-width:1200px;margin:0 auto;padding:0 20px}
+        .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(135deg,rgba(124,58,237,0.85),rgba(107,70,193,0.85),rgba(30,41,59,0.75))}
+        .hero-content{position:relative;z-index:2;text-align:center;color:var(--white);padding:2rem}
+        .hero-title{font-size:3.5rem;font-weight:900;margin-bottom:1rem;background:linear-gradient(135deg,#FCD34D,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        @media(max-width:768px){.hero-title{font-size:2rem}}
+    </style>
+    
+    <!-- Deferred CSS -->
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.css"></noscript>
+    
+    <!-- Fonts with font-display: swap -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    
+    <!-- Font Awesome - Deferred -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "DentalClinic",
+        "name": "DNA Clinic",
+        "alternateName": "Dental and Aesthetics",
+        "description": "World-class dental and aesthetic treatments including teeth whitening, implants, orthodontics, Botox, fillers, and pediatric dental care.",
+        "url": "https://dnaesthetics.in",
+        "logo": "https://dnaesthetics.in/logo.png",
+        "image": "https://dnaesthetics.in/og-image.jpg",
+        "telephone": "+1234567890",
+        "email": "dentalaestheticsmiles@gmail.com",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "123 Dental Avenue, Health District",
+            "addressLocality": "City",
+            "addressRegion": "State",
+            "postalCode": "12345",
+            "addressCountry": "US"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "",
+            "longitude": ""
+        },
+        "openingHoursSpecification": [
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+                "opens": "09:00",
+                "closes": "18:00"
+            },
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": "Saturday",
+                "opens": "10:00",
+                "closes": "16:00"
+            }
+        ],
+        "priceRange": "$$",
+        "medicalSpecialty": ["Dentistry", "Cosmetic Dentistry", "Pediatric Dentistry", "Orthodontics"],
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Dental and Aesthetic Services",
+            "itemListElement": [
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Teeth Whitening",
+                        "description": "Professional in-office and take-home whitening solutions"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Dental Implants",
+                        "description": "Permanent tooth replacement solutions"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Pediatric Dental Care",
+                        "description": "Gentle, fun, and caring dental experience for children"
+                    }
+                }
+            ]
+        },
+        "founder": {
+            "@type": "Person",
+            "name": "Dr. Deepika Rajkumar",
+            "jobTitle": "Managing Director",
+            "hasCredential": ["BDS", "AACD, USA"]
+        }
+    }
+    </script>
+    
+    <!-- EmailJS SDK - Deferred -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" onload="if(typeof emailjs!=='undefined'){emailjs.init('2fdaHy-1vPUqWh23A')}"></script>
+    
+    <!-- Load CSS asynchronously script -->
+    <script>
+        !function(e){"use strict";var t=function(t,n,o){var i,r=e.document,a=r.createElement("link");if(n)i=n;else{var l=(r.body||r.getElementsByTagName("head")[0]).childNodes;i=l[l.length-1]}var d=r.styleSheets;a.rel="stylesheet",a.href=t,a.media="only x",function e(t){if(r.body)return t();setTimeout(function(){e(t)})}(function(){i.parentNode.insertBefore(a,n?i:i.nextSibling)});var f=function(e){for(var t=a.href,n=r.styleSheets,o=0;o<n.length;o++)if(n[o].href===t)return e();setTimeout(function(){f(e)})};return a.addEventListener&&a.addEventListener("load",function(){this.media=o||"all"}),a.onloadcssdefined=f,f(function(){a.media!==o&&(a.media=o||"all")}),a};"undefined"!=typeof exports?exports.loadCSS=t:e.loadCSS=t}("undefined"!=typeof global?global:this);
+        loadCSS("styles.css");
     </script>
 </head>
 <body>
     <!-- Pop-up Modal -->
     <div id="welcomeModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <button type="button" class="close-modal" aria-label="Close welcome modal">&times;</button>
             <div class="modal-body">
-                <i class="fas fa-tooth modal-icon"></i>
+                <i class="fas fa-tooth modal-icon" aria-hidden="true"></i>
                 <h2>Welcome to DNA Clinic</h2>
                 <p>Your journey to a perfect smile starts here!</p>
                 <div class="modal-buttons">
-                    <a href="#contact" class="btn btn-primary">Book Appointment</a>
-                    <a href="tel:+1234567890" class="btn btn-secondary">Call Us Now</a>
+                    <a href="#contact" class="btn btn-primary" aria-label="Book an appointment">Book Appointment</a>
+                    <a href="tel:+1234567890" class="btn btn-secondary" aria-label="Call us now">Call Us Now</a>
                 </div>
             </div>
         </div>
@@ -38,7 +177,7 @@
     <div id="expertConsultationModal" class="modal expert-consultation-modal">
         <div class="expert-modal-backdrop"></div>
         <div class="modal-content expert-consultation-content">
-            <span class="close-modal expert-close-btn">&times;</span>
+            <button type="button" class="close-modal expert-close-btn" aria-label="Close expert consultation modal">&times;</button>
             <div class="expert-modal-body">
                 <!-- Animated Background Elements -->
                 <div class="expert-bg-decoration">
@@ -95,12 +234,12 @@
                     </div>
                     
                     <div class="expert-buttons">
-                        <a href="https://wa.me/918072980232" target="_blank" class="btn expert-whatsapp-btn">
-                            <i class="fab fa-whatsapp"></i>
+                        <a href="https://wa.me/918072980232" target="_blank" class="btn expert-whatsapp-btn" aria-label="Chat with us on WhatsApp" rel="noopener noreferrer">
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
                             <span>Chat on WhatsApp</span>
                         </a>
-                        <a href="tel:+918072980232" class="btn expert-call-btn">
-                            <i class="fas fa-phone"></i>
+                        <a href="tel:+918072980232" class="btn expert-call-btn" aria-label="Call us now">
+                            <i class="fas fa-phone" aria-hidden="true"></i>
                             <span>Call Us Now</span>
                         </a>
                     </div>
@@ -123,8 +262,8 @@
                 <div class="brand-icon-wrapper">
                     <i class="fas fa-tooth brand-icon"></i>
                     <div class="brand-images">
-                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=50" alt="Smile" class="brand-mini-img">
-                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=50" alt="Dental" class="brand-mini-img">
+                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=50" alt="Smile" class="brand-mini-img" width="20" height="20" loading="eager">
+                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=50" alt="Dental" class="brand-mini-img" width="20" height="20" loading="eager">
                     </div>
                 </div>
                 <div class="brand-text">
@@ -142,13 +281,13 @@
                 <li><a href="#referral" class="nav-link">Referral Doctors</a></li>
                 <li><a href="#blogs" class="nav-link">Blogs</a></li>
                 <li><a href="#contact" class="nav-link">Contact Us</a></li>
-                <li><a href="tel:+1234567890" class="nav-link call-btn"><i class="fas fa-phone"></i> Call Us</a></li>
+                <li><a href="tel:+1234567890" class="nav-link call-btn" aria-label="Call us"><i class="fas fa-phone" aria-hidden="true"></i> Call Us</a></li>
             </ul>
-            <div class="hamburger" id="hamburger">
+            <button type="button" class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
                 <span></span>
                 <span></span>
                 <span></span>
-            </div>
+            </button>
         </div>
     </nav>
 
@@ -166,7 +305,7 @@
             </div>
         </div>
         <div class="hero-scroll">
-            <a href="#about"><i class="fas fa-chevron-down"></i></a>
+            <a href="#about" aria-label="Scroll to about section"><i class="fas fa-chevron-down" aria-hidden="true"></i></a>
         </div>
     </section>
 
@@ -174,15 +313,15 @@
     <section id="about" class="about">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">About DNA Clinic</h2>
+                <h1 class="section-title">About DNA Clinic</h1>
                 <p class="section-subtitle">Excellence in Dental and Aesthetic Care</p>
             </div>
             <div class="about-content">
                 <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800" alt="Modern Dental Clinic">
+                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800" alt="Modern Dental Clinic" width="800" height="600" loading="lazy">
                 </div>
                 <div class="about-text">
-                    <h3>Your Trusted Partner in Dental Health</h3>
+                    <h2>Your Trusted Partner in Dental Health</h2>
                     <p>At DNA Clinic, we combine cutting-edge dental technology with aesthetic expertise to provide you with comprehensive care that enhances both your oral health and your appearance. Our team of experienced professionals is dedicated to delivering personalized treatments in a comfortable, welcoming environment.</p>
                     <div class="about-features">
                         <div class="feature-item">
@@ -222,7 +361,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-smile"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Teeth Whitening">
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Teeth Whitening" width="400" height="300" loading="lazy">
                             <h4>Teeth Whitening</h4>
                             <p>Professional in-office and take-home whitening solutions for a brighter smile</p>
                         </div>
@@ -230,7 +369,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400" alt="Dental Implants">
+                            <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400" alt="Dental Implants" width="400" height="300" loading="lazy">
                             <h4>Dental Implants</h4>
                             <p>Permanent tooth replacement solutions that look and feel natural</p>
                         </div>
@@ -238,7 +377,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth-open"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400" alt="Orthodontics">
+                            <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400" alt="Orthodontics" width="400" height="300" loading="lazy">
                             <h4>Orthodontics</h4>
                             <p>Invisalign, braces, and clear aligners for perfectly aligned teeth</p>
                         </div>
@@ -246,7 +385,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-tooth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400" alt="Root Canal">
+                            <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400" alt="Root Canal" width="400" height="300" loading="lazy">
                             <h4>Root Canal Treatment</h4>
                             <p>Pain-free root canal therapy to save your natural teeth</p>
                         </div>
@@ -254,7 +393,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Cosmetic Dentistry">
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Cosmetic Dentistry" width="400" height="300" loading="lazy">
                             <h4>Cosmetic Dentistry</h4>
                             <p>Veneers, bonding, and smile makeovers for your dream smile</p>
                         </div>
@@ -262,7 +401,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth-open"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="General Dentistry">
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="General Dentistry" width="400" height="300" loading="lazy">
                             <h4>General Dentistry</h4>
                             <p>Cleanings, fillings, and preventive care for optimal oral health</p>
                         </div>
@@ -277,7 +416,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-face-smile"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Botox">
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Botox" width="400" height="300" loading="lazy">
                             <h4>Botox & Fillers</h4>
                             <p>Non-surgical facial rejuvenation to reduce wrinkles and restore volume</p>
                         </div>
@@ -285,7 +424,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-sparkles"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Dermal Fillers">
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Dermal Fillers" width="400" height="300" loading="lazy">
                             <h4>Dermal Fillers</h4>
                             <p>Enhance facial contours and restore youthful appearance</p>
                         </div>
@@ -293,7 +432,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-magic"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Chemical Peels">
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Chemical Peels" width="400" height="300" loading="lazy">
                             <h4>Chemical Peels</h4>
                             <p>Improve skin texture and reduce signs of aging</p>
                         </div>
@@ -301,7 +440,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-star"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Laser Treatments">
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Laser Treatments" width="400" height="300" loading="lazy">
                             <h4>Laser Skin Treatments</h4>
                             <p>Advanced laser therapy for skin rejuvenation and pigmentation</p>
                         </div>
@@ -309,7 +448,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-gem"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Facial Treatments">
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Facial Treatments" width="400" height="300" loading="lazy">
                             <h4>Facial Aesthetics</h4>
                             <p>Comprehensive facial treatments for glowing, healthy skin</p>
                         </div>
@@ -317,7 +456,7 @@
                             <div class="service-icon">
                                 <i class="fas fa-heart"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Anti-Aging">
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Anti-Aging" width="400" height="300" loading="lazy">
                             <h4>Anti-Aging Solutions</h4>
                             <p>Comprehensive anti-aging treatments for a youthful appearance</p>
                         </div>
@@ -336,7 +475,7 @@
             </div>
             <div class="kids-intro">
                 <div class="kids-intro-content">
-                    <h3>Creating Healthy Smiles from an Early Age</h3>
+                    <h2>Creating Healthy Smiles from an Early Age</h2>
                     <p>At DNA Clinic, we understand that children need special care and attention. Our pediatric dental services are designed to make dental visits a positive, stress-free experience for both children and parents. We create a welcoming, child-friendly environment where your little ones can feel comfortable and safe.</p>
                     <div class="kids-features">
                         <div class="kids-feature-item">
@@ -357,13 +496,13 @@
                     </div>
                 </div>
                 <div class="kids-intro-image">
-                    <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600" alt="Happy child at dentist">
+                    <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600" alt="Happy child at dentist" width="600" height="500" loading="lazy">
                 </div>
             </div>
             <div class="kids-services-grid">
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400" alt="Child dental checkup">
+                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400" alt="Child dental checkup" width="400" height="250" loading="lazy">
                         <div class="kids-service-icon">
                             <i class="fas fa-tooth"></i>
                         </div>
@@ -380,7 +519,7 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400" alt="Dental cleaning for kids">
+                        <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400" alt="Dental cleaning for kids" width="400" height="250" loading="lazy">
                         <div class="kids-service-icon">
                             <i class="fas fa-sparkles"></i>
                         </div>
@@ -397,7 +536,7 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400" alt="Dental sealants">
+                        <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400" alt="Dental sealants" width="400" height="250" loading="lazy">
                         <div class="kids-service-icon">
                             <i class="fas fa-shield-alt"></i>
                         </div>
@@ -414,7 +553,7 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400" alt="Kids orthodontics">
+                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400" alt="Kids orthodontics" width="400" height="250" loading="lazy">
                         <div class="kids-service-icon">
                             <i class="fas fa-smile-beam"></i>
                         </div>
@@ -431,7 +570,7 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Pediatric fillings">
+                        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" alt="Pediatric fillings" width="400" height="250" loading="lazy">
                         <div class="kids-service-icon">
                             <i class="fas fa-tools"></i>
                         </div>
@@ -448,7 +587,7 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Emergency dental care for kids">
+                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Emergency dental care for kids" width="400" height="250" loading="lazy">
                         <div class="kids-service-icon">
                             <i class="fas fa-ambulance"></i>
                         </div>
@@ -483,28 +622,28 @@
             </div>
             <div class="tour-gallery">
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600" alt="Reception Area">
+                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600" alt="Reception Area" width="600" height="400" loading="lazy">
                     <div class="tour-overlay">
                         <h4>Modern Reception</h4>
                         <p>Welcoming and comfortable waiting area</p>
                     </div>
                 </div>
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600" alt="Treatment Room">
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600" alt="Treatment Room" width="600" height="400" loading="lazy">
                     <div class="tour-overlay">
                         <h4>Treatment Rooms</h4>
                         <p>Advanced equipment in a serene environment</p>
                     </div>
                 </div>
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600" alt="Consultation Room">
+                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600" alt="Consultation Room" width="600" height="400" loading="lazy">
                     <div class="tour-overlay">
                         <h4>Consultation Space</h4>
                         <p>Private areas for patient consultations</p>
                     </div>
                 </div>
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1624976509935-5c9c49a0c5b0?w=600" alt="Technology">
+                    <img src="https://images.unsplash.com/photo-1624976509935-5c9c49a0c5b0?w=600" alt="Technology" width="600" height="400" loading="lazy">
                     <div class="tour-overlay">
                         <h4>Advanced Technology</h4>
                         <p>Latest dental and aesthetic equipment</p>
@@ -523,7 +662,7 @@
             </div>
             <div class="referral-content">
                 <div class="referral-text">
-                    <h3>Join Our Network of Healthcare Professionals</h3>
+                    <h2>Join Our Network of Healthcare Professionals</h2>
                     <p>DNA Clinic welcomes referrals from medical and dental professionals. We provide seamless coordination of care and timely communication to ensure the best outcomes for your patients.</p>
                     <ul class="referral-benefits">
                         <li><i class="fas fa-check-circle"></i> Fast and efficient referral process</li>
@@ -534,7 +673,7 @@
                     <a href="#contact" class="btn btn-primary">Become a Referral Partner</a>
                 </div>
                 <div class="referral-image">
-                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600" alt="Medical Professionals">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600" alt="Medical Professionals" width="600" height="400" loading="lazy">
                 </div>
             </div>
         </div>
@@ -548,13 +687,13 @@
                 <p class="section-subtitle">Expert Professionals Dedicated to Your Smile</p>
             </div>
             <div class="team-carousel-wrapper">
-                <button class="carousel-btn carousel-btn-left" id="teamPrevBtn">
-                    <i class="fas fa-chevron-left"></i>
+                <button type="button" class="carousel-btn carousel-btn-left" id="teamPrevBtn" aria-label="Previous team member">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
                 </button>
                 <div class="team-carousel" id="teamCarousel">
                     <div class="team-member active">
                         <div class="member-image">
-                            <img src="deepika.png" alt="Dr. Deepika Rajkumar - Managing Director" id="deepikaImage">
+                            <img src="deepika.png" alt="Dr. Deepika Rajkumar - Managing Director" id="deepikaImage" width="600" height="520" loading="eager">
                             <div class="member-overlay">
                                 <div class="member-social">
                                     <a href="#"><i class="fab fa-linkedin"></i></a>
@@ -575,7 +714,7 @@
                     <!-- Placeholder for future team members -->
                     <div class="team-member">
                         <div class="member-image">
-                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400" alt="Team Member">
+                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400" alt="Team Member" width="400" height="520" loading="lazy">
                             <div class="member-overlay">
                                 <div class="member-social">
                                     <a href="#"><i class="fab fa-linkedin"></i></a>
@@ -594,8 +733,8 @@
                         </div>
                     </div>
                 </div>
-                <button class="carousel-btn carousel-btn-right" id="teamNextBtn">
-                    <i class="fas fa-chevron-right"></i>
+                <button type="button" class="carousel-btn carousel-btn-right" id="teamNextBtn" aria-label="Next team member">
+                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
                 </button>
             </div>
             <div class="team-dots" id="teamDots">
@@ -614,7 +753,7 @@
             </div>
             <div class="blogs-grid">
                 <article class="blog-card">
-                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Blog Post">
+                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400" alt="Blog Post" width="400" height="200" loading="lazy">
                     <div class="blog-content">
                         <span class="blog-date">March 15, 2024</span>
                         <h3>5 Tips for Maintaining Your Perfect Smile</h3>
@@ -623,7 +762,7 @@
                     </div>
                 </article>
                 <article class="blog-card">
-                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400" alt="Blog Post">
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400" alt="Blog Post" width="400" height="200" loading="lazy">
                     <div class="blog-content">
                         <span class="blog-date">March 10, 2024</span>
                         <h3>The Benefits of Invisalign Treatment</h3>
@@ -632,7 +771,7 @@
                     </div>
                 </article>
                 <article class="blog-card">
-                    <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Blog Post">
+                    <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400" alt="Blog Post" width="400" height="200" loading="lazy">
                     <div class="blog-content">
                         <span class="blog-date">March 5, 2024</span>
                         <h3>Anti-Aging Aesthetic Treatments Explained</h3>
@@ -682,14 +821,14 @@
                         </div>
                     </div>
                     <div class="social-links">
-                        <a href="https://instagram.com" target="_blank" class="social-link instagram">
-                            <i class="fab fa-instagram"></i>
+                        <a href="https://instagram.com" target="_blank" class="social-link instagram" aria-label="Follow us on Instagram" rel="noopener noreferrer">
+                            <i class="fab fa-instagram" aria-hidden="true"></i>
                         </a>
-                        <a href="https://facebook.com" target="_blank" class="social-link facebook">
-                            <i class="fab fa-facebook-f"></i>
+                        <a href="https://facebook.com" target="_blank" class="social-link facebook" aria-label="Follow us on Facebook" rel="noopener noreferrer">
+                            <i class="fab fa-facebook-f" aria-hidden="true"></i>
                         </a>
-                        <a href="https://wa.me/918072980232" target="_blank" class="social-link whatsapp">
-                            <i class="fab fa-whatsapp"></i>
+                        <a href="https://wa.me/918072980232" target="_blank" class="social-link whatsapp" aria-label="Contact us on WhatsApp" rel="noopener noreferrer">
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -705,7 +844,8 @@
                             <input type="tel" id="contactPhone" name="contactPhone" placeholder="Phone Number" required>
                         </div>
                         <div class="form-group">
-                            <select id="contactService" name="contactService" required>
+                            <label for="contactService" class="sr-only">Select Service</label>
+                            <select id="contactService" name="contactService" required aria-label="Select a service">
                                 <option value="">Select Service</option>
                                 <option>Teeth Whitening</option>
                                 <option>Dental Implants</option>
@@ -720,7 +860,7 @@
                         <div class="form-group">
                             <textarea id="contactMessage" name="contactMessage" placeholder="Message (Optional)" rows="5"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Book Appointment</button>
+                        <button type="submit" class="btn btn-primary btn-block" aria-label="Submit appointment form">Book Appointment</button>
                     </form>
                 </div>
             </div>
@@ -757,9 +897,9 @@
                 <div class="footer-section">
                     <h4>Connect With Us</h4>
                     <div class="footer-social">
-                        <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://wa.me/918072980232" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://instagram.com" target="_blank" aria-label="Follow us on Instagram" rel="noopener noreferrer"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+                        <a href="https://facebook.com" target="_blank" aria-label="Follow us on Facebook" rel="noopener noreferrer"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                        <a href="https://wa.me/918072980232" target="_blank" aria-label="Contact us on WhatsApp" rel="noopener noreferrer"><i class="fab fa-whatsapp" aria-hidden="true"></i></a>
                     </div>
                     <p class="footer-contact">
                         <a href="tel:+1234567890"><i class="fas fa-phone"></i> +1 (234) 567-8900</a>
@@ -773,14 +913,14 @@
     </footer>
 
     <!-- Floating WhatsApp Button -->
-    <a href="https://wa.me/918072980232" target="_blank" class="whatsapp-float">
-        <i class="fab fa-whatsapp"></i>
+    <a href="https://wa.me/918072980232" target="_blank" class="whatsapp-float" aria-label="Contact us on WhatsApp" rel="noopener noreferrer">
+        <i class="fab fa-whatsapp" aria-hidden="true"></i>
     </a>
 
     <!-- Kids Appointment Modal -->
     <div id="kidsAppointmentModal" class="modal kids-modal">
         <div class="modal-content kids-modal-content">
-            <span class="close-modal kids-close-modal">&times;</span>
+            <button type="button" class="close-modal kids-close-modal" aria-label="Close kids appointment modal">&times;</button>
             <div class="kids-modal-header">
                 <div class="kids-modal-icon-wrapper">
                     <i class="fas fa-smile kids-modal-icon"></i>
@@ -838,8 +978,8 @@
                         <input type="date" id="kidDate" name="kidDate" required>
                     </div>
                     <div class="kids-form-group">
-                        <label for="kidTime"><i class="fas fa-clock"></i> Time</label>
-                        <select id="kidTime" name="kidTime" required>
+                        <label for="kidTime"><i class="fas fa-clock" aria-hidden="true"></i> Time</label>
+                        <select id="kidTime" name="kidTime" required aria-label="Select appointment time">
                             <option value="">Select time</option>
                             <option value="09:00 AM">09:00 AM</option>
                             <option value="09:30 AM">09:30 AM</option>
@@ -866,14 +1006,14 @@
                     <label for="kidMessage"><i class="fas fa-comment"></i> Message <span class="optional-text">(Optional)</span></label>
                     <textarea id="kidMessage" name="kidMessage" rows="4" placeholder="Any special requests or information about your child..."></textarea>
                 </div>
-                <button type="submit" class="btn kids-submit-btn">
-                    <i class="fas fa-heart"></i> Book Appointment
+                <button type="submit" class="btn kids-submit-btn" aria-label="Submit kids appointment form">
+                    <i class="fas fa-heart" aria-hidden="true"></i> Book Appointment
                 </button>
             </form>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>
 

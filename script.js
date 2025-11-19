@@ -1,21 +1,36 @@
-// Navigation Scroll Effect
-window.addEventListener('scroll', function() {
+// Optimized Navigation Scroll Effect (using requestAnimationFrame)
+let navScrollTicking = false;
+function updateNavbar() {
     const navbar = document.getElementById('navbar');
-    if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
+    if (navbar) {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
     }
-});
+    navScrollTicking = false;
+}
+
+window.addEventListener('scroll', function() {
+    if (!navScrollTicking) {
+        window.requestAnimationFrame(updateNavbar);
+        navScrollTicking = true;
+    }
+}, { passive: true });
 
 // Mobile Menu Toggle
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
 
-hamburger.addEventListener('click', function() {
-    hamburger.classList.toggle('active');
-    navMenu.classList.toggle('active');
-});
+if (hamburger && navMenu) {
+    hamburger.addEventListener('click', function() {
+        hamburger.classList.toggle('active');
+        navMenu.classList.toggle('active');
+        const isExpanded = hamburger.classList.contains('active');
+        hamburger.setAttribute('aria-expanded', isExpanded);
+    });
+}
 
 // Close mobile menu when clicking on a link
 const navLinks = document.querySelectorAll('.nav-link');
@@ -48,7 +63,19 @@ function activeLink() {
     });
 }
 
-window.addEventListener('scroll', activeLink);
+// Optimized scroll handler with requestAnimationFrame
+let scrollTicking = false;
+function handleScroll() {
+    activeLink();
+    scrollTicking = false;
+}
+
+window.addEventListener('scroll', function() {
+    if (!scrollTicking) {
+        window.requestAnimationFrame(handleScroll);
+        scrollTicking = true;
+    }
+}, { passive: true });
 
 // Welcome Modal
 const welcomeModal = document.getElementById('welcomeModal');
@@ -56,40 +83,58 @@ const closeModal = document.querySelector('.close-modal');
 
 // Check if user has visited before
 function hasVisitedBefore() {
-    return localStorage.getItem('hasVisited') === 'true';
+    try {
+        return localStorage.getItem('hasVisited') === 'true';
+    } catch (e) {
+        return false;
+    }
 }
 
 function setVisited() {
-    localStorage.setItem('hasVisited', 'true');
+    try {
+        localStorage.setItem('hasVisited', 'true');
+    } catch (e) {
+        // localStorage not available
+    }
 }
 
 // Show modal on first visit
-if (!hasVisitedBefore()) {
+if (welcomeModal && !hasVisitedBefore()) {
     setTimeout(() => {
-        welcomeModal.classList.add('show');
-        setVisited();
+        if (welcomeModal) {
+            welcomeModal.classList.add('show');
+            setVisited();
+        }
     }, 1000);
 }
 
 // Close modal
-closeModal.addEventListener('click', function() {
-    welcomeModal.classList.remove('show');
-    // Show expert modal after welcome modal closes (if enough time has passed)
-    setTimeout(() => {
-        showExpertModal();
-    }, 2000);
-});
+if (closeModal && welcomeModal) {
+    closeModal.addEventListener('click', function() {
+        if (welcomeModal) {
+            welcomeModal.classList.remove('show');
+            // Show expert modal after welcome modal closes (if enough time has passed)
+            setTimeout(() => {
+                if (typeof showExpertModal === 'function') {
+                    showExpertModal();
+                }
+            }, 2000);
+        }
+    });
 
-// Close modal when clicking outside
-window.addEventListener('click', function(event) {
-    if (event.target === welcomeModal) {
-        welcomeModal.classList.remove('show');
-        // Show expert modal after welcome modal closes (if enough time has passed)
-        setTimeout(() => {
-            showExpertModal();
-        }, 2000);
-    }
-});
+    // Close modal when clicking outside
+    welcomeModal.addEventListener('click', function(event) {
+        if (event.target === welcomeModal) {
+            welcomeModal.classList.remove('show');
+            // Show expert modal after welcome modal closes (if enough time has passed)
+            setTimeout(() => {
+                if (typeof showExpertModal === 'function') {
+                    showExpertModal();
+                }
+            }, 2000);
+        }
+    });
+}
 
 // Expert Dentist Consultation Modal - Smart Helpful System
 const expertConsultationModal = document.getElementById('expertConsultationModal');
@@ -140,9 +185,10 @@ function initBehaviorTracking() {
     let lastScrollY = window.pageYOffset;
     let scrollDirection = 'down';
     
-    // Track scroll behavior
-    window.addEventListener('scroll', function() {
-        const currentScrollY = window.pageYOffset;
+    // Optimized scroll behavior tracking (using requestAnimationFrame)
+    let behaviorScrollTicking = false;
+    function trackScrollBehavior() {
+        const currentScrollY = window.pageYOffset || window.scrollY;
         const scrollTop = currentScrollY || document.documentElement.scrollTop;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         const scrollPercent = (scrollTop / docHeight) * 100;
@@ -183,7 +229,15 @@ function initBehaviorTracking() {
         
         userBehavior.lastScrollPosition = scrollTop;
         userBehavior.lastActionTime = Date.now();
-    });
+        behaviorScrollTicking = false;
+    }
+    
+    window.addEventListener('scroll', function() {
+        if (!behaviorScrollTicking) {
+            window.requestAnimationFrame(trackScrollBehavior);
+            behaviorScrollTicking = true;
+        }
+    }, { passive: true });
 
     // Track clicks (user taking action)
     document.addEventListener('click', function() {
@@ -420,9 +474,8 @@ if (appointmentForm) {
             let savedContacts = JSON.parse(localStorage.getItem('dnaContacts') || '[]');
             savedContacts.push(contactData);
             localStorage.setItem('dnaContacts', JSON.stringify(savedContacts));
-            console.log('✅ Contact form saved to localStorage');
         } catch (error) {
-            console.error('Error saving to localStorage:', error);
+            // localStorage not available or quota exceeded
         }
 
         // Send email using EmailJS
@@ -444,7 +497,6 @@ if (appointmentForm) {
 
         // Send email via EmailJS
         if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
-            console.log('📧 Sending contact form email notification...');
             emailjs.send(
                 EMAILJS_CONFIG.SERVICE_ID,
                 EMAILJS_CONFIG.TEMPLATE_ID,
@@ -452,15 +504,11 @@ if (appointmentForm) {
                 EMAILJS_CONFIG.PUBLIC_KEY
             )
             .then(function(response) {
-                console.log('✅ Contact form email sent successfully!', response.status, response.text);
+                // Email sent successfully
             }, function(error) {
-                console.error('❌ Contact form email sending failed!');
-                console.error('Error status:', error.status);
-                console.error('Error text:', error.text);
+                // Email sending failed - show user-friendly message
                 alert('⚠️ There was an issue sending your contact request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your contact details have been saved.');
             });
-        } else {
-            console.warn('⚠️ EmailJS not properly configured');
         }
 
         // Success message
@@ -480,10 +528,7 @@ function initKidsModal() {
     const kidsCloseModal = document.querySelector('.kids-close-modal');
     const kidsAppointmentForm = document.getElementById('kidsAppointmentForm');
 
-    // Debug: Log to console
-    console.log('Initializing Kids Modal...');
-    console.log('Kids Appointment Button:', kidsAppointmentBtn);
-    console.log('Kids Appointment Modal:', kidsAppointmentModal);
+        // Initialize Kids Modal (console logs removed for production)
 
     // Set minimum date to today
     const kidDateInput = document.getElementById('kidDate');
@@ -502,9 +547,10 @@ function initKidsModal() {
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
-            console.log('✅ Button clicked, opening modal');
-            kidsAppointmentModal.classList.add('show');
-            document.body.style.overflow = 'hidden';
+            if (kidsAppointmentModal) {
+                kidsAppointmentModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
             return false;
         }, true); // Use capture phase for higher priority
         
@@ -512,18 +558,12 @@ function initKidsModal() {
         kidsAppointmentBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('✅ Button clicked (onclick), opening modal');
-            kidsAppointmentModal.classList.add('show');
-            document.body.style.overflow = 'hidden';
+            if (kidsAppointmentModal) {
+                kidsAppointmentModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
             return false;
         };
-        
-        console.log('✅ Kids appointment button handler attached');
-    } else {
-        console.error('❌ Kids appointment button or modal not found!', {
-            button: kidsAppointmentBtn,
-            modal: kidsAppointmentModal
-        });
     }
 
     // Close Kids Modal
@@ -531,9 +571,10 @@ function initKidsModal() {
         kidsCloseModal.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Closing modal');
-            kidsAppointmentModal.classList.remove('show');
-            document.body.style.overflow = 'auto';
+            if (kidsAppointmentModal) {
+                kidsAppointmentModal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
         });
     }
 
@@ -581,9 +622,8 @@ function initKidsModal() {
                 let savedAppointments = JSON.parse(localStorage.getItem('dnaKidsAppointments') || '[]');
                 savedAppointments.push(appointmentData);
                 localStorage.setItem('dnaKidsAppointments', JSON.stringify(savedAppointments));
-                console.log('✅ Appointment saved to localStorage');
             } catch (error) {
-                console.error('Error saving to localStorage:', error);
+                // localStorage not available or quota exceeded
             }
 
             // Send email using EmailJS
@@ -608,7 +648,6 @@ function initKidsModal() {
 
             // Send email via EmailJS
             if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
-                console.log('📧 Sending email notification...');
                 emailjs.send(
                     EMAILJS_CONFIG.SERVICE_ID,
                     EMAILJS_CONFIG.TEMPLATE_ID,
@@ -616,15 +655,11 @@ function initKidsModal() {
                     EMAILJS_CONFIG.PUBLIC_KEY
                 )
                 .then(function(response) {
-                    console.log('✅ Email sent successfully!', response.status, response.text);
+                    // Email sent successfully
                 }, function(error) {
-                    console.error('❌ Email sending failed!');
-                    console.error('Error status:', error.status);
-                    console.error('Error text:', error.text);
+                    // Email sending failed - show user-friendly message
                     alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
                 });
-            } else {
-                console.warn('⚠️ EmailJS not properly configured');
             }
 
             // Success message
@@ -652,107 +687,91 @@ if (document.readyState === 'loading') {
     initKidsModal();
 }
 
-// Intersection Observer for Fade-in Animations
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
+// Intersection Observer for Fade-in Animations (Optimized with GPU acceleration)
+if ('IntersectionObserver' in window) {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
 
-const observer = new IntersectionObserver(function(entries) {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translate3d(0, 0, 0)';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
 
-// Observe elements for animation
-document.addEventListener('DOMContentLoaded', function() {
-    const animateElements = document.querySelectorAll('.service-card, .blog-card, .tour-item, .feature-item');
-    animateElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(el);
-    });
-});
-
-// Service Card Hover Effect Enhancement
-const serviceCards = document.querySelectorAll('.service-card');
-serviceCards.forEach(card => {
-    card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-10px) scale(1.02)';
-    });
-    card.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0) scale(1)';
-    });
-});
-
-// Tour Gallery Image Zoom Effect
-const tourItems = document.querySelectorAll('.tour-item');
-tourItems.forEach(item => {
-    item.addEventListener('mouseenter', function() {
-        const img = this.querySelector('img');
-        img.style.transform = 'scale(1.15)';
-    });
-    item.addEventListener('mouseleave', function() {
-        const img = this.querySelector('img');
-        img.style.transform = 'scale(1)';
-    });
-});
-
-// Add loading animation for images - Fixed to handle already loaded images
-document.addEventListener('DOMContentLoaded', function() {
-    const images = document.querySelectorAll('img');
-    images.forEach(img => {
-        // Check if image is already loaded
-        if (img.complete && img.naturalHeight !== 0) {
-            img.style.opacity = '1';
-        } else {
-            img.style.opacity = '0';
-            img.style.transition = 'opacity 0.3s ease';
-            img.addEventListener('load', function() {
-                this.style.opacity = '1';
-            });
-            // Fallback: show image after 1 second even if load event doesn't fire
-            setTimeout(() => {
-                if (img.style.opacity === '0') {
-                    img.style.opacity = '1';
-                }
-            }, 1000);
-        }
-    });
-});
-
-// WhatsApp Float Button Click Tracking (optional)
-const whatsappFloat = document.querySelector('.whatsapp-float');
-if (whatsappFloat) {
-    whatsappFloat.addEventListener('click', function() {
-        // You can add analytics tracking here
-        console.log('WhatsApp button clicked');
+    // Observe elements for animation
+    document.addEventListener('DOMContentLoaded', function() {
+        const animateElements = document.querySelectorAll('.service-card, .blog-card, .tour-item, .feature-item');
+        animateElements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translate3d(0, 30px, 0)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            el.style.willChange = 'opacity, transform';
+            observer.observe(el);
+        });
     });
 }
 
-// Social Media Link Tracking (optional)
-const socialLinks = document.querySelectorAll('.social-link, .footer-social a');
-socialLinks.forEach(link => {
-    link.addEventListener('click', function() {
-        const platform = this.classList.contains('instagram') ? 'Instagram' :
-                        this.classList.contains('facebook') ? 'Facebook' :
-                        this.classList.contains('whatsapp') ? 'WhatsApp' : 'Social';
-        console.log(`${platform} link clicked`);
+// Service Card Hover Effect Enhancement (Optimized with GPU acceleration)
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceCards = document.querySelectorAll('.service-card');
+    serviceCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translate3d(0, -10px, 0) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translate3d(0, 0, 0) scale(1)';
+        });
     });
 });
 
-// Add parallax effect to hero section
-window.addEventListener('scroll', function() {
-    const scrolled = window.pageYOffset;
+// Tour Gallery Image Zoom Effect (Optimized with GPU acceleration)
+document.addEventListener('DOMContentLoaded', function() {
+    const tourItems = document.querySelectorAll('.tour-item');
+    tourItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            const img = this.querySelector('img');
+            if (img) {
+                img.style.transform = 'scale3d(1.15, 1.15, 1)';
+            }
+        });
+        item.addEventListener('mouseleave', function() {
+            const img = this.querySelector('img');
+            if (img) {
+                img.style.transform = 'scale3d(1, 1, 1)';
+            }
+        });
+    });
+});
+
+// Optimized image loading (removed to prevent layout shifts - images now have explicit dimensions)
+
+// Social media links are handled via href attributes (no tracking needed for performance)
+
+// Optimized parallax effect (using GPU acceleration)
+let lastScrollY = 0;
+let ticking = false;
+
+function updateParallax() {
+    const scrolled = window.pageYOffset || window.scrollY;
     const hero = document.querySelector('.hero');
     if (hero && scrolled < window.innerHeight) {
-        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+        hero.style.transform = `translate3d(0, ${scrolled * 0.5}px, 0)`;
     }
-});
+    ticking = false;
+}
+
+window.addEventListener('scroll', function() {
+    if (!ticking) {
+        window.requestAnimationFrame(updateParallax);
+        ticking = true;
+    }
+}, { passive: true });
 
 // Counter Animation (if you want to add statistics)
 function animateCounter(element, target, duration = 2000) {
@@ -789,23 +808,29 @@ if ('IntersectionObserver' in window) {
     });
 }
 
-// Add smooth reveal animation on scroll
-const revealElements = document.querySelectorAll('.about-content, .referral-content, .contact-content');
-const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, { threshold: 0.2 });
+// Optimized smooth reveal animation on scroll (GPU accelerated)
+if ('IntersectionObserver' in window) {
+    const revealElements = document.querySelectorAll('.about-content, .referral-content, .contact-content');
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translate3d(0, 0, 0)';
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.2 });
 
-revealElements.forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-    revealObserver.observe(el);
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        revealElements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translate3d(0, 30px, 0)';
+            el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            el.style.willChange = 'opacity, transform';
+            revealObserver.observe(el);
+        });
+    });
+}
 
 // Team Carousel Functionality
 let currentTeamIndex = 0;
@@ -902,54 +927,16 @@ function handleSwipe() {
     }
 }
 
-// Force load Deepika's image
+// Optimize Deepika's image loading (preload for LCP)
 document.addEventListener('DOMContentLoaded', function() {
     const deepikaImg = document.getElementById('deepikaImage');
-    if (deepikaImg) {
-        // Try multiple path variations
-        const paths = [
-            'deepika.png',
-            './deepika.png',
-            'dna-clinic-website/deepika.png',
-            window.location.pathname.replace('index.html', '') + 'deepika.png'
-        ];
-        
-        let currentPathIndex = 0;
-        
-        function tryNextPath() {
-            if (currentPathIndex < paths.length) {
-                const testImg = new Image();
-                testImg.onload = function() {
-                    console.log('✅ Image loaded from:', paths[currentPathIndex]);
-                    deepikaImg.src = paths[currentPathIndex];
-                    deepikaImg.style.display = 'block';
-                    deepikaImg.style.opacity = '1';
-                    deepikaImg.style.visibility = 'visible';
-                };
-                testImg.onerror = function() {
-                    console.log('❌ Failed to load from:', paths[currentPathIndex]);
-                    currentPathIndex++;
-                    tryNextPath();
-                };
-                testImg.src = paths[currentPathIndex];
-            } else {
-                console.error('❌ Could not load image from any path');
-                alert('Image not found. Please ensure deepika.png is in the same folder as index.html');
-            }
-        }
-        
-        // Set initial styles
-        deepikaImg.style.display = 'block';
-        deepikaImg.style.width = '100%';
-        deepikaImg.style.height = '100%';
-        deepikaImg.style.objectFit = 'cover';
-        deepikaImg.style.opacity = '1';
-        deepikaImg.style.visibility = 'visible';
-        
-        // Try loading
-        tryNextPath();
+    if (deepikaImg && !deepikaImg.complete) {
+        // Preload the image for better LCP
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = 'deepika.png';
+        document.head.appendChild(link);
     }
 });
-
-console.log('DNA Clinic website loaded successfully!');
 

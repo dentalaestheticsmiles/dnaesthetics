@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="visibility:hidden;opacity:0">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,20 +42,24 @@
     <link rel="dns-prefetch" href="https://images.unsplash.com">
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
     
-    <!-- Preload critical resources -->
+    <!-- Preload critical resources for LCP -->
     <link rel="preload" href="deepika.png" as="image" type="image/png" fetchpriority="high">
     <link rel="preload" href="styles.css" as="style">
     <link rel="preload" href="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=40&q=75&auto=format&fit=crop" as="image" fetchpriority="high">
     <link rel="preload" href="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=40&q=75&auto=format&fit=crop" as="image" fetchpriority="high">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style" crossorigin="anonymous">
+    <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecg.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2" as="font" type="font/woff2" crossorigin="anonymous">
     
     <!-- Critical CSS Inline - Prevents FOUC -->
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--primary-color:#7C3AED;--secondary-color:#6B46C1;--accent-color:#F59E0B;--dark-color:#1E293B;--light-color:#F3E8FF;--text-dark:#1a1a1a;--text-light:#666;--white:#ffffff}
-        html{scroll-behavior:smooth;visibility:hidden}
-        html.loaded{visibility:visible}
-        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:var(--text-dark);line-height:1.6;overflow-x:hidden;opacity:0;transition:opacity 0.3s ease}
-        body.loaded{opacity:1}
+        html{scroll-behavior:smooth;visibility:hidden;opacity:0}
+        html.loaded{visibility:visible;opacity:1;transition:opacity 0.2s ease-in}
+        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:var(--text-dark);line-height:1.6;overflow-x:hidden;visibility:hidden;opacity:0;transition:opacity 0.3s ease,visibility 0s 0.3s}
+        body.loaded{visibility:visible;opacity:1;transition:opacity 0.3s ease}
+        body:not(.loaded) *{visibility:hidden!important}
         .navbar{position:fixed;top:0;width:100%;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,0.1);z-index:1000;transition:all 0.3s ease;padding:1rem 0}
         .nav-brand{display:flex;align-items:center;gap:1rem}
         .brand-icon-wrapper{display:flex;align-items:center;position:relative}
@@ -81,15 +85,38 @@
         @media(max-width:768px){.hero-title{font-size:2rem}.nav-menu{display:none}.hamburger{display:flex}}
     </style>
     
-    <!-- Deferred CSS with FOUC prevention -->
-    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet';document.documentElement.classList.add('loaded');document.body.classList.add('loaded')">
-    <noscript><link rel="stylesheet" href="styles.css"></noscript>
+    <!-- Deferred CSS with FOUC prevention - Optimized for performance -->
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet';requestAnimationFrame(function(){document.documentElement.classList.add('loaded');document.body.classList.add('loaded')})">
+    <noscript><link rel="stylesheet" href="styles.css"><script>document.documentElement.classList.add('loaded');document.body.classList.add('loaded');</script></noscript>
     <script>
-        // Fallback: Show content if CSS doesn't load within 1 second
+        // Immediate execution to hide content before CSS loads
+        (function(){
+            document.documentElement.style.visibility='hidden';
+            document.documentElement.style.opacity='0';
+            if(document.body){
+                document.body.style.visibility='hidden';
+                document.body.style.opacity='0';
+            }
+        })();
+        // Fallback: Show content if CSS doesn't load within 500ms
         setTimeout(function(){
-            document.documentElement.classList.add('loaded');
-            document.body.classList.add('loaded');
-        }, 1000);
+            if(!document.documentElement.classList.contains('loaded')){
+                document.documentElement.classList.add('loaded');
+                document.body.classList.add('loaded');
+            }
+        }, 500);
+        // Check if CSS is already loaded
+        (function checkCSSLoaded(){
+            var link=document.querySelector('link[href="styles.css"]');
+            if(link&&(link.sheet||link.styleSheet)){
+                requestAnimationFrame(function(){
+                    document.documentElement.classList.add('loaded');
+                    document.body.classList.add('loaded');
+                });
+            }else if(document.readyState!=='complete'){
+                setTimeout(checkCSSLoaded,50);
+            }
+        })();
     </script>
     
     <!-- Fonts with font-display: swap and crossorigin -->
@@ -181,8 +208,29 @@
     }
     </script>
     
-    <!-- EmailJS SDK - Deferred and optimized -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" onload="if(typeof emailjs!=='undefined'){emailjs.init('2fdaHy-1vPUqWh23A')}" crossorigin="anonymous"></script>
+    <!-- EmailJS SDK - Load after LCP to avoid blocking -->
+    <script>
+        // Load EmailJS after page is interactive (non-blocking)
+        if('requestIdleCallback' in window){
+            requestIdleCallback(function(){
+                var script=document.createElement('script');
+                script.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+                script.defer=true;
+                script.crossOrigin='anonymous';
+                script.onload=function(){if(typeof emailjs!=='undefined'){emailjs.init('2fdaHy-1vPUqWh23A')}};
+                document.head.appendChild(script);
+            },{timeout:2000});
+        }else{
+            setTimeout(function(){
+                var script=document.createElement('script');
+                script.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+                script.defer=true;
+                script.crossOrigin='anonymous';
+                script.onload=function(){if(typeof emailjs!=='undefined'){emailjs.init('2fdaHy-1vPUqWh23A')}};
+                document.head.appendChild(script);
+            },1000);
+        }
+    </script>
     
     <!-- Load CSS asynchronously script with FOUC prevention -->
     <script>
@@ -366,15 +414,15 @@
     <section id="about" class="about">
         <div class="container">
             <div class="section-header">
-                <h1 class="section-title">About DNA Clinic</h1>
+                <h2 class="section-title">About DNA Clinic</h2>
                 <p class="section-subtitle">Excellence in Dental and Aesthetic Care</p>
             </div>
             <div class="about-content">
                 <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&q=85&auto=format&fit=crop 800w,
-                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=1200&q=85&auto=format&fit=crop 1200w"
+                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&q=75&auto=format&fit=crop 800w,
+                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=1200&q=75&auto=format&fit=crop 1200w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 800px, 800px"
                          alt="Modern Dental Clinic" 
                          width="800" 
@@ -423,10 +471,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-smile"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Teeth Whitening" 
                                  width="400" 
@@ -440,10 +488,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Dental Implants" 
                                  width="400" 
@@ -457,10 +505,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth-open"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Orthodontics" 
                                  width="400" 
@@ -474,10 +522,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-tooth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Root Canal" 
                                  width="400" 
@@ -491,10 +539,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Cosmetic Dentistry" 
                                  width="400" 
@@ -508,10 +556,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth-open"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="General Dentistry" 
                                  width="400" 
@@ -532,10 +580,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-face-smile"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Botox" 
                                  width="400" 
@@ -549,10 +597,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-sparkles"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Dermal Fillers" 
                                  width="400" 
@@ -566,10 +614,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-magic"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Chemical Peels" 
                                  width="400" 
@@ -583,10 +631,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-star"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Laser Treatments" 
                                  width="400" 
@@ -600,10 +648,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-gem"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Facial Treatments" 
                                  width="400" 
@@ -617,10 +665,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-heart"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Anti-Aging" 
                                  width="400" 
@@ -645,7 +693,7 @@
             </div>
             <div class="kids-intro">
                 <div class="kids-intro-content">
-                    <h2>Creating Healthy Smiles from an Early Age</h2>
+                    <h3>Creating Healthy Smiles from an Early Age</h3>
                     <p>At DNA Clinic, we understand that children need special care and attention. Our pediatric dental services are designed to make dental visits a positive, stress-free experience for both children and parents. We create a welcoming, child-friendly environment where your little ones can feel comfortable and safe.</p>
                     <div class="kids-features">
                         <div class="kids-feature-item">
@@ -666,10 +714,10 @@
                     </div>
                 </div>
                 <div class="kids-intro-image">
-                    <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=85&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=900&q=85&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 600px, 600px"
                          alt="Happy child at dentist" 
                          width="600" 
@@ -681,10 +729,10 @@
             <div class="kids-services-grid">
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&q=85&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=300&q=85&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&q=85&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=600&q=85&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                              alt="Child dental checkup" 
                              width="400" 
@@ -707,10 +755,10 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=85&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=300&q=85&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=85&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=85&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                              alt="Dental cleaning for kids" 
                              width="400" 
@@ -733,10 +781,10 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&q=85&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&q=85&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&q=85&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&q=85&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                              alt="Dental sealants" 
                              width="400" 
@@ -759,10 +807,10 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=85&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&q=85&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=85&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=85&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                              alt="Kids orthodontics" 
                              width="400" 
@@ -785,10 +833,10 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=85&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=85&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=85&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=85&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                              alt="Pediatric fillings" 
                              width="400" 
@@ -811,10 +859,10 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=85&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=85&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                              alt="Emergency dental care for kids" 
                              width="400" 
@@ -855,10 +903,10 @@
             </div>
             <div class="tour-gallery">
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=85&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=900&q=85&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                          alt="Reception Area" 
                          width="600" 
@@ -871,10 +919,10 @@
                     </div>
                 </div>
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=85&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=900&q=85&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                          alt="Treatment Room" 
                          width="600" 
@@ -887,10 +935,10 @@
                     </div>
                 </div>
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=85&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=900&q=85&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                          alt="Consultation Room" 
                          width="600" 
@@ -903,12 +951,12 @@
                     </div>
                 </div>
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1624976509935-5c9c49a0c5b0?w=600&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1624976509935-5c9c49a0c5b0?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1624976509935-5c9c49a0c5b0?w=600&q=85&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1624976509935-5c9c49a0c5b0?w=900&q=85&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                         alt="Technology" 
+                         alt="Advanced Technology" 
                          width="600" 
                          height="400" 
                          loading="lazy" 
@@ -931,7 +979,7 @@
             </div>
             <div class="referral-content">
                 <div class="referral-text">
-                    <h2>Join Our Network of Healthcare Professionals</h2>
+                    <h3>Join Our Network of Healthcare Professionals</h3>
                     <p>DNA Clinic welcomes referrals from medical and dental professionals. We provide seamless coordination of care and timely communication to ensure the best outcomes for your patients.</p>
                     <ul class="referral-benefits">
                         <li><i class="fas fa-check-circle"></i> Fast and efficient referral process</li>
@@ -942,10 +990,10 @@
                     <a href="#contact" class="btn btn-primary">Become a Referral Partner</a>
                 </div>
                 <div class="referral-image">
-                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&q=85&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=900&q=85&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 600px, 600px"
                          alt="Medical Professionals" 
                          width="600" 
@@ -992,10 +1040,10 @@
                     <!-- Placeholder for future team members -->
                     <div class="team-member">
                         <div class="member-image">
-                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=85&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&q=85&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=85&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&q=85&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 400px, 400px"
                                  alt="Team Member" 
                                  width="400" 
@@ -1040,10 +1088,10 @@
             </div>
             <div class="blogs-grid">
                 <article class="blog-card">
-                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=85&auto=format&fit=crop 300w,
-                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=85&auto=format&fit=crop 600w"
+                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
+                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
                          alt="Blog Post" 
                          width="400" 
@@ -1058,10 +1106,10 @@
                     </div>
                 </article>
                 <article class="blog-card">
-                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&q=85&auto=format&fit=crop 300w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=85&auto=format&fit=crop 600w"
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&q=75&auto=format&fit=crop 300w,
+                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
                          alt="Blog Post" 
                          width="400" 
@@ -1076,10 +1124,10 @@
                     </div>
                 </article>
                 <article class="blog-card">
-                    <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=85&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=85&auto=format&fit=crop 300w,
-                                 https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=85&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=85&auto=format&fit=crop 600w"
+                    <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=75&auto=format&fit=crop 300w,
+                                 https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=75&auto=format&fit=crop 600w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
                          alt="Blog Post" 
                          width="400" 
@@ -1329,16 +1377,22 @@
 
     <script src="script.js" defer></script>
     <script>
-        // Ensure page is visible once fully loaded
-        if (document.readyState === 'complete') {
-            document.documentElement.classList.add('loaded');
-            document.body.classList.add('loaded');
-        } else {
-            window.addEventListener('load', function() {
-                document.documentElement.classList.add('loaded');
-                document.body.classList.add('loaded');
-            });
-        }
+        // Final fallback: Ensure page is visible once fully loaded
+        (function ensureVisible(){
+            if(document.readyState==='complete'){
+                requestAnimationFrame(function(){
+                    document.documentElement.classList.add('loaded');
+                    document.body.classList.add('loaded');
+                });
+            }else{
+                window.addEventListener('load',function(){
+                    requestAnimationFrame(function(){
+                        document.documentElement.classList.add('loaded');
+                        document.body.classList.add('loaded');
+                    });
+                },{once:true});
+            }
+        })();
     </script>
 </body>
 </html>

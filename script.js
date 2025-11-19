@@ -1160,6 +1160,15 @@ document.addEventListener("DOMContentLoaded", function() {
             
             if (!video) return;
             
+            // CRITICAL: Ensure video NEVER autoplays (prevent autoplay on desktop and mobile)
+            video.removeAttribute('autoplay');
+            video.removeAttribute('muted');
+            video.removeAttribute('loop');
+            video.setAttribute('autoplay', 'false');
+            video.muted = false;
+            video.autoplay = false;
+            video.loop = false;
+            
             // Set iOS-specific attributes
             video.setAttribute('playsinline', 'true');
             video.setAttribute('webkit-playsinline', 'true');
@@ -1183,6 +1192,15 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 }
             }
+            
+            // Prevent any accidental autoplay
+            video.addEventListener('play', function(e) {
+                // Only allow play if it was triggered by user interaction
+                if (!video.userInitiated) {
+                    e.preventDefault();
+                    video.pause();
+                }
+            }, { once: false });
             
             // Load first frame to show preview instead of black screen (desktop + mobile)
             video.addEventListener('loadedmetadata', function() {
@@ -1250,7 +1268,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 videoObserver.observe(wrapper);
             }
             
-            // Initial state - ensure video is paused
+            // CRITICAL: Ensure video NEVER autoplays
+            video.removeAttribute('autoplay');
+            video.removeAttribute('muted');
+            video.removeAttribute('loop');
+            video.setAttribute('autoplay', 'false');
+            video.muted = false;
+            video.autoplay = false;
+            video.loop = false;
+            
+            // Initial state - ensure video is paused (NO AUTOPLAY)
             video.pause();
             
             // Force load the video immediately to get first frame (works on desktop and mobile)
@@ -1288,16 +1315,20 @@ document.addEventListener("DOMContentLoaded", function() {
             fullscreenBtn.setAttribute('type', 'button');
             wrapper.appendChild(fullscreenBtn);
             
-            // Click play button → start video
+            // Click play button → start video (user-initiated)
             if (playBtn) {
                 playBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     if (video) {
+                        video.userInitiated = true; // Mark as user-initiated
                         playBtn.style.display = "none";
-                        video.play().catch(function(error) {
+                        video.play().then(function() {
+                            video.userInitiated = false; // Reset after play starts
+                        }).catch(function(error) {
                             // Silently handle autoplay restrictions
                             playBtn.style.display = "flex";
+                            video.userInitiated = false;
                         });
                     }
                 });
@@ -1330,7 +1361,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
             
-            // Clicking video toggles play/pause (single click)
+            // Clicking video toggles play/pause (single click) - user-initiated only
             video.addEventListener('click', function(e) {
                 // Don't interfere if clicking the fullscreen button
                 if (e.target === fullscreenBtn || e.target.closest('.video-fullscreen-btn')) {
@@ -1341,14 +1372,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 e.stopPropagation();
                 
                 if (video.paused) {
+                    video.userInitiated = true; // Mark as user-initiated
                     if (playBtn) playBtn.style.display = "none";
-                    video.play().catch(function(error) {
+                    video.play().then(function() {
+                        video.userInitiated = false; // Reset after play starts
+                    }).catch(function(error) {
                         // Silently handle autoplay restrictions
                         if (playBtn) playBtn.style.display = "flex";
+                        video.userInitiated = false;
                     });
                 } else {
                     video.pause();
                     if (playBtn) playBtn.style.display = "flex";
+                    video.userInitiated = false;
                 }
             }, { passive: false });
             

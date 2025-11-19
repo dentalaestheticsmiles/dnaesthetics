@@ -1,6 +1,14 @@
-// Performance: Navigation scroll effect - Deferred until DOM ready
-(function() {
+// ============================================
+// DNA CLINIC WEBSITE - MAIN JAVASCRIPT FILE
+// All code wrapped in DOMContentLoaded to prevent null errors
+// ============================================
+
+document.addEventListener("DOMContentLoaded", function() {
     'use strict';
+
+    // ============================================
+    // NAVIGATION SCROLL EFFECT
+    // ============================================
     let navScrollTicking = false;
     function updateNavbar() {
         const navbar = document.getElementById('navbar');
@@ -14,29 +22,16 @@
         navScrollTicking = false;
     }
     
-    // Defer scroll listener until DOM ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            window.addEventListener('scroll', function() {
-                if (!navScrollTicking) {
-                    window.requestAnimationFrame(updateNavbar);
-                    navScrollTicking = true;
-                }
-            }, { passive: true });
-        });
-    } else {
-        window.addEventListener('scroll', function() {
-            if (!navScrollTicking) {
-                window.requestAnimationFrame(updateNavbar);
-                navScrollTicking = true;
-            }
-        }, { passive: true });
-    }
-})();
+    window.addEventListener('scroll', function() {
+        if (!navScrollTicking) {
+            window.requestAnimationFrame(updateNavbar);
+            navScrollTicking = true;
+        }
+    }, { passive: true });
 
-// Performance: Mobile Menu Toggle - Deferred until DOM ready
-(function() {
-    'use strict';
+    // ============================================
+    // MOBILE MENU TOGGLE
+    // ============================================
     function initMobileMenu() {
         const hamburger = document.getElementById('hamburger');
         const navMenu = document.getElementById('navMenu');
@@ -59,17 +54,11 @@
             });
         }
     }
-    
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initMobileMenu);
-    } else {
-        initMobileMenu();
-    }
-})();
+    initMobileMenu();
 
-// Performance: Active Navigation Link - Deferred and optimized
-(function() {
-    'use strict';
+    // ============================================
+    // ACTIVE NAVIGATION LINK
+    // ============================================
     let sections, navLinksAll, scrollTicking = false;
     
     function activeLink() {
@@ -94,345 +83,338 @@
         scrollTicking = false;
     }
     
-    function initActiveLink() {
-        sections = document.querySelectorAll('section[id]');
-        navLinksAll = document.querySelectorAll('.nav-link');
-        window.addEventListener('scroll', function() {
-            if (!scrollTicking) {
-                window.requestAnimationFrame(handleScroll);
-                scrollTicking = true;
-            }
-        }, { passive: true });
-    }
-    
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initActiveLink);
-    } else {
-        initActiveLink();
-    }
-})();
+    sections = document.querySelectorAll('section[id]');
+    navLinksAll = document.querySelectorAll('.nav-link');
+    window.addEventListener('scroll', function() {
+        if (!scrollTicking) {
+            window.requestAnimationFrame(handleScroll);
+            scrollTicking = true;
+        }
+    }, { passive: true });
 
-// Welcome Modal
-const welcomeModal = document.getElementById('welcomeModal');
-const closeModal = document.querySelector('.close-modal');
+    // ============================================
+    // WELCOME MODAL
+    // ============================================
+    const welcomeModal = document.getElementById('welcomeModal');
+    const closeModal = document.querySelector('.close-modal');
 
-// Check if user has visited before
-function hasVisitedBefore() {
-    try {
-        return localStorage.getItem('hasVisited') === 'true';
-    } catch (e) {
-        return false;
+    // Check if user has visited before
+    function hasVisitedBefore() {
+        try {
+            return localStorage.getItem('hasVisited') === 'true';
+        } catch (e) {
+            return false;
+        }
     }
-}
 
-function setVisited() {
-    try {
-        localStorage.setItem('hasVisited', 'true');
-    } catch (e) {
-        // localStorage not available
+    function setVisited() {
+        try {
+            localStorage.setItem('hasVisited', 'true');
+        } catch (e) {
+            // localStorage not available
+        }
     }
-}
 
-// Show modal on first visit - Defer to avoid blocking LCP
-if (welcomeModal && !hasVisitedBefore()) {
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(function() {
+    // Show modal on first visit - Defer to avoid blocking LCP
+    if (welcomeModal && !hasVisitedBefore()) {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(function() {
+                setTimeout(() => {
+                    if (welcomeModal) {
+                        welcomeModal.classList.add('show');
+                        setVisited();
+                    }
+                }, 2000);
+            }, { timeout: 3000 });
+        } else {
             setTimeout(() => {
                 if (welcomeModal) {
                     welcomeModal.classList.add('show');
                     setVisited();
                 }
             }, 2000);
-        }, { timeout: 3000 });
-    } else {
-        setTimeout(() => {
+        }
+    }
+
+    // Close modal
+    if (closeModal && welcomeModal) {
+        closeModal.addEventListener('click', function() {
             if (welcomeModal) {
-                welcomeModal.classList.add('show');
-                setVisited();
+                welcomeModal.classList.remove('show');
+                // Show expert modal after welcome modal closes (if enough time has passed)
+                setTimeout(() => {
+                    if (typeof showExpertModal === 'function') {
+                        showExpertModal();
+                    }
+                }, 2000);
             }
-        }, 2000);
-    }
-}
-
-// Close modal
-if (closeModal && welcomeModal) {
-    closeModal.addEventListener('click', function() {
-        if (welcomeModal) {
-            welcomeModal.classList.remove('show');
-            // Show expert modal after welcome modal closes (if enough time has passed)
-            setTimeout(() => {
-                if (typeof showExpertModal === 'function') {
-                    showExpertModal();
-                }
-            }, 2000);
-        }
-    });
-
-    // Close modal when clicking outside
-    welcomeModal.addEventListener('click', function(event) {
-        if (event.target === welcomeModal) {
-            welcomeModal.classList.remove('show');
-            // Show expert modal after welcome modal closes (if enough time has passed)
-            setTimeout(() => {
-                if (typeof showExpertModal === 'function') {
-                    showExpertModal();
-                }
-            }, 2000);
-        }
-    });
-}
-
-// Expert Dentist Consultation Modal - Smart Helpful System
-const expertConsultationModal = document.getElementById('expertConsultationModal');
-const expertCloseBtn = document.querySelector('.expert-close-btn');
-
-// Configuration
-const EXPERT_CONFIG = {
-    MODAL_KEY: 'expertModalLastShown',
-    CLOSED_KEY: 'expertModalClosed',
-    INTEREST_KEY: 'expertModalInterest',
-    SERVICES_SCROLL_KEY: 'expertModalServicesScrolled',
-    INTERVAL: 3 * 60 * 1000, // Show every 3 minutes if conditions met (reduced from 5 to appear faster)
-    MIN_TIME_AFTER_CLOSE: 1.5 * 60 * 1000, // Wait 1.5 minutes after closing before showing again (reduced from 2)
-    SERVICES_SCROLL_THRESHOLD: 2, // Number of times user scrolls through services (reduced from 3)
-    CONFUSION_TIME: 30 * 1000, // Time spent on page without action (30 seconds, reduced from 45)
-    MIN_SCROLL_DEPTH: 30, // Minimum scroll percentage to show interest (reduced from 40)
-    INITIAL_DELAY: 15 * 1000 // 15 seconds initial delay before first check
-};
-
-// Track user behavior
-let userBehavior = {
-    scrollHistory: [],
-    servicesScrollCount: 0,
-    lastScrollPosition: 0,
-    scrollDirectionChanges: 0,
-    timeOnPage: 0,
-    lastActionTime: Date.now(),
-    startTime: Date.now(),
-    servicesSectionVisited: false,
-    scrollBackToServices: 0,
-    clicksCount: 0
-};
-
-// Track if user is in services section
-let isInServicesSection = false;
-let servicesSectionTop = 0;
-let servicesSectionBottom = 0;
-
-// Initialize behavior tracking
-function initBehaviorTracking() {
-    // Find services section position
-    const servicesSection = document.getElementById('services');
-    if (servicesSection) {
-        servicesSectionTop = servicesSection.offsetTop;
-        servicesSectionBottom = servicesSectionTop + servicesSection.offsetHeight;
-    }
-
-    let lastScrollY = window.pageYOffset;
-    let scrollDirection = 'down';
-    
-    // Optimized scroll behavior tracking (using requestAnimationFrame)
-    let behaviorScrollTicking = false;
-    function trackScrollBehavior() {
-        const currentScrollY = window.pageYOffset || window.scrollY;
-        const scrollTop = currentScrollY || document.documentElement.scrollTop;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const scrollPercent = (scrollTop / docHeight) * 100;
-        
-        // Track scroll history (last 10 positions)
-        userBehavior.scrollHistory.push({
-            position: scrollTop,
-            time: Date.now()
         });
-        if (userBehavior.scrollHistory.length > 10) {
-            userBehavior.scrollHistory.shift();
-        }
-        
-        // Detect scroll direction changes (indicates confusion/indecision)
-        const newDirection = currentScrollY > lastScrollY ? 'down' : 'up';
-        if (newDirection !== scrollDirection && Math.abs(currentScrollY - lastScrollY) > 100) {
-            userBehavior.scrollDirectionChanges++;
-            scrollDirection = newDirection;
-        }
-        lastScrollY = currentScrollY;
-        
-        // Track if user is in services section
-        const inServices = scrollTop >= servicesSectionTop - 200 && scrollTop <= servicesSectionBottom + 200;
-        if (inServices && !isInServicesSection) {
-            // User just entered services section
-            isInServicesSection = true;
-            userBehavior.servicesSectionVisited = true;
-        } else if (!inServices && isInServicesSection) {
-            // User left services section
-            isInServicesSection = false;
-            userBehavior.servicesScrollCount++;
-            
-            // If user scrolls back to services, they might be confused
-            if (scrollTop < servicesSectionTop) {
-                userBehavior.scrollBackToServices++;
+
+        // Close modal when clicking outside
+        welcomeModal.addEventListener('click', function(event) {
+            if (event.target === welcomeModal) {
+                welcomeModal.classList.remove('show');
+                // Show expert modal after welcome modal closes (if enough time has passed)
+                setTimeout(() => {
+                    if (typeof showExpertModal === 'function') {
+                        showExpertModal();
+                    }
+                }, 2000);
             }
+        });
+    }
+
+    // ============================================
+    // EXPERT DENTIST CONSULTATION MODAL
+    // ============================================
+    const expertConsultationModal = document.getElementById('expertConsultationModal');
+    const expertCloseBtn = document.querySelector('.expert-close-btn');
+
+    // Configuration
+    const EXPERT_CONFIG = {
+        MODAL_KEY: 'expertModalLastShown',
+        CLOSED_KEY: 'expertModalClosed',
+        INTEREST_KEY: 'expertModalInterest',
+        SERVICES_SCROLL_KEY: 'expertModalServicesScrolled',
+        INTERVAL: 3 * 60 * 1000,
+        MIN_TIME_AFTER_CLOSE: 1.5 * 60 * 1000,
+        SERVICES_SCROLL_THRESHOLD: 2,
+        CONFUSION_TIME: 30 * 1000,
+        MIN_SCROLL_DEPTH: 30,
+        INITIAL_DELAY: 15 * 1000
+    };
+
+    // Track user behavior
+    let userBehavior = {
+        scrollHistory: [],
+        servicesScrollCount: 0,
+        lastScrollPosition: 0,
+        scrollDirectionChanges: 0,
+        timeOnPage: 0,
+        lastActionTime: Date.now(),
+        startTime: Date.now(),
+        servicesSectionVisited: false,
+        scrollBackToServices: 0,
+        clicksCount: 0
+    };
+
+    // Track if user is in services section
+    let isInServicesSection = false;
+    let servicesSectionTop = 0;
+    let servicesSectionBottom = 0;
+
+    // Initialize behavior tracking
+    function initBehaviorTracking() {
+        // Find services section position
+        const servicesSection = document.getElementById('services');
+        if (servicesSection) {
+            servicesSectionTop = servicesSection.offsetTop;
+            servicesSectionBottom = servicesSectionTop + servicesSection.offsetHeight;
+        }
+
+        let lastScrollY = window.pageYOffset;
+        let scrollDirection = 'down';
+        
+        // Optimized scroll behavior tracking (using requestAnimationFrame)
+        let behaviorScrollTicking = false;
+        function trackScrollBehavior() {
+            const currentScrollY = window.pageYOffset || window.scrollY;
+            const scrollTop = currentScrollY || document.documentElement.scrollTop;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            
+            // Track scroll history (last 10 positions)
+            userBehavior.scrollHistory.push({
+                position: scrollTop,
+                time: Date.now()
+            });
+            if (userBehavior.scrollHistory.length > 10) {
+                userBehavior.scrollHistory.shift();
+            }
+            
+            // Detect scroll direction changes (indicates confusion/indecision)
+            const newDirection = currentScrollY > lastScrollY ? 'down' : 'up';
+            if (newDirection !== scrollDirection && Math.abs(currentScrollY - lastScrollY) > 100) {
+                userBehavior.scrollDirectionChanges++;
+                scrollDirection = newDirection;
+            }
+            lastScrollY = currentScrollY;
+            
+            // Track if user is in services section
+            const inServices = scrollTop >= servicesSectionTop - 200 && scrollTop <= servicesSectionBottom + 200;
+            if (inServices && !isInServicesSection) {
+                // User just entered services section
+                isInServicesSection = true;
+                userBehavior.servicesSectionVisited = true;
+            } else if (!inServices && isInServicesSection) {
+                // User left services section
+                isInServicesSection = false;
+                userBehavior.servicesScrollCount++;
+                
+                // If user scrolls back to services, they might be confused
+                if (scrollTop < servicesSectionTop) {
+                    userBehavior.scrollBackToServices++;
+                }
+            }
+            
+            userBehavior.lastScrollPosition = scrollTop;
+            userBehavior.lastActionTime = Date.now();
+            behaviorScrollTicking = false;
         }
         
-        userBehavior.lastScrollPosition = scrollTop;
-        userBehavior.lastActionTime = Date.now();
-        behaviorScrollTicking = false;
+        window.addEventListener('scroll', function() {
+            if (!behaviorScrollTicking) {
+                window.requestAnimationFrame(trackScrollBehavior);
+                behaviorScrollTicking = true;
+            }
+        }, { passive: true });
+
+        // Track clicks (user taking action)
+        document.addEventListener('click', function() {
+            userBehavior.clicksCount++;
+            userBehavior.lastActionTime = Date.now();
+        });
+
+        // Track time on page
+        setInterval(function() {
+            userBehavior.timeOnPage = Date.now() - userBehavior.startTime;
+        }, 1000);
     }
-    
-    window.addEventListener('scroll', function() {
-        if (!behaviorScrollTicking) {
-            window.requestAnimationFrame(trackScrollBehavior);
-            behaviorScrollTicking = true;
+
+    // Check if user seems clueless/confused
+    function userSeemsClueless() {
+        // User has been on page for a while without taking action
+        const timeSinceLastAction = Date.now() - userBehavior.lastActionTime;
+        const noActionForAWhile = timeSinceLastAction > EXPERT_CONFIG.CONFUSION_TIME;
+        
+        // User has scrolled through services multiple times (looking but not sure)
+        const scrolledServicesMultipleTimes = userBehavior.servicesScrollCount >= EXPERT_CONFIG.SERVICES_SCROLL_THRESHOLD;
+        
+        // User is scrolling back and forth (indecision)
+        const scrollingBackAndForth = userBehavior.scrollDirectionChanges > 8;
+        
+        // User scrolled back to services after leaving (reconsidering)
+        const reconsideringServices = userBehavior.scrollBackToServices >= 2;
+        
+        // User has been on page for a while, scrolled through services, but hasn't clicked much
+        const engagedButInactive = userBehavior.timeOnPage > 60 * 1000 && 
+                                    userBehavior.servicesSectionVisited && 
+                                    userBehavior.clicksCount < 3;
+        
+        // Return true if any of these "clueless" indicators are present
+        return (noActionForAWhile && userBehavior.servicesSectionVisited) ||
+               scrolledServicesMultipleTimes ||
+               (scrollingBackAndForth && userBehavior.servicesSectionVisited) ||
+               reconsideringServices ||
+               engagedButInactive;
+    }
+
+    // Check if user is actively browsing services
+    function isBrowsingServices() {
+        const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+        return currentScroll >= servicesSectionTop - 200 && 
+               currentScroll <= servicesSectionBottom + 200 &&
+               userBehavior.servicesSectionVisited;
+    }
+
+    // Check if modal was closed by user
+    function wasModalClosed() {
+        return localStorage.getItem(EXPERT_CONFIG.CLOSED_KEY) === 'true';
+    }
+
+    // Check if enough time has passed since last shown
+    function shouldShowBasedOnTime() {
+        const lastShown = localStorage.getItem(EXPERT_CONFIG.MODAL_KEY);
+        if (!lastShown) {
+            return true; // Never shown before
         }
-    }, { passive: true });
-
-    // Track clicks (user taking action)
-    document.addEventListener('click', function() {
-        userBehavior.clicksCount++;
-        userBehavior.lastActionTime = Date.now();
-    });
-
-    // Track time on page
-    setInterval(function() {
-        userBehavior.timeOnPage = Date.now() - userBehavior.startTime;
-    }, 1000);
-}
-
-// Check if user seems clueless/confused
-function userSeemsClueless() {
-    // User has been on page for a while without taking action
-    const timeSinceLastAction = Date.now() - userBehavior.lastActionTime;
-    const noActionForAWhile = timeSinceLastAction > EXPERT_CONFIG.CONFUSION_TIME;
-    
-    // User has scrolled through services multiple times (looking but not sure)
-    const scrolledServicesMultipleTimes = userBehavior.servicesScrollCount >= EXPERT_CONFIG.SERVICES_SCROLL_THRESHOLD;
-    
-    // User is scrolling back and forth (indecision)
-    const scrollingBackAndForth = userBehavior.scrollDirectionChanges > 8;
-    
-    // User scrolled back to services after leaving (reconsidering)
-    const reconsideringServices = userBehavior.scrollBackToServices >= 2;
-    
-    // User has been on page for a while, scrolled through services, but hasn't clicked much
-    const engagedButInactive = userBehavior.timeOnPage > 60 * 1000 && 
-                                userBehavior.servicesSectionVisited && 
-                                userBehavior.clicksCount < 3;
-    
-    // Return true if any of these "clueless" indicators are present
-    return (noActionForAWhile && userBehavior.servicesSectionVisited) ||
-           scrolledServicesMultipleTimes ||
-           (scrollingBackAndForth && userBehavior.servicesSectionVisited) ||
-           reconsideringServices ||
-           engagedButInactive;
-}
-
-// Check if user is actively browsing services
-function isBrowsingServices() {
-    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-    return currentScroll >= servicesSectionTop - 200 && 
-           currentScroll <= servicesSectionBottom + 200 &&
-           userBehavior.servicesSectionVisited;
-}
-
-// Check if modal was closed by user
-function wasModalClosed() {
-    return localStorage.getItem(EXPERT_CONFIG.CLOSED_KEY) === 'true';
-}
-
-// Check if enough time has passed since last shown
-function shouldShowBasedOnTime() {
-    const lastShown = localStorage.getItem(EXPERT_CONFIG.MODAL_KEY);
-    if (!lastShown) {
-        return true; // Never shown before
+        const timeSinceLastShown = Date.now() - parseInt(lastShown);
+        return timeSinceLastShown >= EXPERT_CONFIG.INTERVAL;
     }
-    const timeSinceLastShown = Date.now() - parseInt(lastShown);
-    return timeSinceLastShown >= EXPERT_CONFIG.INTERVAL;
-}
 
-// Check if enough time has passed since user closed it
-function enoughTimeAfterClose() {
-    const closedTime = localStorage.getItem(EXPERT_CONFIG.CLOSED_KEY + '_time');
-    if (!closedTime) {
-        return true; // Never closed before
+    // Check if enough time has passed since user closed it
+    function enoughTimeAfterClose() {
+        const closedTime = localStorage.getItem(EXPERT_CONFIG.CLOSED_KEY + '_time');
+        if (!closedTime) {
+            return true; // Never closed before
+        }
+        const timeSinceClose = Date.now() - parseInt(closedTime);
+        return timeSinceClose >= EXPERT_CONFIG.MIN_TIME_AFTER_CLOSE;
     }
-    const timeSinceClose = Date.now() - parseInt(closedTime);
-    return timeSinceClose >= EXPERT_CONFIG.MIN_TIME_AFTER_CLOSE;
-}
 
-// Determine if modal should be shown
-function shouldShowExpertModal() {
-    // Don't show if modal is already visible
-    if (expertConsultationModal && expertConsultationModal.classList.contains('show')) {
-        return false;
-    }
-    
-    // If never closed, show when:
-    // 1. User is browsing services section
-    // 2. Enough time has passed
-    if (!wasModalClosed()) {
-        if (shouldShowBasedOnTime() && isBrowsingServices()) {
+    // Determine if modal should be shown
+    function shouldShowExpertModal() {
+        // Don't show if modal is already visible
+        if (!expertConsultationModal || expertConsultationModal.classList.contains('show')) {
+            return false;
+        }
+        
+        // If never closed, show when:
+        // 1. User is browsing services section
+        // 2. Enough time has passed
+        if (!wasModalClosed()) {
+            if (shouldShowBasedOnTime() && isBrowsingServices()) {
+                return true;
+            }
+            return false;
+        }
+        
+        // If closed before, only show if:
+        // 1. Enough time has passed since last shown
+        // 2. Enough time has passed since user closed it
+        // 3. User seems clueless/confused (needs help)
+        if (shouldShowBasedOnTime() && enoughTimeAfterClose() && userSeemsClueless()) {
             return true;
         }
+        
         return false;
     }
-    
-    // If closed before, only show if:
-    // 1. Enough time has passed since last shown
-    // 2. Enough time has passed since user closed it
-    // 3. User seems clueless/confused (needs help)
-    if (shouldShowBasedOnTime() && enoughTimeAfterClose() && userSeemsClueless()) {
-        return true;
-    }
-    
-    return false;
-}
 
-// Show Expert Modal
-function showExpertModal() {
-    if (!expertConsultationModal) return;
-    
-    if (shouldShowExpertModal()) {
-        expertConsultationModal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-        localStorage.setItem(EXPERT_CONFIG.MODAL_KEY, Date.now().toString());
+    // Show Expert Modal
+    function showExpertModal() {
+        if (!expertConsultationModal) return;
         
-        // Reset some behavior tracking to avoid immediate re-triggering
-        userBehavior.scrollDirectionChanges = 0;
-        userBehavior.scrollBackToServices = 0;
-    }
-}
-
-// Close Expert Modal
-function closeExpertModal() {
-    if (expertConsultationModal) {
-        expertConsultationModal.classList.remove('show');
-        document.body.style.overflow = 'auto';
-        localStorage.setItem(EXPERT_CONFIG.CLOSED_KEY, 'true');
-        localStorage.setItem(EXPERT_CONFIG.CLOSED_KEY + '_time', Date.now().toString());
-        
-        // Reset behavior tracking when user closes
-        userBehavior.lastActionTime = Date.now();
-    }
-}
-
-// Set up close handlers
-if (expertCloseBtn && expertConsultationModal) {
-    expertCloseBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        closeExpertModal();
-    });
-}
-
-if (expertConsultationModal) {
-    expertConsultationModal.addEventListener('click', function(event) {
-        if (event.target === expertConsultationModal || event.target.classList.contains('expert-modal-backdrop')) {
-            closeExpertModal();
+        if (shouldShowExpertModal()) {
+            expertConsultationModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            localStorage.setItem(EXPERT_CONFIG.MODAL_KEY, Date.now().toString());
+            
+            // Reset some behavior tracking to avoid immediate re-triggering
+            userBehavior.scrollDirectionChanges = 0;
+            userBehavior.scrollBackToServices = 0;
         }
-    });
-}
+    }
 
-// Initialize on page load - Optimized to not block LCP
-document.addEventListener('DOMContentLoaded', function() {
+    // Close Expert Modal
+    function closeExpertModal() {
+        if (expertConsultationModal) {
+            expertConsultationModal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            localStorage.setItem(EXPERT_CONFIG.CLOSED_KEY, 'true');
+            localStorage.setItem(EXPERT_CONFIG.CLOSED_KEY + '_time', Date.now().toString());
+            
+            // Reset behavior tracking when user closes
+            userBehavior.lastActionTime = Date.now();
+        }
+    }
+
+    // Set up close handlers
+    if (expertCloseBtn && expertConsultationModal) {
+        expertCloseBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeExpertModal();
+        });
+    }
+
+    if (expertConsultationModal) {
+        expertConsultationModal.addEventListener('click', function(event) {
+            if (event.target === expertConsultationModal || (event.target && event.target.classList.contains('expert-modal-backdrop'))) {
+                closeExpertModal();
+            }
+        });
+    }
+
     // Initialize behavior tracking immediately (lightweight, non-blocking)
     initBehaviorTracking();
     
@@ -449,24 +431,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
                     // Check periodically if modal should be shown (every 8 seconds - faster)
                     setInterval(function() {
-                        if (!expertConsultationModal.classList.contains('show')) {
+                        if (expertConsultationModal && !expertConsultationModal.classList.contains('show')) {
                             showExpertModal();
                         }
-                    }, 8 * 1000); // Check every 8 seconds (reduced from 10)
+                    }, 8 * 1000); // Check every 8 seconds
                 }, EXPERT_CONFIG.INITIAL_DELAY);
             }
         }, 500);
         
         // Also check when user scrolls through services (faster response)
         window.addEventListener('scroll', function() {
-            if (isBrowsingServices() && !expertConsultationModal.classList.contains('show')) {
-                // Debounce: only check after user stops scrolling for 1 second (reduced from 2)
+            if (isBrowsingServices() && expertConsultationModal && !expertConsultationModal.classList.contains('show')) {
+                // Debounce: only check after user stops scrolling for 1 second
                 clearTimeout(window.servicesScrollTimeout);
                 window.servicesScrollTimeout = setTimeout(function() {
                     if (shouldShowExpertModal()) {
                         showExpertModal();
                     }
-                }, 1000); // Reduced from 2000ms to 1000ms
+                }, 1000);
             }
         }, { passive: true });
     }
@@ -477,10 +459,10 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         setTimeout(initExpertModalSystem, 2000);
     }
-});
 
-// Smooth Scrolling for anchor links - Fixed to not interfere with kids button
-document.addEventListener('DOMContentLoaded', function() {
+    // ============================================
+    // SMOOTH SCROLLING FOR ANCHOR LINKS
+    // ============================================
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         // Skip the kids appointment button
         if (anchor.id === 'kidsAppointmentBtn') {
@@ -501,204 +483,64 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
 
-// Contact Form Submission with EmailJS
-const appointmentForm = document.getElementById('appointmentForm');
-if (appointmentForm) {
-    appointmentForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get form data
-        const name = document.getElementById('contactName').value;
-        const email = document.getElementById('contactEmail').value;
-        const phone = document.getElementById('contactPhone').value;
-        const service = document.getElementById('contactService').value;
-        const message = document.getElementById('contactMessage').value;
-
-        // Create contact data object
-        const contactData = {
-            name: name,
-            email: email,
-            phone: phone,
-            service: service,
-            message: message || 'No additional message'
-        };
-
-        // Save to localStorage as backup
-        try {
-            let savedContacts = JSON.parse(localStorage.getItem('dnaContacts') || '[]');
-            savedContacts.push(contactData);
-            localStorage.setItem('dnaContacts', JSON.stringify(savedContacts));
-        } catch (error) {
-            // localStorage not available or quota exceeded
-        }
-
-        // Send email using EmailJS
-        const EMAILJS_CONFIG = {
-            PUBLIC_KEY: '2fdaHy-1vPUqWh23A', // EmailJS Public Key
-            SERVICE_ID: 'service_13xdgm3', // EmailJS Service ID
-            TEMPLATE_ID: 'template_lpjsx54' // EmailJS Template ID
-        };
-
-        // Prepare email data
-        const emailData = {
-            to_email: 'dentalaestheticsmiles@gmail.com', // DNA Clinic official email
-            name: name,
-            email: email,
-            phone: phone,
-            service: service,
-            message: message || 'No additional message'
-        };
-
-        // Send email via EmailJS
-        if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
-            emailjs.send(
-                EMAILJS_CONFIG.SERVICE_ID,
-                EMAILJS_CONFIG.TEMPLATE_ID,
-                emailData,
-                EMAILJS_CONFIG.PUBLIC_KEY
-            )
-            .then(function(response) {
-                // Email sent successfully
-            }, function(error) {
-                // Email sending failed - show user-friendly message
-                alert('⚠️ There was an issue sending your contact request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your contact details have been saved.');
-            });
-        }
-
-        // Success message
-        const successMessage = `🎉 Thank you, ${name}!\n\nYour appointment request for ${service} has been received.\n\nWe will contact you at ${phone} or ${email} shortly.\n\nWe look forward to serving you! 😊`;
-        
-        alert(successMessage);
-        
-        // Reset form
-        this.reset();
-    });
-}
-
-// Kids Appointment Modal - Initialize after DOM is loaded
-function initKidsModal() {
-    const kidsAppointmentBtn = document.getElementById('kidsAppointmentBtn');
-    const kidsAppointmentModal = document.getElementById('kidsAppointmentModal');
-    const kidsCloseModal = document.querySelector('.kids-close-modal');
-    const kidsAppointmentForm = document.getElementById('kidsAppointmentForm');
-
-        // Initialize Kids Modal (console logs removed for production)
-
-    // Set minimum date to today
-    const kidDateInput = document.getElementById('kidDate');
-    if (kidDateInput) {
-        const today = new Date().toISOString().split('T')[0];
-        kidDateInput.setAttribute('min', today);
-    }
-
-    // Open Kids Modal - Use direct event handler with higher priority
-    if (kidsAppointmentBtn && kidsAppointmentModal) {
-        // Remove href to prevent navigation
-        kidsAppointmentBtn.setAttribute('href', 'javascript:void(0);');
-        
-        // Add click handler with capture phase for higher priority
-        kidsAppointmentBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            if (kidsAppointmentModal) {
-                kidsAppointmentModal.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }
-            return false;
-        }, true); // Use capture phase for higher priority
-        
-        // Also add as regular listener as backup
-        kidsAppointmentBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (kidsAppointmentModal) {
-                kidsAppointmentModal.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }
-            return false;
-        };
-    }
-
-    // Close Kids Modal
-    if (kidsCloseModal && kidsAppointmentModal) {
-        kidsCloseModal.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (kidsAppointmentModal) {
-                kidsAppointmentModal.classList.remove('show');
-                document.body.style.overflow = 'auto';
-            }
-        });
-    }
-
-    // REMOVED: Close Kids Modal when clicking outside - Modal only closes via close button now
-
-    // Kids Form Submission
-    if (kidsAppointmentForm) {
-        kidsAppointmentForm.addEventListener('submit', function(e) {
+    // ============================================
+    // CONTACT FORM SUBMISSION WITH EMAILJS
+    // ============================================
+    const appointmentForm = document.getElementById('appointmentForm');
+    if (appointmentForm) {
+        appointmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Get form data
-            const parentName = document.getElementById('parentName').value;
-            const kidName = document.getElementById('kidName').value;
-            const email = document.getElementById('kidEmail').value;
-            const phone = document.getElementById('kidPhone').value;
-            const service = document.getElementById('kidService').value;
-            const date = document.getElementById('kidDate').value;
-            const time = document.getElementById('kidTime').value;
-            const message = document.getElementById('kidMessage').value;
+            const nameInput = document.getElementById('contactName');
+            const emailInput = document.getElementById('contactEmail');
+            const phoneInput = document.getElementById('contactPhone');
+            const serviceInput = document.getElementById('contactService');
+            const messageInput = document.getElementById('contactMessage');
+            
+            if (!nameInput || !emailInput || !phoneInput || !serviceInput || !messageInput) {
+                return;
+            }
+            
+            const name = nameInput.value;
+            const email = emailInput.value;
+            const phone = phoneInput.value;
+            const service = serviceInput.value;
+            const message = messageInput.value;
 
-            // Format date for display
-            const formattedDate = new Date(date).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-
-            // Create appointment data object
-            const appointmentData = {
-                parentName: parentName,
-                kidName: kidName,
+            // Create contact data object
+            const contactData = {
+                name: name,
                 email: email,
                 phone: phone,
                 service: service,
-                date: date,
-                formattedDate: formattedDate,
-                time: time,
-                message: message,
-                timestamp: new Date().toISOString()
+                message: message || 'No additional message'
             };
 
             // Save to localStorage as backup
             try {
-                let savedAppointments = JSON.parse(localStorage.getItem('dnaKidsAppointments') || '[]');
-                savedAppointments.push(appointmentData);
-                localStorage.setItem('dnaKidsAppointments', JSON.stringify(savedAppointments));
+                let savedContacts = JSON.parse(localStorage.getItem('dnaContacts') || '[]');
+                savedContacts.push(contactData);
+                localStorage.setItem('dnaContacts', JSON.stringify(savedContacts));
             } catch (error) {
                 // localStorage not available or quota exceeded
             }
 
             // Send email using EmailJS
             const EMAILJS_CONFIG = {
-                PUBLIC_KEY: '2fdaHy-1vPUqWh23A', // EmailJS Public Key
-                SERVICE_ID: 'service_13xdgm3', // EmailJS Service ID
-                TEMPLATE_ID: 'template_lpjsx54' // EmailJS Template ID
+                PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
+                SERVICE_ID: 'service_13xdgm3',
+                TEMPLATE_ID: 'template_lpjsx54'
             };
 
             // Prepare email data
             const emailData = {
-                to_email: 'dentalaestheticsmiles@gmail.com', // DNA Clinic official email
-                parent_name: parentName,
-                kid_name: kidName,
-                parent_email: email,
+                to_email: 'dentalaestheticsmiles@gmail.com',
+                name: name,
+                email: email,
                 phone: phone,
                 service: service,
-                appointment_date: formattedDate,
-                appointment_time: time,
                 message: message || 'No additional message'
             };
 
@@ -714,90 +556,245 @@ function initKidsModal() {
                     // Email sent successfully
                 }, function(error) {
                     // Email sending failed - show user-friendly message
-                    alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
+                    alert('⚠️ There was an issue sending your contact request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your contact details have been saved.');
                 });
             }
 
             // Success message
-            const successMessage = `🎉 Thank you, ${parentName}!\n\nWe're excited to meet ${kidName}!\n\nAppointment Details:\n📅 Date: ${formattedDate}\n⏰ Time: ${time}\n🦷 Service: ${service}\n\nWe'll contact you at ${phone} to confirm the appointment. See you soon! 😊`;
+            const successMessage = `🎉 Thank you, ${name}!\n\nYour appointment request for ${service} has been received.\n\nWe will contact you at ${phone} or ${email} shortly.\n\nWe look forward to serving you! 😊`;
             
             alert(successMessage);
             
             // Reset form
             this.reset();
+        });
+    }
+
+    // ============================================
+    // KIDS APPOINTMENT MODAL
+    // ============================================
+    function initKidsModal() {
+        const kidsAppointmentBtn = document.getElementById('kidsAppointmentBtn');
+        const kidsAppointmentModal = document.getElementById('kidsAppointmentModal');
+        const kidsCloseModal = document.querySelector('.kids-close-modal');
+        const kidsAppointmentForm = document.getElementById('kidsAppointmentForm');
+
+        // Set minimum date to today
+        const kidDateInput = document.getElementById('kidDate');
+        if (kidDateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            kidDateInput.setAttribute('min', today);
+        }
+
+        // Open Kids Modal
+        if (kidsAppointmentBtn && kidsAppointmentModal) {
+            // Remove href to prevent navigation
+            kidsAppointmentBtn.setAttribute('href', 'javascript:void(0);');
             
-            // Close modal
-            if (kidsAppointmentModal) {
-                kidsAppointmentModal.classList.remove('show');
-                document.body.style.overflow = 'auto';
-            }
-        });
-    }
-}
+            // Add click handler with capture phase for higher priority
+            kidsAppointmentBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                if (kidsAppointmentModal) {
+                    kidsAppointmentModal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                }
+                return false;
+            }, true);
+            
+            // Also add as regular listener as backup
+            kidsAppointmentBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (kidsAppointmentModal) {
+                    kidsAppointmentModal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                }
+                return false;
+            };
+        }
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initKidsModal);
-} else {
-    // DOM is already loaded
+        // Close Kids Modal
+        if (kidsCloseModal && kidsAppointmentModal) {
+            kidsCloseModal.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (kidsAppointmentModal) {
+                    kidsAppointmentModal.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+
+        // Kids Form Submission
+        if (kidsAppointmentForm) {
+            kidsAppointmentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form data with null checks
+                const parentNameInput = document.getElementById('parentName');
+                const kidNameInput = document.getElementById('kidName');
+                const emailInput = document.getElementById('kidEmail');
+                const phoneInput = document.getElementById('kidPhone');
+                const serviceInput = document.getElementById('kidService');
+                const dateInput = document.getElementById('kidDate');
+                const timeInput = document.getElementById('kidTime');
+                const messageInput = document.getElementById('kidMessage');
+                
+                if (!parentNameInput || !kidNameInput || !emailInput || !phoneInput || 
+                    !serviceInput || !dateInput || !timeInput || !messageInput) {
+                    return;
+                }
+                
+                const parentName = parentNameInput.value;
+                const kidName = kidNameInput.value;
+                const email = emailInput.value;
+                const phone = phoneInput.value;
+                const service = serviceInput.value;
+                const date = dateInput.value;
+                const time = timeInput.value;
+                const message = messageInput.value;
+
+                // Format date for display
+                const formattedDate = new Date(date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                // Create appointment data object
+                const appointmentData = {
+                    parentName: parentName,
+                    kidName: kidName,
+                    email: email,
+                    phone: phone,
+                    service: service,
+                    date: date,
+                    formattedDate: formattedDate,
+                    time: time,
+                    message: message,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Save to localStorage as backup
+                try {
+                    let savedAppointments = JSON.parse(localStorage.getItem('dnaKidsAppointments') || '[]');
+                    savedAppointments.push(appointmentData);
+                    localStorage.setItem('dnaKidsAppointments', JSON.stringify(savedAppointments));
+                } catch (error) {
+                    // localStorage not available or quota exceeded
+                }
+
+                // Send email using EmailJS
+                const EMAILJS_CONFIG = {
+                    PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
+                    SERVICE_ID: 'service_13xdgm3',
+                    TEMPLATE_ID: 'template_lpjsx54'
+                };
+
+                // Prepare email data
+                const emailData = {
+                    to_email: 'dentalaestheticsmiles@gmail.com',
+                    parent_name: parentName,
+                    kid_name: kidName,
+                    parent_email: email,
+                    phone: phone,
+                    service: service,
+                    appointment_date: formattedDate,
+                    appointment_time: time,
+                    message: message || 'No additional message'
+                };
+
+                // Send email via EmailJS
+                if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
+                    emailjs.send(
+                        EMAILJS_CONFIG.SERVICE_ID,
+                        EMAILJS_CONFIG.TEMPLATE_ID,
+                        emailData,
+                        EMAILJS_CONFIG.PUBLIC_KEY
+                    )
+                    .then(function(response) {
+                        // Email sent successfully
+                    }, function(error) {
+                        // Email sending failed - show user-friendly message
+                        alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
+                    });
+                }
+
+                // Success message
+                const successMessage = `🎉 Thank you, ${parentName}!\n\nWe're excited to meet ${kidName}!\n\nAppointment Details:\n📅 Date: ${formattedDate}\n⏰ Time: ${time}\n🦷 Service: ${service}\n\nWe'll contact you at ${phone} to confirm the appointment. See you soon! 😊`;
+                
+                alert(successMessage);
+                
+                // Reset form
+                this.reset();
+                
+                // Close modal
+                if (kidsAppointmentModal) {
+                    kidsAppointmentModal.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+    }
     initKidsModal();
-}
 
-// Performance: Intersection Observer animations - Lazy load after user interaction
-(function() {
-    'use strict';
-    if (!('IntersectionObserver' in window)) return;
-    
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translate3d(0, 0, 0)';
-                observer.unobserve(entry.target);
-            }
+    // ============================================
+    // INTERSECTION OBSERVER ANIMATIONS
+    // ============================================
+    if ('IntersectionObserver' in window) {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translate3d(0, 0, 0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        var animationsLoaded = false;
+        function initAnimations() {
+            if (animationsLoaded) return;
+            animationsLoaded = true;
+            const animateElements = document.querySelectorAll('.service-card, .blog-card, .tour-item, .feature-item, .testimonial-card');
+            animateElements.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translate3d(0, 30px, 0)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                el.style.willChange = 'opacity, transform';
+                observer.observe(el);
+            });
+        }
+        
+        ['click', 'touchstart', 'scroll'].forEach(function(e) {
+            document.addEventListener(e, function() {
+                if ('requestIdleCallback' in window) {
+                    requestIdleCallback(initAnimations, { timeout: 2000 });
+                } else {
+                    setTimeout(initAnimations, 1000);
+                }
+            }, { once: true, passive: true });
         });
-    }, observerOptions);
-    
-    var animationsLoaded = false;
-    function initAnimations() {
-        if (animationsLoaded) return;
-        animationsLoaded = true;
-        const animateElements = document.querySelectorAll('.service-card, .blog-card, .tour-item, .feature-item');
-        animateElements.forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translate3d(0, 30px, 0)';
-            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            el.style.willChange = 'opacity, transform';
-            observer.observe(el);
-        });
-    }
-    
-    ['click', 'touchstart', 'scroll'].forEach(function(e) {
-        document.addEventListener(e, function() {
+        setTimeout(function() {
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(initAnimations, { timeout: 2000 });
             } else {
-                setTimeout(initAnimations, 1000);
+                setTimeout(initAnimations, 2000);
             }
-        }, { once: true, passive: true });
-    });
-    setTimeout(function() {
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(initAnimations, { timeout: 2000 });
-        } else {
-            setTimeout(initAnimations, 2000);
-        }
-    }, 2000);
-})();
+        }, 2000);
+    }
 
-// Performance: Hover effects - Lazy load after user interaction
-(function() {
-    'use strict';
+    // ============================================
+    // HOVER EFFECTS
+    // ============================================
     var hoverEffectsLoaded = false;
     
     function initHoverEffects() {
@@ -843,197 +840,171 @@ if (document.readyState === 'loading') {
             setTimeout(initHoverEffects, 2000);
         }
     }, 2000);
-})();
 
-// Optimized image loading (removed to prevent layout shifts - images now have explicit dimensions)
+    // ============================================
+    // PARALLAX EFFECT
+    // ============================================
+    let lastScrollY = 0;
+    let ticking = false;
 
-// Social media links are handled via href attributes (no tracking needed for performance)
-
-// Optimized parallax effect (using GPU acceleration)
-let lastScrollY = 0;
-let ticking = false;
-
-function updateParallax() {
-    const scrolled = window.pageYOffset || window.scrollY;
-    const hero = document.querySelector('.hero');
-    if (hero && scrolled < window.innerHeight) {
-        hero.style.transform = `translate3d(0, ${scrolled * 0.5}px, 0)`;
-    }
-    ticking = false;
-}
-
-window.addEventListener('scroll', function() {
-    if (!ticking) {
-        window.requestAnimationFrame(updateParallax);
-        ticking = true;
-    }
-}, { passive: true });
-
-// Counter Animation (if you want to add statistics)
-function animateCounter(element, target, duration = 2000) {
-    let start = 0;
-    const increment = target / (duration / 16);
-    const timer = setInterval(() => {
-        start += increment;
-        if (start >= target) {
-            element.textContent = target;
-            clearInterval(timer);
-        } else {
-            element.textContent = Math.floor(start);
+    function updateParallax() {
+        const scrolled = window.pageYOffset || window.scrollY;
+        const hero = document.querySelector('.hero');
+        if (hero && scrolled < window.innerHeight) {
+            hero.style.transform = `translate3d(0, ${scrolled * 0.5}px, 0)`;
         }
-    }, 16);
-}
+        ticking = false;
+    }
 
-// Lazy loading for images (performance optimization)
-if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    imageObserver.unobserve(img);
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(updateParallax);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    // ============================================
+    // LAZY LOADING FOR IMAGES
+    // ============================================
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        imageObserver.unobserve(img);
+                    }
                 }
-            }
+            });
         });
-    });
 
-    document.querySelectorAll('img[data-src]').forEach(img => {
-        imageObserver.observe(img);
-    });
-}
-
-// Performance: Smooth reveal animations - Lazy load after scroll
-(function() {
-    'use strict';
-    if (!('IntersectionObserver' in window)) return;
-    
-    var revealLoaded = false;
-    const revealElements = document.querySelectorAll('.about-content, .referral-content, .contact-content');
-    const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translate3d(0, 0, 0)';
-                revealObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.2 });
-    
-    function initReveal() {
-        if (revealLoaded) return;
-        revealLoaded = true;
-        revealElements.forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translate3d(0, 30px, 0)';
-            el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-            el.style.willChange = 'opacity, transform';
-            revealObserver.observe(el);
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            imageObserver.observe(img);
         });
     }
-    
-    window.addEventListener('scroll', initReveal, { once: true, passive: true });
-    setTimeout(initReveal, 2000);
-})();
 
-// Team Carousel Functionality
-let currentTeamIndex = 0;
-const teamMembers = document.querySelectorAll('.team-member');
-const teamDots = document.querySelectorAll('.dot');
-const teamPrevBtn = document.getElementById('teamPrevBtn');
-const teamNextBtn = document.getElementById('teamNextBtn');
-
-function showTeamMember(index) {
-    // Remove active class from all members and dots
-    teamMembers.forEach(member => member.classList.remove('active'));
-    teamDots.forEach(dot => dot.classList.remove('active'));
-    
-    // Add active class to current member and dot
-    if (teamMembers[index]) {
-        teamMembers[index].classList.add('active');
+    // ============================================
+    // SMOOTH REVEAL ANIMATIONS
+    // ============================================
+    if ('IntersectionObserver' in window) {
+        var revealLoaded = false;
+        const revealElements = document.querySelectorAll('.about-content, .referral-content, .contact-content');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translate3d(0, 0, 0)';
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.2 });
+        
+        function initReveal() {
+            if (revealLoaded) return;
+            revealLoaded = true;
+            revealElements.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translate3d(0, 30px, 0)';
+                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                el.style.willChange = 'opacity, transform';
+                revealObserver.observe(el);
+            });
+        }
+        
+        window.addEventListener('scroll', initReveal, { once: true, passive: true });
+        setTimeout(initReveal, 2000);
     }
-    if (teamDots[index]) {
-        teamDots[index].classList.add('active');
+
+    // ============================================
+    // TEAM CAROUSEL FUNCTIONALITY
+    // ============================================
+    let currentTeamIndex = 0;
+    const teamMembers = document.querySelectorAll('.team-member');
+    const teamDots = document.querySelectorAll('.dot');
+    const teamPrevBtn = document.getElementById('teamPrevBtn');
+    const teamNextBtn = document.getElementById('teamNextBtn');
+    const teamCarousel = document.getElementById('teamCarousel');
+
+    function showTeamMember(index) {
+        // Remove active class from all members and dots
+        teamMembers.forEach(member => {
+            if (member) member.classList.remove('active');
+        });
+        teamDots.forEach(dot => {
+            if (dot) dot.classList.remove('active');
+        });
+        
+        // Add active class to current member and dot
+        if (teamMembers[index]) {
+            teamMembers[index].classList.add('active');
+        }
+        if (teamDots[index]) {
+            teamDots[index].classList.add('active');
+        }
     }
-}
 
-function nextTeamMember() {
-    currentTeamIndex = (currentTeamIndex + 1) % teamMembers.length;
-    showTeamMember(currentTeamIndex);
-}
+    function nextTeamMember() {
+        if (teamMembers.length > 0) {
+            currentTeamIndex = (currentTeamIndex + 1) % teamMembers.length;
+            showTeamMember(currentTeamIndex);
+        }
+    }
 
-function prevTeamMember() {
-    currentTeamIndex = (currentTeamIndex - 1 + teamMembers.length) % teamMembers.length;
-    showTeamMember(currentTeamIndex);
-}
+    function prevTeamMember() {
+        if (teamMembers.length > 0) {
+            currentTeamIndex = (currentTeamIndex - 1 + teamMembers.length) % teamMembers.length;
+            showTeamMember(currentTeamIndex);
+        }
+    }
 
-// Event listeners for carousel buttons
-if (teamPrevBtn) {
-    teamPrevBtn.addEventListener('click', prevTeamMember);
-}
+    // Event listeners for carousel buttons
+    if (teamPrevBtn) {
+        teamPrevBtn.addEventListener('click', prevTeamMember);
+    }
 
-if (teamNextBtn) {
-    teamNextBtn.addEventListener('click', nextTeamMember);
-}
+    if (teamNextBtn) {
+        teamNextBtn.addEventListener('click', nextTeamMember);
+    }
 
-// Event listeners for dots
-teamDots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-        currentTeamIndex = index;
-        showTeamMember(currentTeamIndex);
+    // Event listeners for dots
+    teamDots.forEach((dot, index) => {
+        if (dot) {
+            dot.addEventListener('click', () => {
+                currentTeamIndex = index;
+                showTeamMember(currentTeamIndex);
+            });
+        }
     });
-});
 
-// Auto-play carousel (optional - can be disabled)
-let carouselInterval;
-function startCarousel() {
-    carouselInterval = setInterval(nextTeamMember, 5000); // Change slide every 5 seconds
-}
+    // Touch/swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
 
-function stopCarousel() {
-    clearInterval(carouselInterval);
-}
+    if (teamCarousel) {
+        teamCarousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
 
-// Auto-play disabled - carousel only moves when buttons are clicked
-// Uncomment below if you want auto-play when you have multiple team members
-// if (teamMembers.length > 1) {
-//     startCarousel();
-//     
-//     // Pause on hover
-//     if (teamCarousel) {
-//         teamCarousel.addEventListener('mouseenter', stopCarousel);
-//         teamCarousel.addEventListener('mouseleave', startCarousel);
-//     }
-// }
-
-// Touch/swipe support for mobile
-let touchStartX = 0;
-let touchEndX = 0;
-const teamCarousel = document.getElementById('teamCarousel');
-
-if (teamCarousel) {
-    teamCarousel.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-    });
-
-    teamCarousel.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    });
-}
-
-function handleSwipe() {
-    if (touchEndX < touchStartX - 50) {
-        nextTeamMember(); // Swipe left - next
+        teamCarousel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
     }
-    if (touchEndX > touchStartX + 50) {
-        prevTeamMember(); // Swipe right - previous
-    }
-}
 
-// Optimize Deepika's image loading (preload for LCP)
-document.addEventListener('DOMContentLoaded', function() {
+    function handleSwipe() {
+        if (touchEndX < touchStartX - 50) {
+            nextTeamMember(); // Swipe left - next
+        }
+        if (touchEndX > touchStartX + 50) {
+            prevTeamMember(); // Swipe right - previous
+        }
+    }
+
+    // ============================================
+    // DEEPIKA IMAGE OPTIMIZATION
+    // ============================================
     const deepikaImg = document.getElementById('deepikaImage');
     if (deepikaImg && !deepikaImg.complete) {
         // Preload the image for better LCP
@@ -1043,5 +1014,34 @@ document.addEventListener('DOMContentLoaded', function() {
         link.href = 'deepika.png';
         document.head.appendChild(link);
     }
-});
 
+    // ============================================
+    // MOBILE VIDEO TAP ENHANCEMENT
+    // ============================================
+    // Ensure videos play immediately on mobile tap
+    if ('ontouchstart' in window) {
+        const testimonialVideos = document.querySelectorAll('#testimonials video');
+        testimonialVideos.forEach(video => {
+            // Remove any default play prevention
+            video.addEventListener('touchstart', function(e) {
+                // Allow video to play on tap
+                if (video.paused) {
+                    video.play().catch(function(error) {
+                        // Handle autoplay restrictions gracefully
+                        console.log('Video play prevented:', error);
+                    });
+                }
+            }, { passive: true });
+            
+            // Ensure video plays when controls are tapped
+            video.addEventListener('click', function() {
+                if (video.paused) {
+                    video.play().catch(function(error) {
+                        console.log('Video play prevented:', error);
+                    });
+                }
+            });
+        });
+    }
+
+}); // End of DOMContentLoaded

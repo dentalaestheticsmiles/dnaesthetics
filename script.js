@@ -1,81 +1,116 @@
-// Optimized Navigation Scroll Effect (using requestAnimationFrame)
-let navScrollTicking = false;
-function updateNavbar() {
-    const navbar = document.getElementById('navbar');
-    if (navbar) {
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
+// Performance: Navigation scroll effect - Deferred until DOM ready
+(function() {
+    'use strict';
+    let navScrollTicking = false;
+    function updateNavbar() {
+        const navbar = document.getElementById('navbar');
+        if (navbar) {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        }
+        navScrollTicking = false;
+    }
+    
+    // Defer scroll listener until DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            window.addEventListener('scroll', function() {
+                if (!navScrollTicking) {
+                    window.requestAnimationFrame(updateNavbar);
+                    navScrollTicking = true;
+                }
+            }, { passive: true });
+        });
+    } else {
+        window.addEventListener('scroll', function() {
+            if (!navScrollTicking) {
+                window.requestAnimationFrame(updateNavbar);
+                navScrollTicking = true;
+            }
+        }, { passive: true });
+    }
+})();
+
+// Performance: Mobile Menu Toggle - Deferred until DOM ready
+(function() {
+    'use strict';
+    function initMobileMenu() {
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        
+        if (hamburger && navMenu) {
+            hamburger.addEventListener('click', function() {
+                hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+                const isExpanded = hamburger.classList.contains('active');
+                hamburger.setAttribute('aria-expanded', isExpanded);
+            });
+            
+            // Close mobile menu when clicking on a link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    hamburger.classList.remove('active');
+                    navMenu.classList.remove('active');
+                });
+            });
         }
     }
-    navScrollTicking = false;
-}
-
-window.addEventListener('scroll', function() {
-    if (!navScrollTicking) {
-        window.requestAnimationFrame(updateNavbar);
-        navScrollTicking = true;
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileMenu);
+    } else {
+        initMobileMenu();
     }
-}, { passive: true });
+})();
 
-// Mobile Menu Toggle
-const hamburger = document.getElementById('hamburger');
-const navMenu = document.getElementById('navMenu');
-
-if (hamburger && navMenu) {
-    hamburger.addEventListener('click', function() {
-        hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
-        const isExpanded = hamburger.classList.contains('active');
-        hamburger.setAttribute('aria-expanded', isExpanded);
-    });
-}
-
-// Close mobile menu when clicking on a link
-const navLinks = document.querySelectorAll('.nav-link');
-navLinks.forEach(link => {
-    link.addEventListener('click', function() {
-        hamburger.classList.remove('active');
-        navMenu.classList.remove('active');
-    });
-});
-
-// Active Navigation Link
-const sections = document.querySelectorAll('section[id]');
-const navLinksAll = document.querySelectorAll('.nav-link');
-
-function activeLink() {
-    let current = '';
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        if (window.scrollY >= sectionTop - 200) {
-            current = section.getAttribute('id');
-        }
-    });
-
-    navLinksAll.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
-        }
-    });
-}
-
-// Optimized scroll handler with requestAnimationFrame
-let scrollTicking = false;
-function handleScroll() {
-    activeLink();
-    scrollTicking = false;
-}
-
-window.addEventListener('scroll', function() {
-    if (!scrollTicking) {
-        window.requestAnimationFrame(handleScroll);
-        scrollTicking = true;
+// Performance: Active Navigation Link - Deferred and optimized
+(function() {
+    'use strict';
+    let sections, navLinksAll, scrollTicking = false;
+    
+    function activeLink() {
+        if (!sections || !navLinksAll) return;
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (window.scrollY >= sectionTop - 200) {
+                current = section.getAttribute('id');
+            }
+        });
+        navLinksAll.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
     }
-}, { passive: true });
+    
+    function handleScroll() {
+        activeLink();
+        scrollTicking = false;
+    }
+    
+    function initActiveLink() {
+        sections = document.querySelectorAll('section[id]');
+        navLinksAll = document.querySelectorAll('.nav-link');
+        window.addEventListener('scroll', function() {
+            if (!scrollTicking) {
+                window.requestAnimationFrame(handleScroll);
+                scrollTicking = true;
+            }
+        }, { passive: true });
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initActiveLink);
+    } else {
+        initActiveLink();
+    }
+})();
 
 // Welcome Modal
 const welcomeModal = document.getElementById('welcomeModal');
@@ -708,13 +743,16 @@ if (document.readyState === 'loading') {
     initKidsModal();
 }
 
-// Intersection Observer for Fade-in Animations (Optimized with GPU acceleration)
-if ('IntersectionObserver' in window) {
+// Performance: Intersection Observer animations - Lazy load after user interaction
+(function() {
+    'use strict';
+    if (!('IntersectionObserver' in window)) return;
+    
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-
+    
     const observer = new IntersectionObserver(function(entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -724,9 +762,11 @@ if ('IntersectionObserver' in window) {
             }
         });
     }, observerOptions);
-
-    // Observe elements for animation - Defer to avoid blocking LCP
+    
+    var animationsLoaded = false;
     function initAnimations() {
+        if (animationsLoaded) return;
+        animationsLoaded = true;
         const animateElements = document.querySelectorAll('.service-card, .blog-card, .tour-item, .feature-item');
         animateElements.forEach(el => {
             el.style.opacity = '0';
@@ -737,69 +777,73 @@ if ('IntersectionObserver' in window) {
         });
     }
     
-    // Defer animation initialization
-    if ('requestIdleCallback' in window) {
-        document.addEventListener('DOMContentLoaded', function() {
+    ['click', 'touchstart', 'scroll'].forEach(function(e) {
+        document.addEventListener(e, function() {
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(initAnimations, { timeout: 2000 });
+            } else {
+                setTimeout(initAnimations, 1000);
+            }
+        }, { once: true, passive: true });
+    });
+    setTimeout(function() {
+        if ('requestIdleCallback' in window) {
             requestIdleCallback(initAnimations, { timeout: 2000 });
+        } else {
+            setTimeout(initAnimations, 2000);
+        }
+    }, 2000);
+})();
+
+// Performance: Hover effects - Lazy load after user interaction
+(function() {
+    'use strict';
+    var hoverEffectsLoaded = false;
+    
+    function initHoverEffects() {
+        if (hoverEffectsLoaded) return;
+        hoverEffectsLoaded = true;
+        
+        const serviceCards = document.querySelectorAll('.service-card');
+        serviceCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translate3d(0, -10px, 0) scale(1.02)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translate3d(0, 0, 0) scale(1)';
+            });
         });
-    } else {
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(initAnimations, 1000);
+        
+        const tourItems = document.querySelectorAll('.tour-item');
+        tourItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                const img = this.querySelector('img');
+                if (img) img.style.transform = 'scale3d(1.15, 1.15, 1)';
+            });
+            item.addEventListener('mouseleave', function() {
+                const img = this.querySelector('img');
+                if (img) img.style.transform = 'scale3d(1, 1, 1)';
+            });
         });
     }
-}
-
-// Service Card Hover Effect Enhancement (Optimized with GPU acceleration) - Deferred
-function initHoverEffects() {
-    const serviceCards = document.querySelectorAll('.service-card');
-    serviceCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translate3d(0, -10px, 0) scale(1.02)';
-        });
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translate3d(0, 0, 0) scale(1)';
-        });
-    });
-}
-
-if ('requestIdleCallback' in window) {
-    document.addEventListener('DOMContentLoaded', function() {
-        requestIdleCallback(initHoverEffects, { timeout: 2000 });
-    });
-} else {
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(initHoverEffects, 1000);
-    });
-}
-
-// Tour Gallery Image Zoom Effect (Optimized with GPU acceleration) - Deferred
-function initTourEffects() {
-    const tourItems = document.querySelectorAll('.tour-item');
-    tourItems.forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            const img = this.querySelector('img');
-            if (img) {
-                img.style.transform = 'scale3d(1.15, 1.15, 1)';
-            }
-        });
-        item.addEventListener('mouseleave', function() {
-            const img = this.querySelector('img');
-            if (img) {
-                img.style.transform = 'scale3d(1, 1, 1)';
-            }
-        });
-    });
-}
-
-if ('requestIdleCallback' in window) {
-    document.addEventListener('DOMContentLoaded', function() {
-        requestIdleCallback(initTourEffects, { timeout: 2000 });
-    });
-} else {
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(initTourEffects, 1000);
-    });
-}
+    
+    // Load on first mouse move or after 2s
+    document.addEventListener('mousemove', function() {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(initHoverEffects, { timeout: 1000 });
+        } else {
+            setTimeout(initHoverEffects, 500);
+        }
+    }, { once: true, passive: true });
+    
+    setTimeout(function() {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(initHoverEffects, { timeout: 2000 });
+        } else {
+            setTimeout(initHoverEffects, 2000);
+        }
+    }, 2000);
+})();
 
 // Optimized image loading (removed to prevent layout shifts - images now have explicit dimensions)
 
@@ -860,8 +904,12 @@ if ('IntersectionObserver' in window) {
     });
 }
 
-// Optimized smooth reveal animation on scroll (GPU accelerated)
-if ('IntersectionObserver' in window) {
+// Performance: Smooth reveal animations - Lazy load after scroll
+(function() {
+    'use strict';
+    if (!('IntersectionObserver' in window)) return;
+    
+    var revealLoaded = false;
     const revealElements = document.querySelectorAll('.about-content, .referral-content, .contact-content');
     const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -872,8 +920,10 @@ if ('IntersectionObserver' in window) {
             }
         });
     }, { threshold: 0.2 });
-
-    document.addEventListener('DOMContentLoaded', function() {
+    
+    function initReveal() {
+        if (revealLoaded) return;
+        revealLoaded = true;
         revealElements.forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translate3d(0, 30px, 0)';
@@ -881,8 +931,11 @@ if ('IntersectionObserver' in window) {
             el.style.willChange = 'opacity, transform';
             revealObserver.observe(el);
         });
-    });
-}
+    }
+    
+    window.addEventListener('scroll', initReveal, { once: true, passive: true });
+    setTimeout(initReveal, 2000);
+})();
 
 // Team Carousel Functionality
 let currentTeamIndex = 0;

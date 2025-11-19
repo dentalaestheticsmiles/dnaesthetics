@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" style="visibility:hidden;opacity:0">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="deepika.png">
     
     <!-- SEO Meta Tags -->
     <title>DNA Clinic - Dental and Aesthetics | Premium Dental Care</title>
@@ -26,13 +29,6 @@
     <meta property="twitter:description" content="Transform your smile with world-class dental and aesthetic treatments at DNA Clinic.">
     <meta property="twitter:image" content="https://dnaesthetics.in/og-image.jpg">
     
-    <!-- Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https://images.unsplash.com https:; connect-src 'self' https://api.emailjs.com; frame-ancestors 'none';">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
-    
     <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,23 +39,15 @@
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
     
     <!-- Preload critical resources for LCP -->
-    <link rel="preload" href="deepika.png" as="image" type="image/png" fetchpriority="high">
     <link rel="preload" href="styles.css" as="style">
-    <link rel="preload" href="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=40&q=75&auto=format&fit=crop" as="image" fetchpriority="high">
-    <link rel="preload" href="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=40&q=75&auto=format&fit=crop" as="image" fetchpriority="high">
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style" crossorigin="anonymous">
-    <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecg.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-    <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2" as="font" type="font/woff2" crossorigin="anonymous">
     
     <!-- Critical CSS Inline - Prevents FOUC -->
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--primary-color:#7C3AED;--secondary-color:#6B46C1;--accent-color:#F59E0B;--dark-color:#1E293B;--light-color:#F3E8FF;--text-dark:#1a1a1a;--text-light:#666;--white:#ffffff}
-        html{scroll-behavior:smooth;visibility:hidden;opacity:0}
-        html.loaded{visibility:visible;opacity:1;transition:opacity 0.2s ease-in}
-        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:var(--text-dark);line-height:1.6;overflow-x:hidden;visibility:hidden;opacity:0;transition:opacity 0.3s ease,visibility 0s 0.3s}
-        body.loaded{visibility:visible;opacity:1;transition:opacity 0.3s ease}
-        body:not(.loaded) *{visibility:hidden!important}
+        html{scroll-behavior:smooth}
+        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:var(--text-dark);line-height:1.6;overflow-x:hidden}
         .navbar{position:fixed;top:0;width:100%;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,0.1);z-index:1000;transition:all 0.3s ease;padding:1rem 0}
         .nav-brand{display:flex;align-items:center;gap:1rem}
         .brand-icon-wrapper{display:flex;align-items:center;position:relative}
@@ -86,38 +74,8 @@
     </style>
     
     <!-- Deferred CSS with FOUC prevention - Optimized for performance -->
-    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet';requestAnimationFrame(function(){document.documentElement.classList.add('loaded');document.body.classList.add('loaded')})">
-    <noscript><link rel="stylesheet" href="styles.css"><script>document.documentElement.classList.add('loaded');document.body.classList.add('loaded');</script></noscript>
-    <script>
-        // Immediate execution to hide content before CSS loads
-        (function(){
-            document.documentElement.style.visibility='hidden';
-            document.documentElement.style.opacity='0';
-            if(document.body){
-                document.body.style.visibility='hidden';
-                document.body.style.opacity='0';
-            }
-        })();
-        // Fallback: Show content if CSS doesn't load within 500ms
-        setTimeout(function(){
-            if(!document.documentElement.classList.contains('loaded')){
-                document.documentElement.classList.add('loaded');
-                document.body.classList.add('loaded');
-            }
-        }, 500);
-        // Check if CSS is already loaded
-        (function checkCSSLoaded(){
-            var link=document.querySelector('link[href="styles.css"]');
-            if(link&&(link.sheet||link.styleSheet)){
-                requestAnimationFrame(function(){
-                    document.documentElement.classList.add('loaded');
-                    document.body.classList.add('loaded');
-                });
-            }else if(document.readyState!=='complete'){
-                setTimeout(checkCSSLoaded,50);
-            }
-        })();
-    </script>
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.css"></noscript>
     
     <!-- Fonts with font-display: swap and crossorigin -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous" media="print" onload="this.media='all'">
@@ -1376,24 +1334,6 @@
     </div>
 
     <script src="script.js" defer></script>
-    <script>
-        // Final fallback: Ensure page is visible once fully loaded
-        (function ensureVisible(){
-            if(document.readyState==='complete'){
-                requestAnimationFrame(function(){
-                    document.documentElement.classList.add('loaded');
-                    document.body.classList.add('loaded');
-                });
-            }else{
-                window.addEventListener('load',function(){
-                    requestAnimationFrame(function(){
-                        document.documentElement.classList.add('loaded');
-                        document.body.classList.add('loaded');
-                    });
-                },{once:true});
-            }
-        })();
-    </script>
 </body>
 </html>
 

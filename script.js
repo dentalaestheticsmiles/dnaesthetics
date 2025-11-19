@@ -98,14 +98,25 @@ function setVisited() {
     }
 }
 
-// Show modal on first visit
+// Show modal on first visit - Defer to avoid blocking LCP
 if (welcomeModal && !hasVisitedBefore()) {
-    setTimeout(() => {
-        if (welcomeModal) {
-            welcomeModal.classList.add('show');
-            setVisited();
-        }
-    }, 1000);
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(function() {
+            setTimeout(() => {
+                if (welcomeModal) {
+                    welcomeModal.classList.add('show');
+                    setVisited();
+                }
+            }, 2000);
+        }, { timeout: 3000 });
+    } else {
+        setTimeout(() => {
+            if (welcomeModal) {
+                welcomeModal.classList.add('show');
+                setVisited();
+            }
+        }, 2000);
+    }
 }
 
 // Close modal
@@ -385,42 +396,52 @@ if (expertConsultationModal) {
     });
 }
 
-// Initialize on page load
+// Initialize on page load - Optimized to not block LCP
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize behavior tracking
+    // Initialize behavior tracking immediately (lightweight, non-blocking)
     initBehaviorTracking();
     
-    // Check if welcome modal is showing
-    const checkWelcomeModal = setInterval(function() {
-        const welcomeShowing = welcomeModal && welcomeModal.classList.contains('show');
-        
-        if (!welcomeShowing) {
-            clearInterval(checkWelcomeModal);
+    // Defer expert modal logic to avoid blocking LCP
+    function initExpertModalSystem() {
+        // Check if welcome modal is showing
+        const checkWelcomeModal = setInterval(function() {
+            const welcomeShowing = welcomeModal && welcomeModal.classList.contains('show');
             
-            // Initial delay before first check (to avoid immediate popup)
-            setTimeout(function() {
-                // Check periodically if modal should be shown (every 8 seconds - faster)
-                setInterval(function() {
-                    if (!expertConsultationModal.classList.contains('show')) {
+            if (!welcomeShowing) {
+                clearInterval(checkWelcomeModal);
+                
+                // Initial delay before first check (to avoid immediate popup)
+                setTimeout(function() {
+                    // Check periodically if modal should be shown (every 8 seconds - faster)
+                    setInterval(function() {
+                        if (!expertConsultationModal.classList.contains('show')) {
+                            showExpertModal();
+                        }
+                    }, 8 * 1000); // Check every 8 seconds (reduced from 10)
+                }, EXPERT_CONFIG.INITIAL_DELAY);
+            }
+        }, 500);
+        
+        // Also check when user scrolls through services (faster response)
+        window.addEventListener('scroll', function() {
+            if (isBrowsingServices() && !expertConsultationModal.classList.contains('show')) {
+                // Debounce: only check after user stops scrolling for 1 second (reduced from 2)
+                clearTimeout(window.servicesScrollTimeout);
+                window.servicesScrollTimeout = setTimeout(function() {
+                    if (shouldShowExpertModal()) {
                         showExpertModal();
                     }
-                }, 8 * 1000); // Check every 8 seconds (reduced from 10)
-            }, EXPERT_CONFIG.INITIAL_DELAY);
-        }
-    }, 500);
+                }, 1000); // Reduced from 2000ms to 1000ms
+            }
+        }, { passive: true });
+    }
     
-    // Also check when user scrolls through services (faster response)
-    window.addEventListener('scroll', function() {
-        if (isBrowsingServices() && !expertConsultationModal.classList.contains('show')) {
-            // Debounce: only check after user stops scrolling for 1 second (reduced from 2)
-            clearTimeout(window.servicesScrollTimeout);
-            window.servicesScrollTimeout = setTimeout(function() {
-                if (shouldShowExpertModal()) {
-                    showExpertModal();
-                }
-            }, 1000); // Reduced from 2000ms to 1000ms
-        }
-    });
+    // Use requestIdleCallback to defer modal initialization (non-blocking)
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initExpertModalSystem, { timeout: 3000 });
+    } else {
+        setTimeout(initExpertModalSystem, 2000);
+    }
 });
 
 // Smooth Scrolling for anchor links - Fixed to not interfere with kids button
@@ -704,8 +725,8 @@ if ('IntersectionObserver' in window) {
         });
     }, observerOptions);
 
-    // Observe elements for animation
-    document.addEventListener('DOMContentLoaded', function() {
+    // Observe elements for animation - Defer to avoid blocking LCP
+    function initAnimations() {
         const animateElements = document.querySelectorAll('.service-card, .blog-card, .tour-item, .feature-item');
         animateElements.forEach(el => {
             el.style.opacity = '0';
@@ -714,11 +735,22 @@ if ('IntersectionObserver' in window) {
             el.style.willChange = 'opacity, transform';
             observer.observe(el);
         });
-    });
+    }
+    
+    // Defer animation initialization
+    if ('requestIdleCallback' in window) {
+        document.addEventListener('DOMContentLoaded', function() {
+            requestIdleCallback(initAnimations, { timeout: 2000 });
+        });
+    } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initAnimations, 1000);
+        });
+    }
 }
 
-// Service Card Hover Effect Enhancement (Optimized with GPU acceleration)
-document.addEventListener('DOMContentLoaded', function() {
+// Service Card Hover Effect Enhancement (Optimized with GPU acceleration) - Deferred
+function initHoverEffects() {
     const serviceCards = document.querySelectorAll('.service-card');
     serviceCards.forEach(card => {
         card.addEventListener('mouseenter', function() {
@@ -728,10 +760,20 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'translate3d(0, 0, 0) scale(1)';
         });
     });
-});
+}
 
-// Tour Gallery Image Zoom Effect (Optimized with GPU acceleration)
-document.addEventListener('DOMContentLoaded', function() {
+if ('requestIdleCallback' in window) {
+    document.addEventListener('DOMContentLoaded', function() {
+        requestIdleCallback(initHoverEffects, { timeout: 2000 });
+    });
+} else {
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initHoverEffects, 1000);
+    });
+}
+
+// Tour Gallery Image Zoom Effect (Optimized with GPU acceleration) - Deferred
+function initTourEffects() {
     const tourItems = document.querySelectorAll('.tour-item');
     tourItems.forEach(item => {
         item.addEventListener('mouseenter', function() {
@@ -747,7 +789,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
+}
+
+if ('requestIdleCallback' in window) {
+    document.addEventListener('DOMContentLoaded', function() {
+        requestIdleCallback(initTourEffects, { timeout: 2000 });
+    });
+} else {
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initTourEffects, 1000);
+    });
+}
 
 // Optimized image loading (removed to prevent layout shifts - images now have explicit dimensions)
 

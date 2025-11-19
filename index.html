@@ -203,7 +203,199 @@
         setTimeout(initEmailJS,2000);
     </script>
     
-</head>
+    <!-- Premium Testimonial Section Animations -->
+    <style>
+        /* Gold Sparkle Animation for Stars */
+        @keyframes goldSparkle {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1) rotate(0deg);
+                filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.6));
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scale(1.15) rotate(5deg);
+                filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.9));
+            }
+        }
+
+        /* Gold Animated Divider */
+        .gold-divider {
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                #D4AF37 20%, 
+                #F4D03F 50%, 
+                #D4AF37 80%, 
+                transparent 100%);
+            border-radius: 2px;
+            position: relative;
+            animation: goldShimmer 3s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 
+                        0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        @keyframes goldShimmer {
+            0%, 100% {
+                opacity: 0.8;
+                transform: scaleX(1);
+                box-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 
+                            0 0 20px rgba(212, 175, 55, 0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scaleX(1.1);
+                box-shadow: 0 0 15px rgba(212, 175, 55, 0.8), 
+                            0 0 30px rgba(212, 175, 55, 0.5);
+            }
+        }
+
+        /* Floating Sparkles Background */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #D4AF37 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            animation: floatSparkle 12s ease-in-out infinite;
+        }
+
+        .sparkle-1 {
+            left: 10%;
+            top: 20%;
+            animation-delay: 0s;
+            animation-duration: 15s;
+        }
+
+        .sparkle-2 {
+            left: 30%;
+            top: 10%;
+            animation-delay: 2s;
+            animation-duration: 18s;
+        }
+
+        .sparkle-3 {
+            left: 50%;
+            top: 15%;
+            animation-delay: 4s;
+            animation-duration: 14s;
+        }
+
+        .sparkle-4 {
+            left: 70%;
+            top: 25%;
+            animation-delay: 1s;
+            animation-duration: 16s;
+        }
+
+        .sparkle-5 {
+            left: 20%;
+            top: 60%;
+            animation-delay: 3s;
+            animation-duration: 17s;
+        }
+
+        .sparkle-6 {
+            left: 60%;
+            top: 70%;
+            animation-delay: 5s;
+            animation-duration: 13s;
+        }
+
+        .sparkle-7 {
+            left: 80%;
+            top: 50%;
+            animation-delay: 2.5s;
+            animation-duration: 19s;
+        }
+
+        .sparkle-8 {
+            left: 40%;
+            top: 80%;
+            animation-delay: 4.5s;
+            animation-duration: 15s;
+        }
+
+        @keyframes floatSparkle {
+            0% {
+                opacity: 0;
+                transform: translateY(0) translateX(0) scale(0.5);
+            }
+            10% {
+                opacity: 0.6;
+                transform: translateY(-20px) translateX(10px) scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(-100px) translateX(30px) scale(1.2);
+            }
+            90% {
+                opacity: 0.4;
+                transform: translateY(-180px) translateX(50px) scale(0.8);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-200px) translateX(60px) scale(0.3);
+            }
+        }
+
+        /* Fade In Up Animation for Cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Tap Glow Effect */
+        @media (max-width: 768px) {
+            .testimonial-card:active {
+                transform: scale(0.98);
+                box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            }
+        }
+
+        /* Premium Card Hover Effects */
+        .testimonial-card {
+            will-change: transform, box-shadow;
+        }
+
+        /* Ensure videos maintain aspect ratio */
+        .video-container video {
+            aspect-ratio: 16 / 9;
+        }
+
+        /* Mobile video optimization */
+        @media (max-width: 768px) {
+            .video-container {
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .video-container video {
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
+
+        /* Star Twinkle Animation (existing, updated for gold) */
+        @keyframes starTwinkle {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.7; 
+                transform: scale(1.1);
+            }
+        }
+    </style>
+    </head>
 <body>
     <!-- Pop-up Modal -->
     <div id="welcomeModal" class="modal">
@@ -1049,209 +1241,250 @@
         </div>
     </section>
 
-    <!-- Patient Success Stories / Testimonials Section - TailwindCSS with Dental-Themed Animations -->
+    <!-- Patient Success Stories / Testimonials Section - Premium TailwindCSS with Mobile-Optimized Videos -->
     <section id="testimonials" class="w-full py-20 px-4 relative overflow-hidden" style="background: linear-gradient(135deg, #F6F1E9 0%, #ffffff 50%, #F6F1E9 100%);">
+        <!-- Floating Sparkles Background Effect -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            <div class="sparkle sparkle-1"></div>
+            <div class="sparkle sparkle-2"></div>
+            <div class="sparkle sparkle-3"></div>
+            <div class="sparkle sparkle-4"></div>
+            <div class="sparkle sparkle-5"></div>
+            <div class="sparkle sparkle-6"></div>
+            <div class="sparkle sparkle-7"></div>
+            <div class="sparkle sparkle-8"></div>
+        </div>
+        
         <!-- Decorative Dental Elements -->
-        <div class="absolute top-10 left-10 opacity-5 hidden lg:block">
+        <div class="absolute top-10 left-10 opacity-5 hidden lg:block z-0">
             <i class="fas fa-tooth text-8xl" style="color: #0B7A75; animation: floatTooth 6s ease-in-out infinite;"></i>
         </div>
-        <div class="absolute bottom-10 right-10 opacity-5 hidden lg:block">
+        <div class="absolute bottom-10 right-10 opacity-5 hidden lg:block z-0">
             <i class="fas fa-smile text-8xl" style="color: #0B7A75; animation: floatTooth 8s ease-in-out infinite reverse;"></i>
         </div>
         
         <div class="max-w-7xl mx-auto relative z-10">
-            <!-- Section Header with Animation -->
+            <!-- Section Header with Premium Styling -->
             <div class="text-center mb-16 testimonial-header">
-                <div class="inline-block mb-4">
-                    <i class="fas fa-star text-2xl" style="color: #0B7A75; animation: sparkle 2s ease-in-out infinite;"></i>
-                    <i class="fas fa-star text-3xl mx-2" style="color: #0B7A75; animation: sparkle 2s ease-in-out infinite 0.3s;"></i>
-                    <i class="fas fa-star text-2xl" style="color: #0B7A75; animation: sparkle 2s ease-in-out infinite 0.6s;"></i>
+                <!-- 5 Gold Stars -->
+                <div class="inline-flex items-center justify-center gap-2 mb-6">
+                    <i class="fas fa-star text-2xl testimonial-star" style="color: #D4AF37; animation: goldSparkle 2s ease-in-out infinite;"></i>
+                    <i class="fas fa-star text-3xl testimonial-star" style="color: #D4AF37; animation: goldSparkle 2s ease-in-out infinite 0.2s;"></i>
+                    <i class="fas fa-star text-4xl testimonial-star" style="color: #D4AF37; animation: goldSparkle 2s ease-in-out infinite 0.4s;"></i>
+                    <i class="fas fa-star text-3xl testimonial-star" style="color: #D4AF37; animation: goldSparkle 2s ease-in-out infinite 0.6s;"></i>
+                    <i class="fas fa-star text-2xl testimonial-star" style="color: #D4AF37; animation: goldSparkle 2s ease-in-out infinite 0.8s;"></i>
                 </div>
-                <h2 class="text-4xl md:text-5xl font-bold mb-4 testimonial-title" style="color: #0B7A75;">
+                
+                <!-- Premium Title -->
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 testimonial-title" style="color: #0B7A75; letter-spacing: -0.02em; line-height: 1.2;">
                     Stories That Shine: Smiles Transformed by Dr. Deepika
                 </h2>
-                <div class="w-24 h-1 mx-auto mb-4 rounded-full" style="background: linear-gradient(90deg, transparent, #0B7A75, transparent); animation: expandLine 1s ease-out;"></div>
-                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto testimonial-subtitle">
+                
+                <!-- Gold Animated Divider -->
+                <div class="gold-divider mx-auto mb-6"></div>
+                
+                <!-- Subtitle -->
+                <p class="text-lg md:text-xl lg:text-2xl text-gray-700 max-w-3xl mx-auto testimonial-subtitle font-light" style="color: #4B5563;">
                     Real experiences from patients who trusted Deepika's gentle hands and aesthetic expertise.
                 </p>
             </div>
 
-            <!-- Video Testimonials Grid with Staggered Animations -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Video Testimonials Grid with Premium Staggered Animations -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
                 <!-- Testimonial Card 1 -->
-                <div class="testimonial-card testimonial-card-1 bg-white rounded-2xl shadow-lg overflow-hidden group">
-                    <div class="relative w-full video-container" style="padding-top: 56.25%;">
+                <div class="testimonial-card testimonial-card-1 bg-white rounded-2xl shadow-xl overflow-hidden group transform transition-all duration-500 hover:scale-105 hover:shadow-2xl" style="animation: fadeInUp 0.8s ease-out 0.1s both;">
+                    <div class="relative w-full video-container" style="padding-top: 56.25%; background: #000;">
                         <video 
-                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-105"
-                            controls 
+                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
+                            controls
+                            playsinline
                             preload="metadata"
+                            disablePictureInPicture
+                            controlsList="nodownload noremoteplayback"
                             width="400" 
                             height="300"
                             loading="lazy"
-                            aria-label="Patient testimonial video">
-                            <source src="videos/video1.mp4" type="video/mp4">
+                            aria-label="Patient testimonial video 1"
+                            style="touch-action: manipulation;">
+                            <source src="./videos/video1.mp4" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
-                        <!-- Play Button Overlay -->
-                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <!-- Play Button Overlay (Desktop Only) -->
+                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex">
                             <div class="play-button-circle w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                                 <i class="fas fa-play text-white text-xl ml-1"></i>
                             </div>
                         </div>
-                        <!-- Dental Icon Badge -->
-                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
+                        <!-- Dental Icon Badge (Desktop Only) -->
+                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                             <i class="fas fa-tooth text-white"></i>
                         </div>
                     </div>
-                    <div class="p-6 relative">
-                        <div class="flex justify-center mb-2">
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
+                    <div class="p-6 relative bg-white">
+                        <div class="flex justify-center mb-3 gap-1">
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
                         </div>
-                        <p class="text-center text-gray-700 font-medium transition-colors duration-300 group-hover:text-teal-700">Amazing care</p>
+                        <p class="text-center text-gray-700 font-semibold text-base transition-colors duration-300 group-hover:text-teal-700" style="color: #0B7A75;">Amazing care</p>
                     </div>
                 </div>
 
                 <!-- Testimonial Card 2 -->
-                <div class="testimonial-card testimonial-card-2 bg-white rounded-2xl shadow-lg overflow-hidden group">
-                    <div class="relative w-full video-container" style="padding-top: 56.25%;">
+                <div class="testimonial-card testimonial-card-2 bg-white rounded-2xl shadow-xl overflow-hidden group transform transition-all duration-500 hover:scale-105 hover:shadow-2xl" style="animation: fadeInUp 0.8s ease-out 0.2s both;">
+                    <div class="relative w-full video-container" style="padding-top: 56.25%; background: #000;">
                         <video 
-                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-105"
-                            controls 
+                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
+                            controls
+                            playsinline
                             preload="metadata"
+                            disablePictureInPicture
+                            controlsList="nodownload noremoteplayback"
                             width="400" 
                             height="300"
                             loading="lazy"
-                            aria-label="Patient testimonial video">
-                            <source src="videos/video2.mp4" type="video/mp4">
+                            aria-label="Patient testimonial video 2"
+                            style="touch-action: manipulation;">
+                            <source src="./videos/video2.mp4" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
-                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex">
                             <div class="play-button-circle w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                                 <i class="fas fa-play text-white text-xl ml-1"></i>
                             </div>
                         </div>
-                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
+                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                             <i class="fas fa-smile text-white"></i>
                         </div>
                     </div>
-                    <div class="p-6 relative">
-                        <div class="flex justify-center mb-2">
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
+                    <div class="p-6 relative bg-white">
+                        <div class="flex justify-center mb-3 gap-1">
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
                         </div>
-                        <p class="text-center text-gray-700 font-medium transition-colors duration-300 group-hover:text-teal-700">Wonderful experience</p>
+                        <p class="text-center text-gray-700 font-semibold text-base transition-colors duration-300 group-hover:text-teal-700" style="color: #0B7A75;">Wonderful experience</p>
                     </div>
                 </div>
 
                 <!-- Testimonial Card 3 -->
-                <div class="testimonial-card testimonial-card-3 bg-white rounded-2xl shadow-lg overflow-hidden group">
-                    <div class="relative w-full video-container" style="padding-top: 56.25%;">
+                <div class="testimonial-card testimonial-card-3 bg-white rounded-2xl shadow-xl overflow-hidden group transform transition-all duration-500 hover:scale-105 hover:shadow-2xl" style="animation: fadeInUp 0.8s ease-out 0.3s both;">
+                    <div class="relative w-full video-container" style="padding-top: 56.25%; background: #000;">
                         <video 
-                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-105"
-                            controls 
+                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
+                            controls
+                            playsinline
                             preload="metadata"
+                            disablePictureInPicture
+                            controlsList="nodownload noremoteplayback"
                             width="400" 
                             height="300"
                             loading="lazy"
-                            aria-label="Patient testimonial video">
-                            <source src="videos/video3.mp4" type="video/mp4">
+                            aria-label="Patient testimonial video 3"
+                            style="touch-action: manipulation;">
+                            <source src="./videos/video3.mp4" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
-                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex">
                             <div class="play-button-circle w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                                 <i class="fas fa-play text-white text-xl ml-1"></i>
                             </div>
                         </div>
-                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
+                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                             <i class="fas fa-heart text-white"></i>
                         </div>
                     </div>
-                    <div class="p-6 relative">
-                        <div class="flex justify-center mb-2">
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
+                    <div class="p-6 relative bg-white">
+                        <div class="flex justify-center mb-3 gap-1">
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
                         </div>
-                        <p class="text-center text-gray-700 font-medium transition-colors duration-300 group-hover:text-teal-700">Life-changing results</p>
+                        <p class="text-center text-gray-700 font-semibold text-base transition-colors duration-300 group-hover:text-teal-700" style="color: #0B7A75;">Life-changing results</p>
                     </div>
                 </div>
 
                 <!-- Testimonial Card 4 -->
-                <div class="testimonial-card testimonial-card-4 bg-white rounded-2xl shadow-lg overflow-hidden group">
-                    <div class="relative w-full video-container" style="padding-top: 56.25%;">
+                <div class="testimonial-card testimonial-card-4 bg-white rounded-2xl shadow-xl overflow-hidden group transform transition-all duration-500 hover:scale-105 hover:shadow-2xl" style="animation: fadeInUp 0.8s ease-out 0.4s both;">
+                    <div class="relative w-full video-container" style="padding-top: 56.25%; background: #000;">
                         <video 
-                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-105"
-                            controls 
+                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
+                            controls
+                            playsinline
                             preload="metadata"
+                            disablePictureInPicture
+                            controlsList="nodownload noremoteplayback"
                             width="400" 
                             height="300"
                             loading="lazy"
-                            aria-label="Patient testimonial video">
-                            <source src="videos/video4.mp4" type="video/mp4">
+                            aria-label="Patient testimonial video 4"
+                            style="touch-action: manipulation;">
+                            <source src="./videos/video4.mp4" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
-                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex">
                             <div class="play-button-circle w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                                 <i class="fas fa-play text-white text-xl ml-1"></i>
                             </div>
                         </div>
-                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
+                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                             <i class="fas fa-sparkles text-white"></i>
                         </div>
                     </div>
-                    <div class="p-6 relative">
-                        <div class="flex justify-center mb-2">
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
+                    <div class="p-6 relative bg-white">
+                        <div class="flex justify-center mb-3 gap-1">
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
                         </div>
-                        <p class="text-center text-gray-700 font-medium transition-colors duration-300 group-hover:text-teal-700">Exceptional service</p>
+                        <p class="text-center text-gray-700 font-semibold text-base transition-colors duration-300 group-hover:text-teal-700" style="color: #0B7A75;">Exceptional service</p>
                     </div>
                 </div>
 
                 <!-- Testimonial Card 5 -->
-                <div class="testimonial-card testimonial-card-5 bg-white rounded-2xl shadow-lg overflow-hidden group">
-                    <div class="relative w-full video-container" style="padding-top: 56.25%;">
+                <div class="testimonial-card testimonial-card-5 bg-white rounded-2xl shadow-xl overflow-hidden group transform transition-all duration-500 hover:scale-105 hover:shadow-2xl" style="animation: fadeInUp 0.8s ease-out 0.5s both;">
+                    <div class="relative w-full video-container" style="padding-top: 56.25%; background: #000;">
                         <video 
-                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-105"
-                            controls 
+                            class="absolute top-0 left-0 w-full h-full object-cover rounded-t-2xl"
+                            controls
+                            playsinline
                             preload="metadata"
+                            disablePictureInPicture
+                            controlsList="nodownload noremoteplayback"
                             width="400" 
                             height="300"
                             loading="lazy"
-                            aria-label="Patient testimonial video">
-                            <source src="videos/video5.mp4" type="video/mp4">
+                            aria-label="Patient testimonial video 5"
+                            style="touch-action: manipulation;">
+                            <source src="./videos/video5.mp4" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
-                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex">
                             <div class="play-button-circle w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                                 <i class="fas fa-play text-white text-xl ml-1"></i>
                             </div>
                         </div>
-                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
+                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex" style="background: rgba(11, 122, 117, 0.9); backdrop-filter: blur(10px);">
                             <i class="fas fa-gem text-white"></i>
                         </div>
                     </div>
-                    <div class="p-6 relative">
-                        <div class="flex justify-center mb-2">
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
-                            <i class="fas fa-star text-sm mx-1" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
-                            <i class="fas fa-star text-sm" style="color: #F59E0B; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
+                    <div class="p-6 relative bg-white">
+                        <div class="flex justify-center mb-3 gap-1">
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.2s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.4s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.6s;"></i>
+                            <i class="fas fa-star text-sm" style="color: #D4AF37; animation: starTwinkle 2s ease-in-out infinite 0.8s;"></i>
                         </div>
-                        <p class="text-center text-gray-700 font-medium transition-colors duration-300 group-hover:text-teal-700">Professional excellence</p>
+                        <p class="text-center text-gray-700 font-semibold text-base transition-colors duration-300 group-hover:text-teal-700" style="color: #0B7A75;">Professional excellence</p>
                     </div>
                 </div>
             </div>

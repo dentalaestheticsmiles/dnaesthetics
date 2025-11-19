@@ -134,23 +134,24 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Show modal on first visit - Defer to avoid blocking LCP
+    // Show modal on first visit - Defer to avoid blocking LCP - CSP-safe
     if (welcomeModal && !hasVisitedBefore()) {
+        var showWelcomeModal = function() {
+            if (welcomeModal) {
+                welcomeModal.classList.add('show');
+                setVisited();
+            }
+        };
+        
         if ('requestIdleCallback' in window) {
             requestIdleCallback(function() {
-                setTimeout(() => {
-                    if (welcomeModal) {
-                        welcomeModal.classList.add('show');
-                        setVisited();
-                    }
+                var welcomeTimeout = setTimeout(function() {
+                    showWelcomeModal();
                 }, 2000);
             }, { timeout: 3000 });
         } else {
-            setTimeout(() => {
-                if (welcomeModal) {
-                    welcomeModal.classList.add('show');
-                    setVisited();
-                }
+            var welcomeTimeout2 = setTimeout(function() {
+                showWelcomeModal();
             }, 2000);
         }
     }
@@ -169,8 +170,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (welcomeModal) {
                     welcomeModal.classList.remove('show');
                     document.body.style.overflow = 'auto';
-                    // Show expert modal after welcome modal closes (if enough time has passed)
-                    setTimeout(() => {
+                    // Show expert modal after welcome modal closes (if enough time has passed) - CSP-safe
+                    var expertModalDelay = setTimeout(function() {
                         if (typeof showExpertModal === 'function') {
                             showExpertModal();
                         }
@@ -183,8 +184,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (event.target === welcomeModal) {
                     welcomeModal.classList.remove('show');
                     document.body.style.overflow = 'auto';
-                    // Show expert modal after welcome modal closes
-                    setTimeout(() => {
+                    // Show expert modal after welcome modal closes - CSP-safe
+                    var expertModalDelay2 = setTimeout(function() {
                         if (typeof showExpertModal === 'function') {
                             showExpertModal();
                         }
@@ -302,8 +303,8 @@ document.addEventListener("DOMContentLoaded", function() {
             userBehavior.lastActionTime = Date.now();
         });
 
-        // Track time on page
-        setInterval(function() {
+        // Track time on page - CSP-safe function reference
+        var timeTrackerInterval = setInterval(function updateTimeOnPage() {
             userBehavior.timeOnPage = Date.now() - userBehavior.startTime;
         }, 1000);
     }
@@ -452,16 +453,16 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initialize behavior tracking
     initBehaviorTracking();
     
-    // Defer expert modal logic
+    // Defer expert modal logic - CSP-safe function references
     function initExpertModalSystem() {
-        const checkWelcomeModal = setInterval(function() {
+        var checkWelcomeModalInterval = setInterval(function checkWelcomeModal() {
             const welcomeShowing = welcomeModal && welcomeModal.classList.contains('show');
             
             if (!welcomeShowing) {
-                clearInterval(checkWelcomeModal);
+                clearInterval(checkWelcomeModalInterval);
                 
-                setTimeout(function() {
-                    setInterval(function() {
+                var expertModalTimeout = setTimeout(function startExpertModalCheck() {
+                    var expertModalInterval = setInterval(function checkExpertModal() {
                         if (expertConsultationModal && !expertConsultationModal.classList.contains('show')) {
                             showExpertModal();
                         }
@@ -470,22 +471,26 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }, 500);
         
-        window.addEventListener('scroll', function() {
-            if (isBrowsingServices() && expertConsultationModal && !expertConsultationModal.classList.contains('show')) {
-                clearTimeout(window.servicesScrollTimeout);
-                window.servicesScrollTimeout = setTimeout(function() {
-                    if (shouldShowExpertModal()) {
-                        showExpertModal();
+                window.addEventListener('scroll', function() {
+                    if (isBrowsingServices() && expertConsultationModal && !expertConsultationModal.classList.contains('show')) {
+                        if (window.servicesScrollTimeout) {
+                            clearTimeout(window.servicesScrollTimeout);
+                        }
+                        window.servicesScrollTimeout = setTimeout(function showExpertModalOnScroll() {
+                            if (shouldShowExpertModal()) {
+                                showExpertModal();
+                            }
+                        }, 1000);
                     }
-                }, 1000);
-            }
-        }, { passive: true });
+                }, { passive: true });
     }
     
     if ('requestIdleCallback' in window) {
         requestIdleCallback(initExpertModalSystem, { timeout: 3000 });
     } else {
-        setTimeout(initExpertModalSystem, 2000);
+        var expertSystemTimeout = setTimeout(function() {
+            initExpertModalSystem();
+        }, 2000);
     }
 
     // ============================================
@@ -837,20 +842,28 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
         
-        ['click', 'touchstart', 'scroll'].forEach(function(e) {
-            document.addEventListener(e, function() {
-                if ('requestIdleCallback' in window) {
-                    requestIdleCallback(initAnimations, { timeout: 2000 });
-                } else {
-                    setTimeout(initAnimations, 1000);
-                }
-            }, { once: true, passive: true });
-        });
-        setTimeout(function() {
+        // CSP-safe event listeners with function references
+        var initAnimationsOnEvent = function() {
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(initAnimations, { timeout: 2000 });
             } else {
-                setTimeout(initAnimations, 2000);
+                var animTimeout = setTimeout(function() {
+                    initAnimations();
+                }, 1000);
+            }
+        };
+        
+        ['click', 'touchstart', 'scroll'].forEach(function(e) {
+            document.addEventListener(e, initAnimationsOnEvent, { once: true, passive: true });
+        });
+        
+        var animInitTimeout = setTimeout(function() {
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(initAnimations, { timeout: 2000 });
+            } else {
+                var animTimeout2 = setTimeout(function() {
+                    initAnimations();
+                }, 2000);
             }
         }, 2000);
     }
@@ -895,19 +908,26 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
     
-    document.addEventListener('mousemove', function() {
+    // CSP-safe hover effects initialization
+    var initHoverEffectsOnEvent = function() {
         if ('requestIdleCallback' in window) {
             requestIdleCallback(initHoverEffects, { timeout: 1000 });
         } else {
-            setTimeout(initHoverEffects, 500);
+            var hoverTimeout = setTimeout(function() {
+                initHoverEffects();
+            }, 500);
         }
-    }, { once: true, passive: true });
+    };
     
-    setTimeout(function() {
+    document.addEventListener('mousemove', initHoverEffectsOnEvent, { once: true, passive: true });
+    
+    var hoverInitTimeout = setTimeout(function() {
         if ('requestIdleCallback' in window) {
             requestIdleCallback(initHoverEffects, { timeout: 2000 });
         } else {
-            setTimeout(initHoverEffects, 2000);
+            var hoverTimeout2 = setTimeout(function() {
+                initHoverEffects();
+            }, 2000);
         }
     }, 2000);
 
@@ -991,7 +1011,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         
         window.addEventListener('scroll', initReveal, { once: true, passive: true });
-        setTimeout(initReveal, 2000);
+        var revealTimeout = setTimeout(function() {
+            initReveal();
+        }, 2000);
     }
 
     // ============================================
@@ -1167,19 +1189,25 @@ document.addEventListener("DOMContentLoaded", function() {
             video.autoplay = false;
             video.loop = false;
             
-            // Set iOS-specific attributes for mobile Safari
+            // Set iOS-specific attributes for mobile Safari (CSP-safe)
             video.setAttribute('playsinline', 'true');
             video.setAttribute('webkit-playsinline', 'true');
+            video.setAttribute('preload', 'metadata');
             
             // For mobile: Keep muted initially for preview, will unmute on play
             var isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (isMobileDevice) {
                 video.muted = true; // Required for iOS autoplay of preview
                 video.setAttribute('muted', 'true');
+            } else {
+                // Desktop: unmute for better preview
+                video.muted = false;
+                video.removeAttribute('muted');
             }
             
-            // Function to show first frame preview (works on desktop and mobile)
+            // Function to show first frame preview (works on desktop and mobile) - CSP-safe
             function showFirstFrame() {
+                if (!video) return;
                 if (video.readyState >= 2) {
                     // Seek to a small time to show first frame
                     try {
@@ -1187,35 +1215,57 @@ document.addEventListener("DOMContentLoaded", function() {
                         video.pause();
                         // Ensure video is visible (not black)
                         video.style.opacity = '1';
+                        video.style.display = 'block';
                     } catch (e) {
                         // If seeking fails, try 0.01
                         try {
                             video.currentTime = 0.01;
                             video.pause();
                             video.style.opacity = '1';
+                            video.style.display = 'block';
                         } catch (e2) {
                             // If that also fails, just pause at current position
+                            video.pause();
+                            video.style.opacity = '1';
+                            video.style.display = 'block';
+                        }
+                    }
+                } else if (video.readyState >= 1) {
+                    // Try to load more data
+                    try {
+                        video.load();
+                    } catch (e) {
+                        // Ignore errors
+                    }
+                }
+            }
+            
+            // Ensure video shows preview immediately when metadata loads (desktop + mobile)
+            video.addEventListener('loadedmetadata', function() {
+                // Force load first frame for preview
+                if (video.readyState >= 1) {
+                    try {
+                        video.currentTime = 0.1;
+                        video.pause();
+                        video.style.opacity = '1';
+                    } catch (e) {
+                        try {
+                            video.currentTime = 0.01;
+                            video.pause();
+                            video.style.opacity = '1';
+                        } catch (e2) {
                             video.pause();
                             video.style.opacity = '1';
                         }
                     }
                 }
-            }
-            
-            // Ensure video shows preview immediately when metadata loads
-            video.addEventListener('loadedmetadata', function() {
                 showFirstFrame();
-                // Force video to show first frame
-                if (video.readyState >= 1) {
-                    try {
-                        video.currentTime = 0.1;
-                    } catch (e) {
-                        try {
-                            video.currentTime = 0.01;
-                        } catch (e2) {
-                            // Ignore
-                        }
-                    }
+            }, { once: true });
+            
+            // Additional preview loading for mobile Safari
+            video.addEventListener('loadeddata', function() {
+                if (video.paused && video.currentTime < 0.1) {
+                    showFirstFrame();
                 }
             }, { once: true });
             
@@ -1228,12 +1278,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }, { once: false });
             
-            // Load first frame to show preview instead of black screen (desktop + mobile)
-            video.addEventListener('loadeddata', function() {
-                showFirstFrame();
-            }, { once: true });
-            
-            // Ensure video shows first frame when it can play
+            // Ensure video shows first frame when it can play (desktop + mobile)
             video.addEventListener('canplay', function() {
                 if (video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
                     showFirstFrame();
@@ -1276,7 +1321,9 @@ document.addEventListener("DOMContentLoaded", function() {
                                 vid.addEventListener('loadeddata', showFrameForVisibleVideo, { once: true });
                                 vid.addEventListener('canplay', showFrameForVisibleVideo, { once: true });
                                 
-                                setTimeout(showFrameForVisibleVideo, 200);
+                                var frameTimeout = setTimeout(function() {
+                                    showFrameForVisibleVideo();
+                                }, 200);
                             }
                             // Unobserve after first load
                             videoObserver.unobserve(entry.target);
@@ -1310,21 +1357,21 @@ document.addEventListener("DOMContentLoaded", function() {
                 showFirstFrame();
             }
             
-            // Multiple attempts to show first frame (for desktop scrolling scenarios)
-            setTimeout(function() {
-                if (video.readyState >= 1 && video.paused) {
+            // Multiple attempts to show first frame (for desktop scrolling scenarios) - CSP-safe function references
+            var showFrameTimeout1 = setTimeout(function showFrameAttempt1() {
+                if (video && video.readyState >= 1 && video.paused) {
                     showFirstFrame();
                 }
             }, 200);
             
-            setTimeout(function() {
-                if (video.readyState >= 2 && video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
+            var showFrameTimeout2 = setTimeout(function showFrameAttempt2() {
+                if (video && video.readyState >= 2 && video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
                     showFirstFrame();
                 }
             }, 500);
             
-            setTimeout(function() {
-                if (video.readyState >= 2 && video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
+            var showFrameTimeout3 = setTimeout(function showFrameAttempt3() {
+                if (video && video.readyState >= 2 && video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
                     showFirstFrame();
                 }
             }, 1500);
@@ -1340,11 +1387,15 @@ document.addEventListener("DOMContentLoaded", function() {
             // Click play button → start video (user-initiated) - Mobile Safari compatible
             if (playBtn) {
                 var handlePlayClick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    if (video && !video.paused) return; // Already playing
+                    
                     if (video) {
                         video.userInitiated = true; // Mark as user-initiated
-                        playBtn.style.display = "none";
+                        if (playBtn) playBtn.style.display = "none";
                         
                         // For mobile Safari: Unmute before playing
                         var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -1353,25 +1404,61 @@ document.addEventListener("DOMContentLoaded", function() {
                             video.removeAttribute('muted');
                         }
                         
+                        // Ensure video is ready
+                        if (video.readyState < 2) {
+                            video.load();
+                        }
+                        
                         var playPromise = video.play();
-                        if (playPromise !== undefined) {
+                        if (playPromise !== undefined && playPromise.then) {
                             playPromise.then(function() {
                                 video.userInitiated = false; // Reset after play starts
                             }).catch(function(error) {
                                 // Silently handle autoplay restrictions
-                                playBtn.style.display = "flex";
+                                if (playBtn) playBtn.style.display = "flex";
                                 video.userInitiated = false;
                             });
+                        } else {
+                            // Fallback if play() doesn't return a promise
+                            video.userInitiated = false;
                         }
                     }
                 };
                 
-                // Add both click and touchstart for mobile Safari
-                playBtn.addEventListener('click', handlePlayClick);
+                // Add both click and touchstart for mobile Safari (CSP-safe)
+                playBtn.addEventListener('click', handlePlayClick, { passive: false });
+                
+                // Mobile Safari: Use touchstart + touchend for reliable play
+                var touchStartTime = 0;
+                var touchStartPos = { x: 0, y: 0 };
+                
+                playBtn.addEventListener('touchstart', function(e) {
+                    touchStartTime = Date.now();
+                    if (e.touches && e.touches.length > 0) {
+                        touchStartPos.x = e.touches[0].clientX;
+                        touchStartPos.y = e.touches[0].clientY;
+                    }
+                }, { passive: true });
+                
                 playBtn.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    handlePlayClick(e);
-                });
+                    var touchEndTime = Date.now();
+                    var timeDiff = touchEndTime - touchStartTime;
+                    var moved = false;
+                    
+                    if (e.changedTouches && e.changedTouches.length > 0) {
+                        var endX = e.changedTouches[0].clientX;
+                        var endY = e.changedTouches[0].clientY;
+                        var dist = Math.sqrt(Math.pow(endX - touchStartPos.x, 2) + Math.pow(endY - touchStartPos.y, 2));
+                        moved = dist > 10; // Moved more than 10px
+                    }
+                    
+                    // Only trigger if touch was quick and didn't move (not a scroll)
+                    if (timeDiff < 300 && !moved) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handlePlayClick(e);
+                    }
+                }, { passive: false });
             }
             
             // Fullscreen button click handler (works on desktop and mobile)
@@ -1403,13 +1490,16 @@ document.addEventListener("DOMContentLoaded", function() {
             
             // Clicking video toggles play/pause (single click/tap) - Mobile Safari compatible
             var handleVideoClick = function(e) {
-                // Don't interfere if clicking the fullscreen button
-                if (e.target === fullscreenBtn || e.target.closest('.video-fullscreen-btn')) {
+                // Don't interfere if clicking the fullscreen button or play button
+                if (e.target === fullscreenBtn || e.target.closest('.video-fullscreen-btn') || 
+                    e.target === playBtn || e.target.closest('.video-play-btn')) {
                     return;
                 }
                 
-                e.preventDefault();
-                e.stopPropagation();
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
                 
                 if (video.paused) {
                     video.userInitiated = true; // Mark as user-initiated
@@ -1422,8 +1512,13 @@ document.addEventListener("DOMContentLoaded", function() {
                         video.removeAttribute('muted');
                     }
                     
+                    // Ensure video is ready
+                    if (video.readyState < 2) {
+                        video.load();
+                    }
+                    
                     var playPromise = video.play();
-                    if (playPromise !== undefined) {
+                    if (playPromise !== undefined && playPromise.then) {
                         playPromise.then(function() {
                             video.userInitiated = false; // Reset after play starts
                         }).catch(function(error) {
@@ -1431,6 +1526,8 @@ document.addEventListener("DOMContentLoaded", function() {
                             if (playBtn) playBtn.style.display = "flex";
                             video.userInitiated = false;
                         });
+                    } else {
+                        video.userInitiated = false;
                     }
                 } else {
                     video.pause();
@@ -1439,11 +1536,45 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             };
             
-            // Add both click and touchstart for mobile Safari
+            // Add both click and touch events for mobile Safari (CSP-safe)
             video.addEventListener('click', handleVideoClick, { passive: false });
+            
+            // Mobile Safari: Use touchstart + touchend for reliable play
+            var videoTouchStartTime = 0;
+            var videoTouchStartPos = { x: 0, y: 0 };
+            
+            video.addEventListener('touchstart', function(e) {
+                videoTouchStartTime = Date.now();
+                if (e.touches && e.touches.length > 0) {
+                    videoTouchStartPos.x = e.touches[0].clientX;
+                    videoTouchStartPos.y = e.touches[0].clientY;
+                }
+            }, { passive: true });
+            
             video.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                handleVideoClick(e);
+                // Don't interfere if clicking the fullscreen button or play button
+                if (e.target === fullscreenBtn || e.target.closest('.video-fullscreen-btn') ||
+                    e.target === playBtn || e.target.closest('.video-play-btn')) {
+                    return;
+                }
+                
+                var touchEndTime = Date.now();
+                var timeDiff = touchEndTime - videoTouchStartTime;
+                var moved = false;
+                
+                if (e.changedTouches && e.changedTouches.length > 0) {
+                    var endX = e.changedTouches[0].clientX;
+                    var endY = e.changedTouches[0].clientY;
+                    var dist = Math.sqrt(Math.pow(endX - videoTouchStartPos.x, 2) + Math.pow(endY - videoTouchStartPos.y, 2));
+                    moved = dist > 10; // Moved more than 10px
+                }
+                
+                // Only trigger if touch was quick and didn't move (not a scroll)
+                if (timeDiff < 300 && !moved) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleVideoClick(e);
+                }
             }, { passive: false });
             
             // Double-click video to enter/exit fullscreen (desktop and mobile)

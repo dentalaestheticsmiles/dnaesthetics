@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="deepika.png">
+    <!-- Favicon - Simple SVG dental icon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%237C3AED' d='M50 20c-15 0-25 10-25 25 0 10 5 15 10 20 5 5 10 10 15 15 5-5 10-10 15-15 5-5 10-10 10-20 0-15-10-25-25-25z'/%3E%3C/svg%3E">
     
     <!-- SEO Meta Tags -->
     <title>DNA Clinic - Dental and Aesthetics | Premium Dental Care</title>
@@ -38,9 +38,13 @@
     <link rel="dns-prefetch" href="https://images.unsplash.com">
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
     
-    <!-- Preload critical resources for LCP -->
+    <!-- Preload critical resources for LCP - Performance Optimization -->
     <link rel="preload" href="styles.css" as="style">
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style" crossorigin="anonymous">
+    <!-- Preload LCP images: brand mini images and deepika.png (above-the-fold) -->
+    <link rel="preload" href="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=40&q=75&auto=format&fit=crop" as="image" fetchpriority="high" crossorigin="anonymous">
+    <link rel="preload" href="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=40&q=75&auto=format&fit=crop" as="image" fetchpriority="high" crossorigin="anonymous">
+    <link rel="preload" href="deepika.png" as="image" type="image/png" fetchpriority="high">
     
     <!-- Critical CSS Inline - Prevents FOUC -->
     <style>
@@ -302,6 +306,7 @@
                 <div class="brand-icon-wrapper">
                     <i class="fas fa-tooth brand-icon"></i>
                     <div class="brand-images">
+                        <!-- LCP Image 1: Brand mini image - Preloaded, no lazy loading, high priority -->
                         <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=40&q=75&auto=format&fit=crop" 
                              srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=40&q=75&auto=format&fit=crop 1x,
                                      https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=80&q=75&auto=format&fit=crop 2x"
@@ -310,9 +315,10 @@
                              class="brand-mini-img" 
                              width="20" 
                              height="20" 
-                             loading="eager" 
-                             fetchpriority="high" 
-                             decoding="async">
+                             fetchpriority="high"
+                             decoding="sync"
+                             crossorigin="anonymous">
+                        <!-- LCP Image 2: Brand mini image - Preloaded, no lazy loading, high priority -->
                         <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=40&q=75&auto=format&fit=crop" 
                              srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=40&q=75&auto=format&fit=crop 1x,
                                      https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=80&q=75&auto=format&fit=crop 2x"
@@ -321,8 +327,9 @@
                              class="brand-mini-img" 
                              width="20" 
                              height="20" 
-                             loading="eager" 
-                             decoding="async">
+                             fetchpriority="high"
+                             decoding="sync"
+                             crossorigin="anonymous">
                     </div>
                 </div>
                 <div class="brand-text">

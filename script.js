@@ -85,12 +85,16 @@ document.addEventListener("DOMContentLoaded", function() {
     
     sections = document.querySelectorAll('section[id]');
     navLinksAll = document.querySelectorAll('.nav-link');
-    window.addEventListener('scroll', function() {
-        if (!scrollTicking) {
-            window.requestAnimationFrame(handleScroll);
-            scrollTicking = true;
-        }
-    }, { passive: true });
+    
+    // Only add scroll listener if sections and navLinks exist
+    if (sections && sections.length > 0 && navLinksAll && navLinksAll.length > 0) {
+        window.addEventListener('scroll', function() {
+            if (!scrollTicking) {
+                window.requestAnimationFrame(handleScroll);
+                scrollTicking = true;
+            }
+        }, { passive: true });
+    }
 
     // ============================================
     // WELCOME MODAL
@@ -929,31 +933,35 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function showTeamMember(index) {
         // Remove active class from all members and dots
-        teamMembers.forEach(member => {
-            if (member) member.classList.remove('active');
-        });
-        teamDots.forEach(dot => {
-            if (dot) dot.classList.remove('active');
-        });
+        if (teamMembers && teamMembers.length > 0) {
+            teamMembers.forEach(member => {
+                if (member) member.classList.remove('active');
+            });
+        }
+        if (teamDots && teamDots.length > 0) {
+            teamDots.forEach(dot => {
+                if (dot) dot.classList.remove('active');
+            });
+        }
         
         // Add active class to current member and dot
-        if (teamMembers[index]) {
+        if (teamMembers && teamMembers[index]) {
             teamMembers[index].classList.add('active');
         }
-        if (teamDots[index]) {
+        if (teamDots && teamDots[index]) {
             teamDots[index].classList.add('active');
         }
     }
 
     function nextTeamMember() {
-        if (teamMembers.length > 0) {
+        if (teamMembers && teamMembers.length > 0) {
             currentTeamIndex = (currentTeamIndex + 1) % teamMembers.length;
             showTeamMember(currentTeamIndex);
         }
     }
 
     function prevTeamMember() {
-        if (teamMembers.length > 0) {
+        if (teamMembers && teamMembers.length > 0) {
             currentTeamIndex = (currentTeamIndex - 1 + teamMembers.length) % teamMembers.length;
             showTeamMember(currentTeamIndex);
         }
@@ -969,14 +977,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Event listeners for dots
-    teamDots.forEach((dot, index) => {
-        if (dot) {
-            dot.addEventListener('click', () => {
-                currentTeamIndex = index;
-                showTeamMember(currentTeamIndex);
-            });
-        }
-    });
+    if (teamDots && teamDots.length > 0) {
+        teamDots.forEach((dot, index) => {
+            if (dot) {
+                dot.addEventListener('click', () => {
+                    currentTeamIndex = index;
+                    showTeamMember(currentTeamIndex);
+                });
+            }
+        });
+    }
 
     // Touch/swipe support for mobile
     let touchStartX = 0;
@@ -1016,32 +1026,51 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ============================================
-    // MOBILE VIDEO TAP ENHANCEMENT
+    // VIDEO PLAYBACK FIX (DESKTOP + MOBILE)
     // ============================================
-    // Ensure videos play immediately on mobile tap
-    if ('ontouchstart' in window) {
-        const testimonialVideos = document.querySelectorAll('#testimonials video');
-        testimonialVideos.forEach(video => {
-            // Remove any default play prevention
-            video.addEventListener('touchstart', function(e) {
-                // Allow video to play on tap
-                if (video.paused) {
-                    video.play().catch(function(error) {
-                        // Handle autoplay restrictions gracefully
-                        console.log('Video play prevented:', error);
-                    });
-                }
-            }, { passive: true });
+    // Ensure all videos play on tap/click for iPhone, Android, and Desktop
+    const videos = document.querySelectorAll('video');
+    
+    videos.forEach(video => {
+        if (!video) return;
+        
+        // Set iOS-specific attributes
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('webkit-playsinline', 'true');
+        
+        // Play video on tap or click (works on all devices)
+        video.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             
-            // Ensure video plays when controls are tapped
-            video.addEventListener('click', function() {
-                if (video.paused) {
-                    video.play().catch(function(error) {
-                        console.log('Video play prevented:', error);
-                    });
+            if (video.paused) {
+                video.play().catch(function(error) {
+                    // Silently handle autoplay restrictions
+                    // User can still use native controls
+                });
+            } else {
+                video.pause();
+            }
+        }, { passive: false });
+        
+        // For mobile touch devices - ensure tap works
+        video.addEventListener('touchstart', function(e) {
+            // Allow native video controls to work
+            // This ensures tap-to-play works on iOS/Android
+        }, { passive: true });
+        
+        // Ensure video container doesn't block clicks
+        const videoContainer = video.closest('.video-container');
+        if (videoContainer) {
+            videoContainer.style.pointerEvents = 'auto';
+            videoContainer.addEventListener('click', function(e) {
+                if (e.target === videoContainer || e.target === video) {
+                    if (video.paused) {
+                        video.play().catch(function() {});
+                    }
                 }
             });
-        });
-    }
+        }
+    });
 
 }); // End of DOMContentLoaded

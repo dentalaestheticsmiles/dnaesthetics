@@ -1100,11 +1100,59 @@ document.addEventListener("DOMContentLoaded", function() {
     // ============================================
     // VIDEO PLAYBACK FIX (DESKTOP + MOBILE)
     // ============================================
-    // Custom play button overlay for all videos
+    // Custom play button overlay for all videos with fullscreen support
     const videoWrappers = document.querySelectorAll('.video-wrapper');
     
+    // Fullscreen API helper functions with mobile support
+    function requestFullscreen(element) {
+        // iOS Safari requires webkitEnterFullScreen on video element
+        if (element.webkitEnterFullScreen && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            try {
+                element.webkitEnterFullScreen();
+                return Promise.resolve();
+            } catch (e) {
+                // Fall through to other methods
+            }
+        }
+        
+        if (element.requestFullscreen) {
+            return element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+            return element.webkitRequestFullscreen();
+        } else if (element.webkitEnterFullScreen) {
+            return element.webkitEnterFullScreen();
+        } else if (element.mozRequestFullScreen) {
+            return element.mozRequestFullScreen();
+        } else if (element.msRequestFullscreen) {
+            return element.msRequestFullscreen();
+        }
+        return Promise.reject(new Error('Fullscreen API not supported'));
+    }
+    
+    function exitFullscreen() {
+        if (document.exitFullscreen) {
+            return document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            return document.webkitExitFullscreen();
+        } else if (document.webkitCancelFullScreen) {
+            return document.webkitCancelFullScreen();
+        } else if (document.mozCancelFullScreen) {
+            return document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+            return document.msExitFullscreen();
+        }
+    }
+    
+    function isFullscreen() {
+        return !!(document.fullscreenElement || 
+                  document.webkitFullscreenElement || 
+                  document.webkitCurrentFullScreenElement ||
+                  document.mozFullScreenElement || 
+                  document.msFullscreenElement);
+    }
+    
     if (videoWrappers && videoWrappers.length > 0) {
-        videoWrappers.forEach(wrapper => {
+        videoWrappers.forEach((wrapper, index) => {
             if (!wrapper) return;
             
             const video = wrapper.querySelector('.dna-video');
@@ -1112,12 +1160,133 @@ document.addEventListener("DOMContentLoaded", function() {
             
             if (!video) return;
             
-            // Initial state - ensure video is paused
-            video.pause();
-            
             // Set iOS-specific attributes
             video.setAttribute('playsinline', 'true');
             video.setAttribute('webkit-playsinline', 'true');
+            
+            // Function to show first frame preview (works on desktop and mobile)
+            function showFirstFrame() {
+                if (video.readyState >= 2) {
+                    // Seek to a small time to show first frame
+                    try {
+                        video.currentTime = 0.1;
+                        video.pause();
+                    } catch (e) {
+                        // If seeking fails, try 0.01
+                        try {
+                            video.currentTime = 0.01;
+                            video.pause();
+                        } catch (e2) {
+                            // If that also fails, just pause at current position
+                            video.pause();
+                        }
+                    }
+                }
+            }
+            
+            // Load first frame to show preview instead of black screen (desktop + mobile)
+            video.addEventListener('loadedmetadata', function() {
+                showFirstFrame();
+            }, { once: true });
+            
+            video.addEventListener('loadeddata', function() {
+                showFirstFrame();
+            }, { once: true });
+            
+            // Ensure video shows first frame when it can play
+            video.addEventListener('canplay', function() {
+                if (video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
+                    showFirstFrame();
+                }
+            }, { once: true });
+            
+            // Use Intersection Observer to load video when it comes into view (for desktop scrolling)
+            if ('IntersectionObserver' in window) {
+                const videoObserver = new IntersectionObserver(function(entries) {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && entry.target === wrapper) {
+                            // Video is now visible, ensure first frame is shown
+                            const vid = entry.target.querySelector('.dna-video');
+                            if (vid) {
+                                // Load the video if not already loaded
+                                if (vid.readyState < 2) {
+                                    vid.load();
+                                }
+                                // Show first frame after video loads
+                                function showFrameForVisibleVideo() {
+                                    if (vid.readyState >= 2 && vid.paused) {
+                                        try {
+                                            vid.currentTime = 0.1;
+                                            vid.pause();
+                                        } catch (e) {
+                                            try {
+                                                vid.currentTime = 0.01;
+                                                vid.pause();
+                                            } catch (e2) {
+                                                vid.pause();
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                // Try immediately if ready
+                                showFrameForVisibleVideo();
+                                
+                                // Also try after video loads
+                                vid.addEventListener('loadeddata', showFrameForVisibleVideo, { once: true });
+                                vid.addEventListener('canplay', showFrameForVisibleVideo, { once: true });
+                                
+                                setTimeout(showFrameForVisibleVideo, 200);
+                            }
+                            // Unobserve after first load
+                            videoObserver.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    rootMargin: '100px', // Start loading 100px before video comes into view
+                    threshold: 0.01
+                });
+                
+                videoObserver.observe(wrapper);
+            }
+            
+            // Initial state - ensure video is paused
+            video.pause();
+            
+            // Force load the video immediately to get first frame (works on desktop and mobile)
+            video.load();
+            
+            // Try to show first frame immediately if video is already loaded
+            if (video.readyState >= 2) {
+                showFirstFrame();
+            }
+            
+            // Multiple attempts to show first frame (for desktop scrolling scenarios)
+            setTimeout(function() {
+                if (video.readyState >= 1 && video.paused) {
+                    showFirstFrame();
+                }
+            }, 200);
+            
+            setTimeout(function() {
+                if (video.readyState >= 2 && video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
+                    showFirstFrame();
+                }
+            }, 500);
+            
+            setTimeout(function() {
+                if (video.readyState >= 2 && video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
+                    showFirstFrame();
+                }
+            }, 1500);
+            
+            // Add fullscreen button with better icon
+            const fullscreenBtn = document.createElement('button');
+            fullscreenBtn.className = 'video-fullscreen-btn';
+            fullscreenBtn.innerHTML = '<i class="fas fa-expand" aria-hidden="true"></i>';
+            fullscreenBtn.setAttribute('aria-label', 'Enter fullscreen');
+            fullscreenBtn.setAttribute('type', 'button');
+            wrapper.appendChild(fullscreenBtn);
             
             // Click play button → start video
             if (playBtn) {
@@ -1134,8 +1303,40 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
             }
             
-            // Clicking video toggles play/pause
+            // Fullscreen button click handler (works on desktop and mobile)
+            fullscreenBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (isFullscreen()) {
+                    exitFullscreen();
+                } else {
+                    // For iOS, use webkitEnterFullScreen on video directly
+                    if (/iPhone|iPad|iPod/.test(navigator.userAgent) && video.webkitEnterFullScreen) {
+                        try {
+                            video.webkitEnterFullScreen();
+                        } catch (err) {
+                            console.log('iOS fullscreen not available:', err);
+                        }
+                    } else {
+                        // For other browsers, request fullscreen on video element
+                        requestFullscreen(video).catch(function(error) {
+                            // If fullscreen fails, try fullscreen on wrapper
+                            requestFullscreen(wrapper).catch(function(err) {
+                                console.log('Fullscreen not available:', err);
+                            });
+                        });
+                    }
+                }
+            });
+            
+            // Clicking video toggles play/pause (single click)
             video.addEventListener('click', function(e) {
+                // Don't interfere if clicking the fullscreen button
+                if (e.target === fullscreenBtn || e.target.closest('.video-fullscreen-btn')) {
+                    return;
+                }
+                
                 e.preventDefault();
                 e.stopPropagation();
                 
@@ -1150,6 +1351,49 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (playBtn) playBtn.style.display = "flex";
                 }
             }, { passive: false });
+            
+            // Double-click video to enter/exit fullscreen (desktop and mobile)
+            let lastClickTime = 0;
+            video.addEventListener('dblclick', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (isFullscreen()) {
+                    exitFullscreen();
+                } else {
+                    // For iOS, use webkitEnterFullScreen
+                    if (/iPhone|iPad|iPod/.test(navigator.userAgent) && video.webkitEnterFullScreen) {
+                        try {
+                            video.webkitEnterFullScreen();
+                        } catch (err) {
+                            console.log('iOS fullscreen not available:', err);
+                        }
+                    } else {
+                        requestFullscreen(video).catch(function(error) {
+                            requestFullscreen(wrapper).catch(function(err) {
+                                console.log('Fullscreen not available:', err);
+                            });
+                        });
+                    }
+                }
+            }, { passive: false });
+            
+            // Update fullscreen button icon when fullscreen changes
+            function updateFullscreenButton() {
+                if (isFullscreen()) {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress" aria-hidden="true"></i>';
+                    fullscreenBtn.setAttribute('aria-label', 'Exit fullscreen');
+                } else {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand" aria-hidden="true"></i>';
+                    fullscreenBtn.setAttribute('aria-label', 'Enter fullscreen');
+                }
+            }
+            
+            // Listen for fullscreen changes
+            document.addEventListener('fullscreenchange', updateFullscreenButton);
+            document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+            document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+            document.addEventListener('MSFullscreenChange', updateFullscreenButton);
             
             // When video ends, show play button again
             video.addEventListener('ended', function() {

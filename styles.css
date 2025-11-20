@@ -161,22 +161,48 @@ title::-moz-selection {
     width: 50px;
     height: 50px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 8px rgba(124, 58, 237, 0.3));
+    /* Color filter to match website theme: purple/violet (#7C3AED) */
+    /* This filter converts the logo to purple/violet to match the website color scheme */
+    filter: 
+        drop-shadow(0 2px 8px rgba(124, 58, 237, 0.3))
+        brightness(0.9)
+        sepia(100%)
+        hue-rotate(250deg)
+        saturate(1.5)
+        brightness(1.1);
     transition: all 0.3s ease;
     animation: logoGlow 3s ease-in-out infinite;
 }
 
 .brand-logo-img:hover {
     transform: scale(1.05);
-    filter: drop-shadow(0 4px 12px rgba(124, 58, 237, 0.5));
+    filter: 
+        drop-shadow(0 4px 12px rgba(124, 58, 237, 0.5))
+        brightness(0.95)
+        sepia(100%)
+        hue-rotate(250deg)
+        saturate(1.6)
+        brightness(1.15);
 }
 
 @keyframes logoGlow {
     0%, 100% {
-        filter: drop-shadow(0 2px 8px rgba(124, 58, 237, 0.3));
+        filter: 
+            drop-shadow(0 2px 8px rgba(124, 58, 237, 0.3))
+            brightness(0.9)
+            sepia(100%)
+            hue-rotate(250deg)
+            saturate(1.5)
+            brightness(1.1);
     }
     50% {
-        filter: drop-shadow(0 2px 12px rgba(124, 58, 237, 0.5));
+        filter: 
+            drop-shadow(0 2px 12px rgba(124, 58, 237, 0.5))
+            brightness(0.95)
+            sepia(100%)
+            hue-rotate(250deg)
+            saturate(1.6)
+            brightness(1.15);
     }
 }
 
@@ -1524,7 +1550,7 @@ section {
     position: relative;
     width: 100%;
     padding-top: 56.25%; /* 16:9 aspect ratio */
-    background: #000;
+    min-height: 200px;
     overflow: hidden;
 }
 
@@ -3726,15 +3752,17 @@ section {
    ============================================ */
 .video-wrapper {
     position: relative;
-    display: inline-block;
     width: 100%;
-    max-width: 100%;
+    overflow: hidden;
+    min-height: 200px;
 }
 
 .video-wrapper video {
     width: 100%;
     height: auto;
+    display: block;
     cursor: pointer;
+    object-fit: cover;
 }
 
 .video-play-btn {
@@ -3744,19 +3772,16 @@ section {
     justify-content: center;
     align-items: center;
     font-size: 4rem;
+    background: rgba(0, 0, 0, 0.45);
     color: white;
-    background: rgba(0, 0, 0, 0.4);
     cursor: pointer;
-    transition: 0.3s ease;
+    transition: opacity 0.3s ease;
+    opacity: 1;
+    pointer-events: auto;
     z-index: 3;
     border-radius: inherit;
-    pointer-events: auto;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-}
-
-.video-play-btn:hover {
-    background: rgba(0, 0, 0, 0.6);
 }
 
 /* Ensure play button is visible on mobile */
@@ -3969,34 +3994,13 @@ video:-ms-fullscreen {
 /* Ensure video shows first frame instead of black screen */
 .dna-video {
     opacity: 1;
-    background-color: #000;
-    background: #000;
     /* Ensure video displays first frame */
     object-fit: cover;
     /* Prevent black screen flash */
-    opacity: 1;
+    display: block;
 }
 
 .dna-video::-webkit-media-controls-panel {
     display: none !important;
-}
-
-/* Make sure video loads first frame for preview (desktop and mobile) */
-.video-wrapper video {
-    background: #000;
-    object-fit: cover;
-    /* Show video content immediately */
-    display: block;
-}
-
-/* Ensure video container shows content, not black */
-.video-wrapper {
-    background: #000;
-    overflow: hidden;
-}
-
-/* When video is loading, show a subtle loading state */
-.dna-video:not([src]) {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
 }
 

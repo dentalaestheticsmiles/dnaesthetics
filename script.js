@@ -196,17 +196,39 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ============================================
-    // STILL HAVE QUESTIONS? POPUP - SMART LOGIC
+    // STILL HAVE QUESTIONS? POPUP - SMART BEHAVIOR-DRIVEN LOGIC
     // ============================================
     const popup = document.getElementById("question-popup");
     const chatBtn = document.getElementById("qp-chat-btn");
     const treatmentSpan = document.querySelector(".treatment-name");
     const key = "popupShownCount";
+    const lastPopupTimeKey = "lastPopupTime";
+    const popupDismissedKey = "popupDismissed";
+    const lastTabSwitchKey = "lastTabSwitch";
+    
     let count = Number(sessionStorage.getItem(key)) || 0;
+    let lastPopupTime = Number(sessionStorage.getItem(lastPopupTimeKey)) || 0;
+    let isDismissed = sessionStorage.getItem(popupDismissedKey) === "true";
+    let scrollProgress = 0;
+    let scrollTimer = null;
+    let videoPauseTimer = null;
+    let testimonyHoverTimer = null;
+    let lastScrollTime = 0;
+    let isIdle = false;
+    let positiveInteractions = 0;
+
+    // Debounce: minimum 20-30 seconds between popups
+    function canShowPopup() {
+        if (count >= 3) return false; // Max 3 per session
+        if (isDismissed) return false; // User dismissed
+        const now = Date.now();
+        const timeSinceLastPopup = now - lastPopupTime;
+        return timeSinceLastPopup >= 20000; // 20 seconds minimum
+    }
 
     function showPopup(treatment) {
         if (!treatment) treatment = "treatment";
-        if (count >= 2) return;
+        if (!canShowPopup()) return;
         if (!popup || !treatmentSpan) return;
         
         treatmentSpan.textContent = treatment;
@@ -215,58 +237,138 @@ document.addEventListener("DOMContentLoaded", function() {
             popup.classList.add("visible");
         }, 10);
         count++;
+        lastPopupTime = Date.now();
         sessionStorage.setItem(key, String(count));
+        sessionStorage.setItem(lastPopupTimeKey, String(lastPopupTime));
     }
 
-    function monitor(section, name) {
-        const el = document.querySelector(section);
-        if (!el) return;
-        let triggered = false;
-
-        function checkScroll() {
-            if (triggered) return;
-            const rect = el.getBoundingClientRect();
-            const win = window.innerHeight;
-
-            if (rect.top < win * 0.5 && rect.bottom > win * 0.5) {
-                triggered = true;
-                showPopup(name);
-            }
-        }
-
-        document.addEventListener("scroll", checkScroll, { passive: true });
-
+    function hidePopup() {
+        if (!popup) return;
+        popup.classList.remove("visible");
         setTimeout(function() {
-            if (!triggered) {
-                showPopup(name);
-            }
-        }, 30000);
+            popup.classList.add("hidden");
+        }, 150);
     }
 
-    // Monitor treatment sections
-    monitor("#laser-hair-removal-section", "Laser Hair Removal");
-    monitor("#smile-makeover-section", "Smile Makeover");
-    monitor("#skin-booster-section", "Skin Booster");
-
-    // Fallback: show after 2 minutes if not shown yet
-    setTimeout(function() {
-        if (count < 1) {
-            showPopup();
+    // TRIGGER 1: Scroll 70% + stay for 6 seconds
+    let scrollTriggered = false;
+    function checkScrollProgress() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        scrollProgress = (scrollTop / docHeight) * 100;
+        
+        if (scrollProgress >= 70 && !scrollTriggered) {
+            scrollTriggered = true;
+            lastScrollTime = Date.now();
+            scrollTimer = setTimeout(function() {
+                if (canShowPopup() && Date.now() - lastScrollTime >= 6000) {
+                    showPopup();
+                }
+            }, 6000);
         }
-    }, 2 * 60 * 1000);
+    }
+
+    // TRIGGER 2: Video pause > 5 seconds (will be attached after videos are initialized)
+    function attachVideoPauseTriggers() {
+        const testimonialVideos = document.querySelectorAll(".testimonial-video");
+        testimonialVideos.forEach(function(video) {
+            video.addEventListener("pause", function() {
+                if (videoPauseTimer) clearTimeout(videoPauseTimer);
+                videoPauseTimer = setTimeout(function() {
+                    if (canShowPopup()) {
+                        showPopup("video consultation");
+                    }
+                }, 5000);
+            });
+            
+            video.addEventListener("play", function() {
+                if (videoPauseTimer) clearTimeout(videoPauseTimer);
+                positiveInteractions++;
+            });
+        });
+    }
+    
+    // Attach after DOM is ready
+    attachVideoPauseTriggers();
+
+    // TRIGGER 3: Testimony section hover/tap > 4 seconds
+    const testimonySection = document.querySelector("#success-stories");
+    if (testimonySection) {
+        testimonySection.addEventListener("mouseenter", function() {
+            testimonyHoverTimer = setTimeout(function() {
+                if (canShowPopup()) {
+                    showPopup("treatment");
+                }
+            }, 4000);
+        });
+        
+        testimonySection.addEventListener("mouseleave", function() {
+            if (testimonyHoverTimer) clearTimeout(testimonyHoverTimer);
+        });
+        
+        testimonySection.addEventListener("touchstart", function() {
+            testimonyHoverTimer = setTimeout(function() {
+                if (canShowPopup()) {
+                    showPopup("treatment");
+                }
+            }, 4000);
+        });
+    }
+
+    // TRIGGER 4: Tab/App return logic
+    let lastVisibilityChange = Date.now();
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden) {
+            lastVisibilityChange = Date.now();
+            sessionStorage.setItem(lastTabSwitchKey, String(lastVisibilityChange));
+        } else {
+            const hiddenTime = Date.now() - lastVisibilityChange;
+            if (hiddenTime >= 15000 && canShowPopup()) { // 15+ seconds
+                setTimeout(function() {
+                    showPopup();
+                }, 1000);
+            }
+        }
+    });
+
+    // Track positive interactions (reduce popup likelihood)
+    document.addEventListener("click", function(e) {
+        if (e.target.tagName === "BUTTON" || e.target.closest("button")) {
+            positiveInteractions++;
+        }
+    });
+
+    // Scroll listener
+    window.addEventListener("scroll", function() {
+        checkScrollProgress();
+        lastScrollTime = Date.now();
+    }, { passive: true });
 
     // Chat button handler
     if (chatBtn) {
         chatBtn.addEventListener("click", function() {
             window.open("https://wa.me/918072980232", "_blank");
-            if (popup) {
-                popup.classList.remove("visible");
-                setTimeout(function() {
-                    popup.classList.add("hidden");
-                }, 150);
-            }
+            hidePopup();
+            positiveInteractions++;
         });
     }
+    
+    // "Not Now" button handler
+    const notNowBtn = document.getElementById("qp-not-now-btn");
+    if (notNowBtn) {
+        notNowBtn.addEventListener("click", function() {
+            hidePopup();
+            isDismissed = true;
+            sessionStorage.setItem(popupDismissedKey, "true");
+        });
+    }
+
+    // ESC to close
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape" && popup && !popup.classList.contains("hidden")) {
+            hidePopup();
+        }
+    });
 
     // Close on outside click
     if (popup) {
@@ -1205,7 +1307,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ============================================
-    // VIDEO TESTIMONIAL SECTION - MOBILE COMPLIANT
+    // VIDEO TESTIMONIAL SECTION - MOBILE COMPLIANT + FULLSCREEN
     // ============================================
     const videos = document.querySelectorAll(".testimonial-video");
 
@@ -1215,6 +1317,16 @@ document.addEventListener("DOMContentLoaded", function() {
         video.setAttribute("webkit-playsinline", "");
         video.setAttribute("muted", ""); // must stay muted until user interacts
         video.muted = true;
+        video.setAttribute("controls", "");
+        video.setAttribute("controlsList", "nodownload"); // Removed noremoteplayback to allow fullscreen
+        video.setAttribute("allowfullscreen", "");
+        video.setAttribute("webkitallowfullscreen", "");
+        video.setAttribute("mozallowfullscreen", "");
+        
+        // Ensure fullscreen is enabled on mobile
+        video.setAttribute("x5-playsinline", "false"); // Android X5 browser
+        video.setAttribute("x5-video-player-type", "h5"); // Android X5 browser
+        video.setAttribute("x5-video-player-fullscreen", "true"); // Android X5 browser
 
         // PREVENT BROKEN AUTOPLAY
         video.autoplay = false;
@@ -1239,9 +1351,57 @@ document.addEventListener("DOMContentLoaded", function() {
             video.muted = false; // user gesture → safe to unmute
         });
 
-        // REMOVE ANY FULLSCREEN FORCING
+        // FULLSCREEN API HANDLER - Cross-browser support (including mobile)
+        function enterFullscreen() {
+            // Try standard fullscreen first
+            if (video.requestFullscreen) {
+                video.requestFullscreen().catch(function(err) {
+                    console.warn("Fullscreen request failed:", err);
+                });
+            } else if (video.webkitRequestFullscreen) {
+                // Chrome/Edge
+                video.webkitRequestFullscreen();
+            } else if (video.webkitEnterFullscreen) {
+                // iOS Safari - this is the key for mobile!
+                video.webkitEnterFullscreen();
+            } else if (video.msRequestFullscreen) {
+                // IE/Edge
+                video.msRequestFullscreen();
+            } else if (video.mozRequestFullScreen) {
+                // Firefox
+                video.mozRequestFullScreen();
+            }
+        }
+
+        // For mobile: Add tap handler to enter fullscreen when video is playing
+        let tapCount = 0;
+        let tapTimer = null;
         video.addEventListener("click", function() {
-            // Do NOT auto fullscreen on iOS
+            // On mobile, double-tap to enter fullscreen
+            tapCount++;
+            if (tapTimer) clearTimeout(tapTimer);
+            tapTimer = setTimeout(function() {
+                if (tapCount === 2 && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                    // Double tap detected and not in fullscreen
+                    enterFullscreen();
+                }
+                tapCount = 0;
+            }, 300);
+        });
+
+        // Add double-click for fullscreen (desktop)
+        video.addEventListener("dblclick", function() {
+            enterFullscreen();
+        });
+        
+        // Ensure fullscreen button appears in native controls on mobile
+        // iOS Safari will show fullscreen button automatically with webkitEnterFullscreen support
+        video.addEventListener("play", function() {
+            // On mobile, ensure fullscreen capability is available
+            if (video.webkitEnterFullscreen && !video.hasAttribute("webkitEnterFullscreen")) {
+                // Force enable fullscreen on iOS
+                video.setAttribute("webkitEnterFullscreen", "");
+            }
         });
 
         // DISABLE DOWNLOAD & CONTEXT MENU
@@ -1249,5 +1409,10 @@ document.addEventListener("DOMContentLoaded", function() {
             e.preventDefault();
         });
     });
+    
+    // Re-attach video pause triggers after video initialization
+    if (typeof attachVideoPauseTriggers === "function") {
+        attachVideoPauseTriggers();
+    }
 
 }); // End of DOMContentLoaded

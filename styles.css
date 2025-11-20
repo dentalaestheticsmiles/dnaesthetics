@@ -3728,6 +3728,43 @@ section {
     }
 }
 
+/* Video Container - Responsive Design */
+.video-container {
+    position: relative;
+    width: 100%;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    overflow: hidden;
+    border-radius: 1rem 1rem 0 0;
+}
+
+/* Ensure proper aspect ratio on all screens */
+.video-container[style*="padding-top"] {
+    min-height: 200px;
+}
+
+/* Responsive video container heights */
+@media (max-width: 480px) {
+    .video-container {
+        min-height: 180px;
+    }
+    .video-container[style*="padding-top"] {
+        padding-top: 56.25% !important;
+        min-height: 180px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .video-container {
+        min-height: 220px;
+    }
+}
+
+@media (min-width: 769px) {
+    .video-container {
+        min-height: 250px;
+    }
+}
+
 /* Video Container Shine Effect */
 .video-container::before {
     content: '';
@@ -3751,18 +3788,36 @@ section {
    VIDEO WRAPPER AND PLAY BUTTON STYLES
    ============================================ */
 .video-wrapper {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
     overflow: hidden;
-    min-height: 200px;
+    background: #f0f0f0;
+    border-radius: inherit;
 }
 
-.video-wrapper video {
+.video-wrapper video.dna-video {
     width: 100%;
-    height: auto;
+    height: 100%;
     display: block;
     cursor: pointer;
     object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #f0f0f0;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Ensure video is visible and properly sized */
+.dna-video {
+    min-width: 100%;
+    min-height: 100%;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .video-play-btn {
@@ -3992,12 +4047,19 @@ video:-ms-fullscreen {
 .max-w-3xl { max-width: 48rem; }
 
 /* Ensure video shows first frame instead of black screen */
+/* Additional video styling - ensure visibility */
 .dna-video {
-    opacity: 1;
-    /* Ensure video displays first frame */
+    opacity: 1 !important;
     object-fit: cover;
-    /* Prevent black screen flash */
-    display: block;
+    display: block !important;
+    visibility: visible !important;
+    background: #f0f0f0;
+    background-image: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+}
+
+/* Show video preview frame */
+.dna-video[preload="metadata"] {
+    background: #f0f0f0;
 }
 
 .dna-video::-webkit-media-controls-panel {

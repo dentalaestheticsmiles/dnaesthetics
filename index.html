@@ -435,11 +435,14 @@
     </div>
 
     <!-- Still Have Questions? Popup - Smart Design -->
-    <div id="question-popup" class="question-popup hidden">
+    <div id="question-popup" class="question-popup hidden" role="dialog" aria-modal="true" aria-labelledby="popup-title">
         <div class="qp-content">
-            <h3>Still Have Questions?</h3>
+            <h3 id="popup-title">Still Have Questions?</h3>
             <p>We're here to help you with your <span class="treatment-name">treatment</span>.</p>
-            <button id="qp-chat-btn" type="button">Chat with Us</button>
+            <div class="qp-buttons">
+                <button id="qp-chat-btn" type="button">Chat with Us</button>
+                <button id="qp-not-now-btn" type="button" class="qp-not-now">Not Now</button>
+            </div>
         </div>
     </div>
 
@@ -561,10 +564,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-smile"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Teeth Whitening" 
                                  width="400" 
@@ -578,10 +581,10 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&q=75&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                  alt="Dental Implants" 
                                  width="400" 
@@ -612,12 +615,12 @@
                             <div class="service-icon">
                                 <i class="fas fa-tooth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=300&q=75&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                                 alt="Root Canal" 
+                                 alt="Root canal treatment procedure" 
                                  width="400" 
                                  height="300" 
                                  loading="lazy" 
@@ -629,12 +632,12 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1537365587684-49028b238aee?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1537365587684-49028b238aee?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1537365587684-49028b238aee?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1537365587684-49028b238aee?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                                 alt="Cosmetic Dentistry" 
+                                 alt="Cosmetic dentistry smile makeover" 
                                  width="400" 
                                  height="300" 
                                  loading="lazy" 
@@ -646,12 +649,12 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth-open"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                                 alt="General Dentistry" 
+                                 alt="General dental care and preventive treatment" 
                                  width="400" 
                                  height="300" 
                                  loading="lazy" 
@@ -704,12 +707,12 @@
                             <div class="service-icon">
                                 <i class="fas fa-magic"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=75&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=75&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                                 alt="Chemical Peels" 
+                                 alt="Chemical peel facial treatment" 
                                  width="400" 
                                  height="300" 
                                  loading="lazy" 
@@ -721,12 +724,12 @@
                             <div class="service-icon">
                                 <i class="fas fa-star"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=75&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=75&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                                 alt="Laser Treatments" 
+                                 alt="Laser skin rejuvenation treatment" 
                                  width="400" 
                                  height="300" 
                                  loading="lazy" 
@@ -738,12 +741,12 @@
                             <div class="service-icon">
                                 <i class="fas fa-gem"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=75&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=75&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1537365587684-49028b238aee?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1537365587684-49028b238aee?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1537365587684-49028b238aee?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1537365587684-49028b238aee?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                                 alt="Facial Treatments" 
+                                 alt="Facial aesthetic treatments and skincare" 
                                  width="400" 
                                  height="300" 
                                  loading="lazy" 
@@ -755,12 +758,12 @@
                             <div class="service-icon">
                                 <i class="fas fa-heart"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop" 
-                                 srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=75&auto=format&fit=crop 300w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop 400w,
-                                         https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=75&auto=format&fit=crop 600w"
+                            <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=400&q=75&auto=format&fit=crop" 
+                                 srcset="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=300&q=75&auto=format&fit=crop 300w,
+                                         https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=400&q=75&auto=format&fit=crop 400w,
+                                         https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=600&q=75&auto=format&fit=crop 600w"
                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                                 alt="Anti-Aging" 
+                                 alt="Anti-aging aesthetic treatments" 
                                  width="400" 
                                  height="300" 
                                  loading="lazy" 
@@ -845,12 +848,12 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=300&q=75&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                             alt="Dental cleaning for kids" 
+                             alt="Child dental cleaning and fluoride treatment" 
                              width="400" 
                              height="250" 
                              loading="lazy" 
@@ -897,12 +900,12 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&q=75&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                             alt="Kids orthodontics" 
+                             alt="Early orthodontic evaluation for children" 
                              width="400" 
                              height="250" 
                              loading="lazy" 
@@ -923,12 +926,12 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=75&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=75&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                             alt="Pediatric fillings" 
+                             alt="Pediatric dental fillings for children" 
                              width="400" 
                              height="250" 
                              loading="lazy" 
@@ -949,12 +952,12 @@
                 </div>
                 <div class="kids-service-card">
                     <div class="kids-service-image">
-                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
-                             srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
-                                     https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
-                                     https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
+                        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=75&auto=format&fit=crop" 
+                             srcset="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=300&q=75&auto=format&fit=crop 300w,
+                                     https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=75&auto=format&fit=crop 400w,
+                                     https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=75&auto=format&fit=crop 600w"
                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                             alt="Emergency dental care for kids" 
+                             alt="Emergency pediatric dental care for children" 
                              width="400" 
                              height="250" 
                              loading="lazy" 
@@ -993,12 +996,12 @@
             </div>
             <div class="tour-gallery">
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=900&q=75&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                         alt="Reception Area" 
+                         alt="Modern reception area and waiting room" 
                          width="600" 
                          height="400" 
                          loading="lazy" 
@@ -1009,12 +1012,12 @@
                     </div>
                 </div>
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=900&q=75&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                         alt="Treatment Room" 
+                         alt="State-of-the-art treatment room" 
                          width="600" 
                          height="400" 
                          loading="lazy" 
@@ -1025,12 +1028,12 @@
                     </div>
                 </div>
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=900&q=75&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                         alt="Consultation Room" 
+                         alt="Private consultation room at DNA Clinic" 
                          width="600" 
                          height="400" 
                          loading="lazy" 
@@ -1041,12 +1044,12 @@
                     </div>
                 </div>
                 <div class="tour-item">
-                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=900&q=75&auto=format&fit=crop 900w"
+                    <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=600&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=600&q=75&auto=format&fit=crop 600w,
+                                 https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=900&q=75&auto=format&fit=crop 900w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                         alt="Advanced Technology" 
+                         alt="Advanced dental technology and equipment" 
                          width="600" 
                          height="400" 
                          loading="lazy" 
@@ -1230,7 +1233,10 @@
                                 preload="metadata"
                                 muted
                                 controls
-                                controlsList="nodownload noremoteplayback"
+                                controlsList="nodownload"
+                                allowfullscreen
+                                webkitallowfullscreen
+                                mozallowfullscreen
                                 poster="">
                                 <source src="./videos/video1.mp4" type="video/mp4" />
                             </video>
@@ -1259,7 +1265,10 @@
                                 preload="metadata"
                                 muted
                                 controls
-                                controlsList="nodownload noremoteplayback"
+                                controlsList="nodownload"
+                                allowfullscreen
+                                webkitallowfullscreen
+                                mozallowfullscreen
                                 poster="">
                                 <source src="./videos/video2.mp4" type="video/mp4" />
                             </video>
@@ -1288,7 +1297,10 @@
                                 preload="metadata"
                                 muted
                                 controls
-                                controlsList="nodownload noremoteplayback"
+                                controlsList="nodownload"
+                                allowfullscreen
+                                webkitallowfullscreen
+                                mozallowfullscreen
                                 poster="">
                                 <source src="./videos/video3.mp4" type="video/mp4" />
                             </video>
@@ -1317,7 +1329,10 @@
                                 preload="metadata"
                                 muted
                                 controls
-                                controlsList="nodownload noremoteplayback"
+                                controlsList="nodownload"
+                                allowfullscreen
+                                webkitallowfullscreen
+                                mozallowfullscreen
                                 poster="">
                                 <source src="./videos/video4.mp4" type="video/mp4" />
                             </video>
@@ -1346,7 +1361,10 @@
                                 preload="metadata"
                                 muted
                                 controls
-                                controlsList="nodownload noremoteplayback"
+                                controlsList="nodownload"
+                                allowfullscreen
+                                webkitallowfullscreen
+                                mozallowfullscreen
                                 poster="">
                                 <source src="./videos/video5.mp4" type="video/mp4" />
                             </video>
@@ -1376,12 +1394,12 @@
             </div>
             <div class="blogs-grid">
                 <article class="blog-card">
-                    <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=300&q=75&auto=format&fit=crop 300w,
-                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&q=75&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&q=75&auto=format&fit=crop 600w"
+                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=300&q=75&auto=format&fit=crop 300w,
+                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=75&auto=format&fit=crop 600w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
-                         alt="Blog Post" 
+                         alt="Dental care tips and maintenance" 
                          width="400" 
                          height="200" 
                          loading="lazy" 
@@ -1394,12 +1412,12 @@
                     </div>
                 </article>
                 <article class="blog-card">
-                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&q=75&auto=format&fit=crop 300w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=75&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=75&auto=format&fit=crop 600w"
+                    <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=300&q=75&auto=format&fit=crop 300w,
+                                 https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=600&q=75&auto=format&fit=crop 600w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
-                         alt="Blog Post" 
+                         alt="Invisalign clear aligner treatment" 
                          width="400" 
                          height="200" 
                          loading="lazy" 
@@ -1412,12 +1430,12 @@
                     </div>
                 </article>
                 <article class="blog-card">
-                    <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop" 
-                         srcset="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&q=75&auto=format&fit=crop 300w,
-                                 https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=75&auto=format&fit=crop 400w,
-                                 https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=75&auto=format&fit=crop 600w"
+                    <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop" 
+                         srcset="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&q=75&auto=format&fit=crop 300w,
+                                 https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&q=75&auto=format&fit=crop 400w,
+                                 https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=75&auto=format&fit=crop 600w"
                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
-                         alt="Blog Post" 
+                         alt="Anti-aging aesthetic treatments explained" 
                          width="400" 
                          height="200" 
                          loading="lazy" 

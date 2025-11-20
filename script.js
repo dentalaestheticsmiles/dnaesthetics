@@ -199,8 +199,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // STILL HAVE QUESTIONS? POPUP - SMART BEHAVIOR-DRIVEN LOGIC
     // ============================================
     const popup = document.getElementById("question-popup");
-    const chatBtn = document.getElementById("qp-chat-btn");
-    const treatmentSpan = document.querySelector(".treatment-name");
     const key = "popupShownCount";
     const lastPopupTimeKey = "lastPopupTime";
     const popupDismissedKey = "popupDismissed";
@@ -229,12 +227,20 @@ document.addEventListener("DOMContentLoaded", function() {
     function showPopup(treatment) {
         if (!treatment) treatment = "treatment";
         if (!canShowPopup()) return;
-        if (!popup || !treatmentSpan) return;
+        if (!popup) return;
         
-        treatmentSpan.textContent = treatment;
         popup.classList.remove("hidden");
         setTimeout(function() {
             popup.classList.add("visible");
+            // Load chat history when popup becomes visible
+            if (typeof loadChatHistory === "function") {
+                loadChatHistory();
+            }
+            // Focus input after a short delay
+            setTimeout(function() {
+                const chatInput = document.getElementById("qp-chat-input");
+                if (chatInput) chatInput.focus();
+            }, 200);
         }, 10);
         count++;
         lastPopupTime = Date.now();
@@ -344,24 +350,383 @@ document.addEventListener("DOMContentLoaded", function() {
         lastScrollTime = Date.now();
     }, { passive: true });
 
-    // Chat button handler
-    if (chatBtn) {
-        chatBtn.addEventListener("click", function() {
-            window.open("https://wa.me/918072980232", "_blank");
-            hidePopup();
-            positiveInteractions++;
+    // ============================================
+    // AI CHATBOT FUNCTIONALITY
+    // ============================================
+    const chatContainer = document.getElementById("qp-chat-container");
+    const chatInput = document.getElementById("qp-chat-input");
+    const sendBtn = document.getElementById("qp-send-btn");
+    const typingIndicator = document.getElementById("qp-typing-indicator");
+    const closeBtn = document.getElementById("qp-close-btn");
+    const whatsappBtn = document.getElementById("qp-whatsapp-btn");
+    const quickReplyChips = document.querySelectorAll(".qp-chip");
+    
+    const chatHistoryKey = "dnaClinicChatHistory";
+    const OPENAI_API_KEY = ""; // User needs to add their OpenAI API key
+    const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+    
+    // Load chat history from localStorage
+    function loadChatHistory() {
+        if (!chatContainer) return;
+        
+        const history = localStorage.getItem(chatHistoryKey);
+        if (history) {
+            try {
+                const messages = JSON.parse(history);
+                // Clear container but keep initial structure
+                const existingMessages = chatContainer.querySelectorAll(".qp-message");
+                existingMessages.forEach(function(msg) {
+                    msg.remove();
+                });
+                const existingChips = chatContainer.querySelector(".qp-quick-replies");
+                if (existingChips) existingChips.remove();
+                
+                // Restore messages
+                messages.forEach(function(msg) {
+                    addMessageToChat(msg.text, msg.sender);
+                });
+                scrollChatToBottom();
+            } catch (e) {
+                console.warn("Failed to load chat history:", e);
+            }
+        }
+    }
+    
+    // Save chat history to localStorage
+    function saveChatHistory() {
+        if (!chatContainer) return;
+        
+        const messages = [];
+        const messageElements = chatContainer.querySelectorAll(".qp-message");
+        messageElements.forEach(function(el) {
+            const content = el.querySelector(".qp-message-content");
+            if (content) {
+                const sender = el.classList.contains("qp-user-message") ? "user" : "bot";
+                messages.push({
+                    text: content.textContent.trim(),
+                    sender: sender
+                });
+            }
+        });
+        if (messages.length > 0) {
+            localStorage.setItem(chatHistoryKey, JSON.stringify(messages));
+        }
+    }
+    
+    // Add message to chat
+    function addMessageToChat(text, sender) {
+        if (!chatContainer) return;
+        
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "qp-message " + (sender === "user" ? "qp-user-message" : "qp-bot-message");
+        
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "qp-message-content";
+        contentDiv.innerHTML = "<p>" + escapeHtml(text) + "</p>";
+        
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+        
+        scrollChatToBottom();
+        saveChatHistory();
+    }
+    
+    // Show typing indicator
+    function showTypingIndicator() {
+        typingIndicator.classList.remove("hidden");
+        scrollChatToBottom();
+    }
+    
+    // Hide typing indicator
+    function hideTypingIndicator() {
+        typingIndicator.classList.add("hidden");
+    }
+    
+    // Scroll chat to bottom
+    function scrollChatToBottom() {
+        setTimeout(function() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 100);
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Get AI response from OpenAI
+    async function getAIResponse(userMessage) {
+        if (!OPENAI_API_KEY) {
+            // Fallback to rule-based responses if no API key
+            return getRuleBasedResponse(userMessage);
+        }
+        
+        try {
+            const systemPrompt = `You are a helpful AI assistant for DNA Clinic, a dental and aesthetic clinic. 
+Provide friendly, general information about dental services, aesthetic treatments, and pediatric dentistry.
+Always remind users: "For clinical decisions, please consult our dentist directly."
+Keep responses concise (2-3 sentences max) and conversational.`;
+            
+            const response = await fetch(OPENAI_API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + OPENAI_API_KEY
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: userMessage }
+                    ],
+                    max_tokens: 150,
+                    temperature: 0.7
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error("API request failed");
+            }
+            
+            const data = await response.json();
+            return data.choices[0].message.content.trim();
+        } catch (error) {
+            console.error("AI API error:", error);
+            return getRuleBasedResponse(userMessage);
+        }
+    }
+    
+    // Rule-based fallback responses
+    function getRuleBasedResponse(message) {
+        const lowerMsg = message.toLowerCase();
+        
+        // Dental Services
+        if (lowerMsg.includes("dental") || lowerMsg.includes("teeth") || lowerMsg.includes("tooth")) {
+            if (lowerMsg.includes("whiten") || lowerMsg.includes("white")) {
+                return "Teeth whitening is a safe, non-invasive procedure that can brighten your smile by several shades. The process is generally painless, though some may experience mild sensitivity. For clinical decisions, please consult our dentist directly.";
+            }
+            if (lowerMsg.includes("implant")) {
+                return "Dental implants are permanent tooth replacements that look and feel natural. They're made of biocompatible materials and can last a lifetime with proper care. For clinical decisions, please consult our dentist directly.";
+            }
+            if (lowerMsg.includes("root canal") || lowerMsg.includes("rct")) {
+                return "Root canal treatment is a pain-free procedure that saves your natural tooth by removing infected pulp. Modern techniques make it comfortable and efficient. For clinical decisions, please consult our dentist directly.";
+            }
+            if (lowerMsg.includes("brace") || lowerMsg.includes("orthodont") || lowerMsg.includes("invisalign")) {
+                return "We offer both traditional braces and Invisalign clear aligners for straightening teeth. Treatment duration varies based on individual needs. For clinical decisions, please consult our dentist directly.";
+            }
+            return "We offer comprehensive dental services including implants, root canals, whitening, braces, and smile makeovers. Would you like to book an appointment? For clinical decisions, please consult our dentist directly.";
+        }
+        
+        // Aesthetic Services
+        if (lowerMsg.includes("aesthetic") || lowerMsg.includes("botox") || lowerMsg.includes("filler") || lowerMsg.includes("skin")) {
+            if (lowerMsg.includes("botox")) {
+                return "Botox is a safe, FDA-approved treatment for reducing wrinkles and fine lines. Results typically last 3-4 months. For clinical decisions, please consult our dentist directly.";
+            }
+            if (lowerMsg.includes("filler")) {
+                return "Dermal fillers restore volume and smooth out wrinkles. The procedure is quick with minimal downtime. For clinical decisions, please consult our dentist directly.";
+            }
+            if (lowerMsg.includes("peel") || lowerMsg.includes("chemical")) {
+                return "Chemical peels improve skin texture and reduce signs of aging. We offer various strengths based on your skin type. For clinical decisions, please consult our dentist directly.";
+            }
+            return "We offer Botox, fillers, chemical peels, laser treatments, and facial aesthetics. Would you like to book a consultation? For clinical decisions, please consult our dentist directly.";
+        }
+        
+        // Kids Dentistry
+        if (lowerMsg.includes("kid") || lowerMsg.includes("child") || lowerMsg.includes("pediatric")) {
+            if (lowerMsg.includes("first visit") || lowerMsg.includes("age")) {
+                return "We recommend children have their first dental visit by age 1 or within 6 months of their first tooth. Our pediatric specialists create a fun, stress-free environment. For clinical decisions, please consult our dentist directly.";
+            }
+            if (lowerMsg.includes("clean") || lowerMsg.includes("fluoride")) {
+                return "Regular cleanings and fluoride treatments help prevent cavities in children. We make the experience enjoyable and educational. For clinical decisions, please consult our dentist directly.";
+            }
+            return "We provide gentle pediatric dental care including first visits, cleanings, sealants, fluoride treatments, and early orthodontic evaluation. Would you like to book an appointment for your child? For clinical decisions, please consult our dentist directly.";
+        }
+        
+        // Pricing
+        if (lowerMsg.includes("price") || lowerMsg.includes("cost") || lowerMsg.includes("fee")) {
+            return "Pricing varies based on the treatment and individual needs. For exact pricing and payment plans, please continue on WhatsApp or book a consultation. We offer flexible payment options.";
+        }
+        
+        // Appointment
+        if (lowerMsg.includes("appointment") || lowerMsg.includes("book") || lowerMsg.includes("schedule")) {
+            return "Great! I can help you book an appointment. Would you like to continue on WhatsApp to confirm your preferred date and time?";
+        }
+        
+        // Clinic Timings
+        if (lowerMsg.includes("time") || lowerMsg.includes("hour") || lowerMsg.includes("open") || lowerMsg.includes("close")) {
+            return "Our clinic hours are typically Monday to Saturday, 9 AM to 7 PM. For exact timings and availability, please contact us on WhatsApp or call us directly.";
+        }
+        
+        // Contact
+        if (lowerMsg.includes("contact") || lowerMsg.includes("phone") || lowerMsg.includes("address")) {
+            return "You can reach us via WhatsApp at +91 80729 80232, or visit our clinic. Would you like to continue on WhatsApp for immediate assistance?";
+        }
+        
+        // Emergency
+        if (lowerMsg.includes("pain") || lowerMsg.includes("emergency") || lowerMsg.includes("urgent")) {
+            return "If you're experiencing dental pain, please contact us immediately. For emergencies, call us or message on WhatsApp. We'll help you get the care you need right away.";
+        }
+        
+        // Default
+        return "I'm here to help with questions about dental services, aesthetic treatments, kids dentistry, pricing, appointments, and more. How can I assist you today? For clinical decisions, please consult our dentist directly.";
+    }
+    
+    // Handle quick reply chips
+    quickReplyChips.forEach(function(chip) {
+        chip.addEventListener("click", function() {
+            const action = this.getAttribute("data-action");
+            let message = "";
+            
+            switch(action) {
+                case "dental-services":
+                    message = "Tell me about dental services";
+                    break;
+                case "aesthetic-services":
+                    message = "Tell me about aesthetic services";
+                    break;
+                case "kids-dentistry":
+                    message = "Tell me about kids dentistry";
+                    break;
+                case "pricing":
+                    message = "What are the prices?";
+                    break;
+                case "book-appointment":
+                    message = "I want to book an appointment";
+                    break;
+                case "clinic-timings":
+                    message = "What are your clinic timings?";
+                    break;
+                case "contact-info":
+                    message = "What is your contact information?";
+                    break;
+            }
+            
+            if (message) {
+                handleUserMessage(message);
+            }
+        });
+    });
+    
+    // Handle user message
+    async function handleUserMessage(message) {
+        if (!message.trim()) return;
+        
+        // Add user message
+        addMessageToChat(message, "user");
+        
+        // Remove quick reply chips after first user message
+        const quickReplies = chatContainer.querySelector(".qp-quick-replies");
+        if (quickReplies) {
+            quickReplies.remove();
+        }
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Get AI response
+        const aiResponse = await getAIResponse(message);
+        
+        // Hide typing indicator
+        hideTypingIndicator();
+        
+        // Add bot response
+        addMessageToChat(aiResponse, "bot");
+        
+        // Show quick reply chips for common actions
+        showContextualQuickReplies(message);
+    }
+    
+    // Show contextual quick replies
+    function showContextualQuickReplies(userMessage) {
+        if (!chatContainer) return;
+        
+        const lowerMsg = userMessage.toLowerCase();
+        const quickRepliesDiv = document.createElement("div");
+        quickRepliesDiv.className = "qp-quick-replies";
+        
+        if (lowerMsg.includes("dental") || lowerMsg.includes("service")) {
+            quickRepliesDiv.innerHTML = `
+                <button class="qp-chip" data-action="book-appointment">Book Appointment</button>
+                <button class="qp-chip" data-action="pricing">Check Pricing</button>
+                <button class="qp-chip" data-action="whatsapp">Continue on WhatsApp</button>
+            `;
+        } else if (lowerMsg.includes("aesthetic")) {
+            quickRepliesDiv.innerHTML = `
+                <button class="qp-chip" data-action="book-appointment">Book Consultation</button>
+                <button class="qp-chip" data-action="pricing">Check Pricing</button>
+                <button class="qp-chip" data-action="whatsapp">Continue on WhatsApp</button>
+            `;
+        } else if (lowerMsg.includes("price") || lowerMsg.includes("cost")) {
+            quickRepliesDiv.innerHTML = `
+                <button class="qp-chip" data-action="whatsapp">Get Exact Pricing</button>
+                <button class="qp-chip" data-action="book-appointment">Book Consultation</button>
+            `;
+        } else {
+            quickRepliesDiv.innerHTML = `
+                <button class="qp-chip" data-action="book-appointment">Book Appointment</button>
+                <button class="qp-chip" data-action="whatsapp">Talk to Human</button>
+            `;
+        }
+        
+        // Attach event listeners to new chips
+        quickRepliesDiv.querySelectorAll(".qp-chip").forEach(function(chip) {
+            chip.addEventListener("click", function() {
+                const action = this.getAttribute("data-action");
+                if (action === "whatsapp") {
+                    window.open("https://wa.me/918072980232", "_blank");
+                } else {
+                    handleUserMessage(this.textContent);
+                }
+            });
+        });
+        
+        chatContainer.appendChild(quickRepliesDiv);
+        scrollChatToBottom();
+    }
+    
+    // Send button handler
+    if (sendBtn) {
+        sendBtn.addEventListener("click", function() {
+            const message = chatInput.value.trim();
+            if (message) {
+                handleUserMessage(message);
+                chatInput.value = "";
+            }
         });
     }
     
-    // "Not Now" button handler
-    const notNowBtn = document.getElementById("qp-not-now-btn");
-    if (notNowBtn) {
-        notNowBtn.addEventListener("click", function() {
+    // Enter key handler
+    if (chatInput) {
+        chatInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                const message = chatInput.value.trim();
+                if (message) {
+                    handleUserMessage(message);
+                    chatInput.value = "";
+                }
+            }
+        });
+    }
+    
+    // Close button handler
+    if (closeBtn) {
+        closeBtn.addEventListener("click", function() {
             hidePopup();
             isDismissed = true;
             sessionStorage.setItem(popupDismissedKey, "true");
         });
     }
+    
+    // WhatsApp button handler
+    if (whatsappBtn) {
+        whatsappBtn.addEventListener("click", function() {
+            window.open("https://wa.me/918072980232", "_blank");
+            positiveInteractions++;
+        });
+    }
+    
 
     // ESC to close
     document.addEventListener("keydown", function(e) {

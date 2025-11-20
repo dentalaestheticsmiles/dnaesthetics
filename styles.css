@@ -2608,74 +2608,270 @@ section {
     display: none;
 }
 
+/* Chatbot Header */
+.qp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+}
+
 .qp-content h3 {
-    margin: 0 0 6px 0;
+    margin: 0;
     font-size: 1rem;
     font-weight: 700;
     color: #222;
     line-height: 1.3;
 }
 
-.qp-content p {
-    margin: 0 0 12px 0;
-    color: #444;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-.treatment-name {
-    font-weight: 600;
-    color: #6A4BFF;
-}
-
-.qp-buttons {
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-}
-
-#qp-chat-btn {
-    background: #6A4BFF;
-    color: #fff;
-    padding: 10px 14px;
-    border: none;
-    border-radius: 8px;
-    flex: 1;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: background 0.2s ease, transform 0.1s ease;
-}
-
-#qp-chat-btn:hover {
-    background: #5a3be8;
-    transform: translateY(-1px);
-}
-
-#qp-chat-btn:active {
-    transform: translateY(0);
-}
-
-.qp-not-now {
+.qp-close {
     background: transparent;
-    color: #666;
-    padding: 10px 14px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    flex: 1;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    color: #999;
     cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: background 0.2s ease, color 0.2s ease;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
 }
 
-.qp-not-now:hover {
-    background: #f5f5f5;
+.qp-close:hover {
     color: #333;
 }
 
-.qp-not-now:active {
-    transform: scale(0.98);
+/* Chat Container */
+.qp-chat-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    padding-right: 4px;
+}
+
+.qp-chat-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.qp-chat-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+.qp-chat-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+}
+
+.qp-chat-container::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Chat Messages */
+.qp-message {
+    margin-bottom: 10px;
+    animation: fadeInMessage 0.3s ease;
+}
+
+@keyframes fadeInMessage {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.qp-bot-message {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.qp-user-message {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.qp-message-content {
+    max-width: 85%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.qp-bot-message .qp-message-content {
+    background: #f0f0f0;
+    color: #333;
+    border-bottom-left-radius: 4px;
+}
+
+.qp-user-message .qp-message-content {
+    background: #6A4BFF;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+.qp-message-content p {
+    margin: 0;
+    color: inherit;
+}
+
+/* Quick Reply Chips */
+.qp-quick-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+}
+
+.qp-chip {
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    color: #333;
+    padding: 6px 10px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.qp-chip:hover {
+    background: #6A4BFF;
+    color: #fff;
+    border-color: #6A4BFF;
+    transform: translateY(-1px);
+}
+
+.qp-chip:active {
+    transform: translateY(0);
+}
+
+/* Typing Indicator */
+.qp-typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+}
+
+.qp-typing-indicator span {
+    width: 6px;
+    height: 6px;
+    background: #999;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.qp-typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.qp-typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.5;
+    }
+    30% {
+        transform: translateY(-8px);
+        opacity: 1;
+    }
+}
+
+/* Chat Input */
+.qp-chat-input-container {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.qp-chat-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.qp-chat-input:focus {
+    border-color: #6A4BFF;
+}
+
+.qp-send-btn {
+    background: #6A4BFF;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    flex-shrink: 0;
+}
+
+.qp-send-btn:hover {
+    background: #5a3be8;
+    transform: scale(1.05);
+}
+
+.qp-send-btn:active {
+    transform: scale(0.95);
+}
+
+.qp-send-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* WhatsApp Fallback */
+.qp-whatsapp-fallback {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+.qp-whatsapp-btn {
+    width: 100%;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.qp-whatsapp-btn:hover {
+    background: #20BA5A;
+    transform: translateY(-1px);
+}
+
+.qp-whatsapp-btn:active {
+    transform: translateY(0);
 }
 
 @media (max-width: 768px) {
@@ -2698,20 +2894,28 @@ section {
         font-size: 0.95rem;
     }
     
-    .qp-content p {
-        font-size: 0.85rem;
+    .qp-chat-container {
+        max-height: 250px;
     }
     
-    .qp-buttons {
-        flex-direction: column;
-        gap: 6px;
+    .qp-message-content {
+        font-size: 0.8rem;
+        padding: 7px 10px;
     }
     
-    #qp-chat-btn,
-    .qp-not-now {
+    .qp-chip {
+        font-size: 0.7rem;
+        padding: 5px 8px;
+    }
+    
+    .qp-chat-input {
+        font-size: 0.8rem;
+        padding: 7px 10px;
+    }
+    
+    .qp-whatsapp-btn {
+        font-size: 0.8rem;
         padding: 9px 12px;
-        font-size: 0.85rem;
-        width: 100%;
     }
 }
 

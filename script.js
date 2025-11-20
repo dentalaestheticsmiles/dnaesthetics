@@ -196,66 +196,80 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ============================================
-    // STILL HAVE QUESTIONS? POPUP - REBUILT
+    // STILL HAVE QUESTIONS? POPUP - SMART LOGIC
     // ============================================
     const popup = document.getElementById("question-popup");
     const chatBtn = document.getElementById("qp-chat-btn");
-    const closeBtn = document.querySelector(".qp-close");
-    
-    if (popup) {
-        // Show popup only twice per session unless user stays long
-        const key = "popupShownCount";
-        let shownCount = Number(sessionStorage.getItem(key)) || 0;
+    const treatmentSpan = document.querySelector(".treatment-name");
+    const key = "popupShownCount";
+    let count = Number(sessionStorage.getItem(key)) || 0;
+
+    function showPopup(treatment) {
+        if (!treatment) treatment = "treatment";
+        if (count >= 2) return;
+        if (!popup || !treatmentSpan) return;
         
-        function showPopup() {
-            if (shownCount < 2) {
-                popup.classList.remove("hidden");
-                setTimeout(function() {
-                    popup.classList.add("visible");
-                }, 10);
-                shownCount++;
-                sessionStorage.setItem(key, shownCount.toString());
-            }
-        }
-        
-        // Show after 3 seconds (first time)
-        if (shownCount === 0) {
-            setTimeout(showPopup, 3000);
-        }
-        
-        // Show again only if user stays 10+ minutes
+        treatmentSpan.textContent = treatment;
+        popup.classList.remove("hidden");
         setTimeout(function() {
-            if (popup && !popup.classList.contains("visible")) {
-                popup.classList.remove("hidden");
-                setTimeout(function() {
-                    popup.classList.add("visible");
-                }, 10);
+            popup.classList.add("visible");
+        }, 10);
+        count++;
+        sessionStorage.setItem(key, String(count));
+    }
+
+    function monitor(section, name) {
+        const el = document.querySelector(section);
+        if (!el) return;
+        let triggered = false;
+
+        function checkScroll() {
+            if (triggered) return;
+            const rect = el.getBoundingClientRect();
+            const win = window.innerHeight;
+
+            if (rect.top < win * 0.5 && rect.bottom > win * 0.5) {
+                triggered = true;
+                showPopup(name);
             }
-        }, 10 * 60 * 1000);
-        
-        // Close button handler
-        if (closeBtn) {
-            closeBtn.addEventListener("click", function() {
+        }
+
+        document.addEventListener("scroll", checkScroll, { passive: true });
+
+        setTimeout(function() {
+            if (!triggered) {
+                showPopup(name);
+            }
+        }, 30000);
+    }
+
+    // Monitor treatment sections
+    monitor("#laser-hair-removal-section", "Laser Hair Removal");
+    monitor("#smile-makeover-section", "Smile Makeover");
+    monitor("#skin-booster-section", "Skin Booster");
+
+    // Fallback: show after 2 minutes if not shown yet
+    setTimeout(function() {
+        if (count < 1) {
+            showPopup();
+        }
+    }, 2 * 60 * 1000);
+
+    // Chat button handler
+    if (chatBtn) {
+        chatBtn.addEventListener("click", function() {
+            window.open("https://wa.me/918072980232", "_blank");
+            if (popup) {
                 popup.classList.remove("visible");
                 setTimeout(function() {
                     popup.classList.add("hidden");
                 }, 150);
-            });
-        }
-        
-        // Chat button handler
-        if (chatBtn) {
-            chatBtn.addEventListener("click", function() {
-                // Open WhatsApp
-                window.open("https://wa.me/918072980232", "_blank");
-                popup.classList.remove("visible");
-                setTimeout(function() {
-                    popup.classList.add("hidden");
-                }, 150);
-            });
-        }
-        
-        // Close on outside click
+            }
+        });
+    }
+
+    // Close on outside click
+    if (popup) {
         popup.addEventListener("click", function(e) {
             if (e.target === popup) {
                 popup.classList.remove("visible");
@@ -1191,58 +1205,48 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ============================================
-    // VIDEO TESTIMONIAL SECTION - REBUILT
+    // VIDEO TESTIMONIAL SECTION - MOBILE COMPLIANT
     // ============================================
     const videos = document.querySelectorAll(".testimonial-video");
-    
+
     videos.forEach(function(video) {
-        // Set required attributes
+        // iOS REQUIREMENTS - Must be set immediately
         video.setAttribute("playsinline", "");
         video.setAttribute("webkit-playsinline", "");
-        video.setAttribute("controls", "");
-        video.setAttribute("allowfullscreen", "");
-        video.setAttribute("webkitallowfullscreen", "");
-        video.setAttribute("mozallowfullscreen", "");
-        
-        // Unmute and set volume when user plays
-        video.addEventListener("play", function() {
-            video.muted = false;
-            video.volume = 1.0;
-        });
-        
-        // Auto-generate poster thumbnail if none exists
+        video.setAttribute("muted", ""); // must stay muted until user interacts
+        video.muted = true;
+
+        // PREVENT BROKEN AUTOPLAY
+        video.autoplay = false;
+
+        // FIX POSTER IF MISSING
         video.addEventListener("loadeddata", function() {
             if (!video.getAttribute("poster") || video.getAttribute("poster") === "") {
                 try {
                     const canvas = document.createElement("canvas");
-                    canvas.width = video.videoWidth || 640;
-                    canvas.height = video.videoHeight || 360;
-                    const ctx = canvas.getContext("2d");
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext("2d").drawImage(video, 0, 0);
                     video.setAttribute("poster", canvas.toDataURL("image/png"));
                 } catch (e) {
-                    console.warn("Poster generation failed:", e);
+                    console.warn("Poster generation failed", e);
                 }
             }
         });
-        
-        // Ensure metadata loads
-        video.addEventListener("loadedmetadata", function() {
-            if (video.readyState < 2) {
-                video.load();
-            }
+
+        // USER INITIATED PLAY FIX
+        video.addEventListener("play", function() {
+            video.muted = false; // user gesture → safe to unmute
         });
-        
-        // Fullscreen support for iOS/Android
+
+        // REMOVE ANY FULLSCREEN FORCING
         video.addEventListener("click", function() {
-            if (video.webkitEnterFullscreen) {
-                video.webkitEnterFullscreen();
-            }
+            // Do NOT auto fullscreen on iOS
         });
-        
-        // Error handling
-        video.addEventListener("error", function() {
-            console.warn("Video load error:", video.querySelector("source")?.src);
+
+        // DISABLE DOWNLOAD & CONTEXT MENU
+        video.addEventListener("contextmenu", function(e) {
+            e.preventDefault();
         });
     });
 

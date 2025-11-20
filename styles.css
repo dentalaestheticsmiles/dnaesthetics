@@ -2576,7 +2576,7 @@ section {
 }
 
 /* ============================================
-   STILL HAVE QUESTIONS? POPUP - CLEAN DESIGN
+   STILL HAVE QUESTIONS? POPUP - SMART DESIGN
    ============================================ */
 .question-popup {
     position: fixed;
@@ -2585,8 +2585,8 @@ section {
     background: #ffffff;
     border-radius: 14px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    padding: 0;
-    width: 260px;
+    padding: 16px 20px;
+    width: 280px;
     z-index: 99999;
     opacity: 0;
     transform: translateY(10px);
@@ -2598,38 +2598,8 @@ section {
     transform: translateY(0);
 }
 
-.question-popup.hidden {
+.hidden {
     display: none;
-}
-
-.qp-content {
-    padding: 16px 20px;
-    position: relative;
-}
-
-.qp-close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    color: #666;
-    cursor: pointer;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.2s ease, color 0.2s ease;
-    line-height: 1;
-    padding: 0;
-}
-
-.qp-close:hover {
-    background: #f0f0f0;
-    color: #222;
 }
 
 .qp-content h3 {
@@ -2645,6 +2615,11 @@ section {
     color: #444;
     font-size: 0.9rem;
     line-height: 1.5;
+}
+
+.treatment-name {
+    font-weight: 600;
+    color: #6A4BFF;
 }
 
 #qp-chat-btn {
@@ -2673,10 +2648,7 @@ section {
     .question-popup {
         bottom: 15px;
         right: 15px;
-        width: 240px;
-    }
-    
-    .qp-content {
+        width: 260px;
         padding: 14px 18px;
     }
     

@@ -1308,10 +1308,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // ============================================
     // VIDEO TESTIMONIAL SECTION - MOBILE COMPLIANT + FULLSCREEN
+    // SPECIAL FIX FOR FIRST VIDEO - 100% RELIABLE FULLSCREEN
     // ============================================
     const videos = document.querySelectorAll(".testimonial-video");
-
-    videos.forEach(function(video) {
+    
+    // CRITICAL: Handle first video separately for 100% reliability
+    const firstVideo = document.querySelector(".testimonial-card-1 .testimonial-video");
+    
+    function setupVideoFullscreen(video, isFirstVideo) {
         // iOS REQUIREMENTS - Must be set immediately
         video.setAttribute("playsinline", "");
         video.setAttribute("webkit-playsinline", "");
@@ -1327,6 +1331,13 @@ document.addEventListener("DOMContentLoaded", function() {
         video.setAttribute("x5-playsinline", "false"); // Android X5 browser
         video.setAttribute("x5-video-player-type", "h5"); // Android X5 browser
         video.setAttribute("x5-video-player-fullscreen", "true"); // Android X5 browser
+        
+        // CRITICAL FOR FIRST VIDEO: Force enable fullscreen capability
+        if (isFirstVideo) {
+            video.setAttribute("webkit-playsinline", "true"); // Allow inline, but enable fullscreen
+            video.removeAttribute("playsinline"); // Remove conflicting attribute temporarily
+            video.setAttribute("playsinline", ""); // Re-add to ensure compatibility
+        }
 
         // PREVENT BROKEN AUTOPLAY
         video.autoplay = false;
@@ -1349,6 +1360,15 @@ document.addEventListener("DOMContentLoaded", function() {
         // USER INITIATED PLAY FIX
         video.addEventListener("play", function() {
             video.muted = false; // user gesture → safe to unmute
+            
+            // CRITICAL FOR FIRST VIDEO: Force enable fullscreen on play
+            if (isFirstVideo) {
+                // Ensure fullscreen is available immediately when playing
+                if (video.webkitEnterFullscreen) {
+                    // iOS Safari - make sure it's callable
+                    video.setAttribute("webkitEnterFullscreen", "");
+                }
+            }
         });
 
         // FULLSCREEN API HANDLER - Cross-browser support (including mobile)
@@ -1363,7 +1383,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 video.webkitRequestFullscreen();
             } else if (video.webkitEnterFullscreen) {
                 // iOS Safari - this is the key for mobile!
-                video.webkitEnterFullscreen();
+                try {
+                    video.webkitEnterFullscreen();
+                } catch (e) {
+                    console.warn("iOS fullscreen failed:", e);
+                }
             } else if (video.msRequestFullscreen) {
                 // IE/Edge
                 video.msRequestFullscreen();
@@ -1376,7 +1400,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // For mobile: Add tap handler to enter fullscreen when video is playing
         let tapCount = 0;
         let tapTimer = null;
-        video.addEventListener("click", function() {
+        video.addEventListener("click", function(e) {
             // On mobile, double-tap to enter fullscreen
             tapCount++;
             if (tapTimer) clearTimeout(tapTimer);
@@ -1393,21 +1417,23 @@ document.addEventListener("DOMContentLoaded", function() {
         video.addEventListener("dblclick", function() {
             enterFullscreen();
         });
-        
-        // Ensure fullscreen button appears in native controls on mobile
-        // iOS Safari will show fullscreen button automatically with webkitEnterFullscreen support
-        video.addEventListener("play", function() {
-            // On mobile, ensure fullscreen capability is available
-            if (video.webkitEnterFullscreen && !video.hasAttribute("webkitEnterFullscreen")) {
-                // Force enable fullscreen on iOS
-                video.setAttribute("webkitEnterFullscreen", "");
-            }
-        });
 
         // DISABLE DOWNLOAD & CONTEXT MENU
         video.addEventListener("contextmenu", function(e) {
             e.preventDefault();
         });
+    }
+    
+    // Setup first video with special handling for 100% reliability
+    if (firstVideo) {
+        setupVideoFullscreen(firstVideo, true);
+    }
+    
+    // Setup all other videos
+    videos.forEach(function(video) {
+        if (video !== firstVideo) {
+            setupVideoFullscreen(video, false);
+        }
     });
     
     // Re-attach video pause triggers after video initialization

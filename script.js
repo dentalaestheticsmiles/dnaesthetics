@@ -1120,49 +1120,280 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ============================================
-    // VIDEO PLAYBACK FIX (DESKTOP + MOBILE)
+    // VIDEO PLAYBACK FIX (DESKTOP + MOBILE) - OPTIMIZED
     // ============================================
     const videoWrappers = document.querySelectorAll('.video-wrapper');
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-    videoWrappers.forEach(wrapper => {
+    videoWrappers.forEach((wrapper, index) => {
         const video = wrapper.querySelector('.dna-video');
         const btn = wrapper.querySelector('.video-play-btn');
         if (!video || !btn) return;
 
+        // Initialize video attributes
         video.pause();
+        video.removeAttribute('autoplay');
+        video.removeAttribute('loop');
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('webkit-playsinline', 'true');
+        video.setAttribute('preload', 'metadata');
+        video.muted = true; // Start muted for preview
+        
+        // Track if video has been loaded
+        let videoLoaded = false;
+        let videoPlaying = false;
 
+        // Function to show first frame for preview
+        function showFirstFrame() {
+            if (!video || videoPlaying) return;
+            
+            if (video.readyState >= 2) {
+                try {
+                    video.currentTime = 0.1;
+                    video.pause();
+                    video.style.opacity = '1';
+                    video.style.display = 'block';
+                    video.style.visibility = 'visible';
+                } catch (e) {
+                    try {
+                        video.currentTime = 0.01;
+                        video.pause();
+                        video.style.opacity = '1';
+                        video.style.display = 'block';
+                        video.style.visibility = 'visible';
+                    } catch (e2) {
+                        video.pause();
+                        video.style.opacity = '1';
+                        video.style.display = 'block';
+                        video.style.visibility = 'visible';
+                    }
+                }
+            }
+        }
+
+        // Load video metadata for preview (lazy load)
+        function loadVideoMetadata() {
+            if (videoLoaded || video.readyState >= 1) return;
+            
+            videoLoaded = true;
+            video.load();
+            
+            // Show first frame when metadata loads
+            video.addEventListener('loadedmetadata', function showPreview() {
+                if (video.readyState >= 1 && video.paused) {
+                    try {
+                        video.currentTime = 0.1;
+                        video.pause();
+                        video.style.opacity = '1';
+                        video.style.visibility = 'visible';
+                    } catch (e) {
+                        try {
+                            video.currentTime = 0.01;
+                            video.pause();
+                            video.style.opacity = '1';
+                            video.style.visibility = 'visible';
+                        } catch (e2) {
+                            video.pause();
+                            video.style.opacity = '1';
+                            video.style.visibility = 'visible';
+                        }
+                    }
+                }
+                showFirstFrame();
+            }, { once: true });
+
+            video.addEventListener('loadeddata', function() {
+                if (video.paused && video.currentTime < 0.1) {
+                    showFirstFrame();
+                }
+            }, { once: true });
+
+            video.addEventListener('canplay', function() {
+                if (video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
+                    showFirstFrame();
+                }
+            }, { once: true });
+        }
+
+        // Use Intersection Observer to load metadata when video is visible
+        if ('IntersectionObserver' in window) {
+            const videoObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.target === wrapper) {
+                        loadVideoMetadata();
+                        // Try to show preview after a delay
+                        setTimeout(function() {
+                            if (video.readyState >= 1 && video.paused) {
+                                showFirstFrame();
+                            }
+                        }, 500);
+                        videoObserver.unobserve(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '100px',
+                threshold: 0.01
+            });
+            
+            videoObserver.observe(wrapper);
+        } else {
+            // Fallback: load metadata immediately
+            loadVideoMetadata();
+            setTimeout(function() {
+                if (video.readyState >= 1 && video.paused) {
+                    showFirstFrame();
+                }
+            }, 500);
+        }
+        
+        // Additional attempts to show preview
+        setTimeout(function() {
+            if (video.readyState >= 2 && video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
+                showFirstFrame();
+            }
+        }, 1000);
+
+        // Play button and video controls
         const showBtn = function() { 
-            btn.style.opacity = 1; 
-            btn.style.pointerEvents = "auto"; 
+            if (btn) {
+                btn.style.opacity = 1; 
+                btn.style.pointerEvents = "auto"; 
+                btn.style.display = "flex";
+            }
         };
+        
         const hideBtn = function() { 
-            btn.style.opacity = 0; 
-            btn.style.pointerEvents = "none"; 
+            if (btn) {
+                btn.style.opacity = 0; 
+                btn.style.pointerEvents = "none"; 
+            }
         };
 
-        btn.addEventListener('click', function() {
+        // Function to play video
+        function playVideo() {
+            if (videoPlaying || !video.paused) return;
+            
+            // Ensure video is loaded
+            if (!videoLoaded) {
+                loadVideoMetadata();
+            }
+            
+            if (video.readyState < 2) {
+                video.load();
+                // Wait for video to load
+                video.addEventListener('canplay', function playWhenReady() {
+                    startPlayback();
+                }, { once: true });
+            } else {
+                startPlayback();
+            }
+        }
+
+        function startPlayback() {
             hideBtn();
-            const p = video.play();
-            if (p && p.catch) p.catch(showBtn);
+            videoPlaying = true;
+            
+            // For mobile Safari: unmute before playing
+            if (isMobile) {
+                video.muted = false;
+            }
+            
+            const playPromise = video.play();
+            if (playPromise && playPromise.then) {
+                playPromise.then(function() {
+                    // Video started playing
+                }).catch(function(error) {
+                    // Play failed - show button again
+                    videoPlaying = false;
+                    showBtn();
+                    if (isMobile) {
+                        video.muted = true; // Re-mute on mobile if play fails
+                    }
+                });
+            }
+        }
+
+        // Play button click handler
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            playVideo();
         });
 
-        video.addEventListener('click', function() {
+        // Mobile touch events for play button
+        if (isMobile) {
+            let touchStartTime = 0;
+            btn.addEventListener('touchstart', function(e) {
+                touchStartTime = Date.now();
+            }, { passive: true });
+            
+            btn.addEventListener('touchend', function(e) {
+                if (Date.now() - touchStartTime < 300) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    playVideo();
+                }
+            }, { passive: false });
+        }
+
+        // Video click handler
+        video.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             if (video.paused) {
-                hideBtn();
-                const p = video.play();
-                if (p && p.catch) p.catch(showBtn);
+                playVideo();
             } else {
                 video.pause();
+                videoPlaying = false;
                 showBtn();
             }
         });
 
-        video.addEventListener('ended', showBtn);
+        // Mobile touch events for video
+        if (isMobile) {
+            let videoTouchStart = 0;
+            video.addEventListener('touchstart', function(e) {
+                videoTouchStart = Date.now();
+            }, { passive: true });
+            
+            video.addEventListener('touchend', function(e) {
+                if (Date.now() - videoTouchStart < 300) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (video.paused) {
+                        playVideo();
+                    } else {
+                        video.pause();
+                        videoPlaying = false;
+                        showBtn();
+                    }
+                }
+            }, { passive: false });
+        }
 
-        // fallback if video fails to load
-        video.onerror = function() { 
-            showBtn(); 
-        };
+        // Video event handlers
+        video.addEventListener('ended', function() {
+            videoPlaying = false;
+            if (isMobile) {
+                video.muted = true; // Re-mute on mobile after video ends
+            }
+            showBtn();
+        });
+        
+        video.addEventListener('pause', function() {
+            if (video.paused) {
+                videoPlaying = false;
+                showBtn();
+            }
+        });
+
+        // Error handling
+        video.addEventListener('error', function() {
+            videoPlaying = false;
+            showBtn();
+            console.log('Video load error for:', video.dataset.videoSrc || video.querySelector('source')?.src);
+        });
     });
 
 }); // End of DOMContentLoaded

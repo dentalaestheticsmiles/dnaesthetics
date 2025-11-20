@@ -440,14 +440,52 @@
         </div>
     </div>
 
-    <!-- Still Have Questions? Popup - Smart Design -->
+    <!-- Still Have Questions? Popup - AI Chatbot (Internal Only) -->
     <div id="question-popup" class="question-popup hidden" role="dialog" aria-modal="true" aria-labelledby="popup-title">
         <div class="qp-content">
-            <h3 id="popup-title">Still Have Questions?</h3>
-            <p>We're here to help you with your <span class="treatment-name">treatment</span>.</p>
-            <div class="qp-buttons">
-                <button id="qp-chat-btn" type="button">Chat with Us</button>
-                <button id="qp-not-now-btn" type="button" class="qp-not-now">Not Now</button>
+            <!-- Chatbot Header -->
+            <div class="qp-header">
+                <h3 id="popup-title">Still Have Questions?</h3>
+                <button id="qp-close-btn" type="button" class="qp-close" aria-label="Close chat">×</button>
+            </div>
+            
+            <!-- Chatbot Messages Container -->
+            <div id="qp-chat-container" class="qp-chat-container">
+                <div class="qp-message qp-bot-message">
+                    <div class="qp-message-content">
+                        <p>Hi! I'm your AI assistant at DNA Clinic. How can I help you today?</p>
+                    </div>
+                </div>
+                <!-- Quick Reply Chips (Initial) -->
+                <div class="qp-quick-replies">
+                    <button class="qp-chip" data-action="dental-services">Dental Services</button>
+                    <button class="qp-chip" data-action="aesthetic-services">Aesthetic Services</button>
+                    <button class="qp-chip" data-action="kids-dentistry">Kids Dentistry</button>
+                    <button class="qp-chip" data-action="pricing">Pricing</button>
+                    <button class="qp-chip" data-action="book-appointment">Book Appointment</button>
+                    <button class="qp-chip" data-action="clinic-timings">Clinic Timings</button>
+                    <button class="qp-chip" data-action="contact-info">Contact Info</button>
+                </div>
+            </div>
+            
+            <!-- Typing Indicator -->
+            <div id="qp-typing-indicator" class="qp-typing-indicator hidden">
+                <span></span><span></span><span></span>
+            </div>
+            
+            <!-- Chat Input -->
+            <div class="qp-chat-input-container">
+                <input type="text" id="qp-chat-input" class="qp-chat-input" placeholder="Type your message..." autocomplete="off">
+                <button id="qp-send-btn" type="button" class="qp-send-btn" aria-label="Send message">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            
+            <!-- WhatsApp Fallback Button -->
+            <div class="qp-whatsapp-fallback">
+                <button id="qp-whatsapp-btn" type="button" class="qp-whatsapp-btn">
+                    <i class="fab fa-whatsapp"></i> Talk to a Human on WhatsApp
+                </button>
             </div>
         </div>
     </div>

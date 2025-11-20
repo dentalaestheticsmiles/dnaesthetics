@@ -196,7 +196,78 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ============================================
-    // EXPERT DENTIST CONSULTATION MODAL
+    // STILL HAVE QUESTIONS? POPUP - REBUILT
+    // ============================================
+    const popup = document.getElementById("question-popup");
+    const chatBtn = document.getElementById("qp-chat-btn");
+    const closeBtn = document.querySelector(".qp-close");
+    
+    if (popup) {
+        // Show popup only twice per session unless user stays long
+        const key = "popupShownCount";
+        let shownCount = Number(sessionStorage.getItem(key)) || 0;
+        
+        function showPopup() {
+            if (shownCount < 2) {
+                popup.classList.remove("hidden");
+                setTimeout(function() {
+                    popup.classList.add("visible");
+                }, 10);
+                shownCount++;
+                sessionStorage.setItem(key, shownCount.toString());
+            }
+        }
+        
+        // Show after 3 seconds (first time)
+        if (shownCount === 0) {
+            setTimeout(showPopup, 3000);
+        }
+        
+        // Show again only if user stays 10+ minutes
+        setTimeout(function() {
+            if (popup && !popup.classList.contains("visible")) {
+                popup.classList.remove("hidden");
+                setTimeout(function() {
+                    popup.classList.add("visible");
+                }, 10);
+            }
+        }, 10 * 60 * 1000);
+        
+        // Close button handler
+        if (closeBtn) {
+            closeBtn.addEventListener("click", function() {
+                popup.classList.remove("visible");
+                setTimeout(function() {
+                    popup.classList.add("hidden");
+                }, 150);
+            });
+        }
+        
+        // Chat button handler
+        if (chatBtn) {
+            chatBtn.addEventListener("click", function() {
+                // Open WhatsApp
+                window.open("https://wa.me/918072980232", "_blank");
+                popup.classList.remove("visible");
+                setTimeout(function() {
+                    popup.classList.add("hidden");
+                }, 150);
+            });
+        }
+        
+        // Close on outside click
+        popup.addEventListener("click", function(e) {
+            if (e.target === popup) {
+                popup.classList.remove("visible");
+                setTimeout(function() {
+                    popup.classList.add("hidden");
+                }, 150);
+            }
+        });
+    }
+
+    // ============================================
+    // EXPERT DENTIST CONSULTATION MODAL (LEGACY SUPPORT)
     // ============================================
     const expertConsultationModal = document.getElementById('expertConsultationModal');
     const expertCloseBtn = document.querySelector('.expert-close-btn');
@@ -1120,279 +1191,58 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ============================================
-    // VIDEO PLAYBACK FIX (DESKTOP + MOBILE) - OPTIMIZED
+    // VIDEO TESTIMONIAL SECTION - REBUILT
     // ============================================
-    const videoWrappers = document.querySelectorAll('.video-wrapper');
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    videoWrappers.forEach((wrapper, index) => {
-        const video = wrapper.querySelector('.dna-video');
-        const btn = wrapper.querySelector('.video-play-btn');
-        if (!video || !btn) return;
-
-        // Initialize video attributes
-        video.pause();
-        video.removeAttribute('autoplay');
-        video.removeAttribute('loop');
-        video.setAttribute('playsinline', 'true');
-        video.setAttribute('webkit-playsinline', 'true');
-        video.setAttribute('preload', 'metadata');
-        video.muted = true; // Start muted for preview
+    const videos = document.querySelectorAll(".testimonial-video");
+    
+    videos.forEach(function(video) {
+        // Set required attributes
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.setAttribute("controls", "");
+        video.setAttribute("allowfullscreen", "");
+        video.setAttribute("webkitallowfullscreen", "");
+        video.setAttribute("mozallowfullscreen", "");
         
-        // Track if video has been loaded
-        let videoLoaded = false;
-        let videoPlaying = false;
-
-        // Function to show first frame for preview
-        function showFirstFrame() {
-            if (!video || videoPlaying) return;
-            
-            if (video.readyState >= 2) {
+        // Unmute and set volume when user plays
+        video.addEventListener("play", function() {
+            video.muted = false;
+            video.volume = 1.0;
+        });
+        
+        // Auto-generate poster thumbnail if none exists
+        video.addEventListener("loadeddata", function() {
+            if (!video.getAttribute("poster") || video.getAttribute("poster") === "") {
                 try {
-                    video.currentTime = 0.1;
-                    video.pause();
-                    video.style.opacity = '1';
-                    video.style.display = 'block';
-                    video.style.visibility = 'visible';
+                    const canvas = document.createElement("canvas");
+                    canvas.width = video.videoWidth || 640;
+                    canvas.height = video.videoHeight || 360;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    video.setAttribute("poster", canvas.toDataURL("image/png"));
                 } catch (e) {
-                    try {
-                        video.currentTime = 0.01;
-                        video.pause();
-                        video.style.opacity = '1';
-                        video.style.display = 'block';
-                        video.style.visibility = 'visible';
-                    } catch (e2) {
-                        video.pause();
-                        video.style.opacity = '1';
-                        video.style.display = 'block';
-                        video.style.visibility = 'visible';
-                    }
+                    console.warn("Poster generation failed:", e);
                 }
             }
-        }
-
-        // Load video metadata for preview (lazy load)
-        function loadVideoMetadata() {
-            if (videoLoaded || video.readyState >= 1) return;
-            
-            videoLoaded = true;
-            video.load();
-            
-            // Show first frame when metadata loads
-            video.addEventListener('loadedmetadata', function showPreview() {
-                if (video.readyState >= 1 && video.paused) {
-                    try {
-                        video.currentTime = 0.1;
-                        video.pause();
-                        video.style.opacity = '1';
-                        video.style.visibility = 'visible';
-                    } catch (e) {
-                        try {
-                            video.currentTime = 0.01;
-                            video.pause();
-                            video.style.opacity = '1';
-                            video.style.visibility = 'visible';
-                        } catch (e2) {
-                            video.pause();
-                            video.style.opacity = '1';
-                            video.style.visibility = 'visible';
-                        }
-                    }
-                }
-                showFirstFrame();
-            }, { once: true });
-
-            video.addEventListener('loadeddata', function() {
-                if (video.paused && video.currentTime < 0.1) {
-                    showFirstFrame();
-                }
-            }, { once: true });
-
-            video.addEventListener('canplay', function() {
-                if (video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
-                    showFirstFrame();
-                }
-            }, { once: true });
-        }
-
-        // Use Intersection Observer to load metadata when video is visible
-        if ('IntersectionObserver' in window) {
-            const videoObserver = new IntersectionObserver(function(entries) {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && entry.target === wrapper) {
-                        loadVideoMetadata();
-                        // Try to show preview after a delay
-                        setTimeout(function() {
-                            if (video.readyState >= 1 && video.paused) {
-                                showFirstFrame();
-                            }
-                        }, 500);
-                        videoObserver.unobserve(entry.target);
-                    }
-                });
-            }, {
-                rootMargin: '100px',
-                threshold: 0.01
-            });
-            
-            videoObserver.observe(wrapper);
-        } else {
-            // Fallback: load metadata immediately
-            loadVideoMetadata();
-            setTimeout(function() {
-                if (video.readyState >= 1 && video.paused) {
-                    showFirstFrame();
-                }
-            }, 500);
-        }
+        });
         
-        // Additional attempts to show preview
-        setTimeout(function() {
-            if (video.readyState >= 2 && video.paused && (video.currentTime === 0 || video.currentTime < 0.1)) {
-                showFirstFrame();
-            }
-        }, 1000);
-
-        // Play button and video controls
-        const showBtn = function() { 
-            if (btn) {
-                btn.style.opacity = 1; 
-                btn.style.pointerEvents = "auto"; 
-                btn.style.display = "flex";
-            }
-        };
-        
-        const hideBtn = function() { 
-            if (btn) {
-                btn.style.opacity = 0; 
-                btn.style.pointerEvents = "none"; 
-            }
-        };
-
-        // Function to play video
-        function playVideo() {
-            if (videoPlaying || !video.paused) return;
-            
-            // Ensure video is loaded
-            if (!videoLoaded) {
-                loadVideoMetadata();
-            }
-            
+        // Ensure metadata loads
+        video.addEventListener("loadedmetadata", function() {
             if (video.readyState < 2) {
                 video.load();
-                // Wait for video to load
-                video.addEventListener('canplay', function playWhenReady() {
-                    startPlayback();
-                }, { once: true });
-            } else {
-                startPlayback();
             }
-        }
-
-        function startPlayback() {
-            hideBtn();
-            videoPlaying = true;
-            
-            // For mobile Safari: unmute before playing
-            if (isMobile) {
-                video.muted = false;
-            }
-            
-            const playPromise = video.play();
-            if (playPromise && playPromise.then) {
-                playPromise.then(function() {
-                    // Video started playing
-                }).catch(function(error) {
-                    // Play failed - show button again
-                    videoPlaying = false;
-                    showBtn();
-                    if (isMobile) {
-                        video.muted = true; // Re-mute on mobile if play fails
-                    }
-                });
-            }
-        }
-
-        // Play button click handler
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            playVideo();
-        });
-
-        // Mobile touch events for play button
-        if (isMobile) {
-            let touchStartTime = 0;
-            btn.addEventListener('touchstart', function(e) {
-                touchStartTime = Date.now();
-            }, { passive: true });
-            
-            btn.addEventListener('touchend', function(e) {
-                if (Date.now() - touchStartTime < 300) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    playVideo();
-                }
-            }, { passive: false });
-        }
-
-        // Video click handler
-        video.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            if (video.paused) {
-                playVideo();
-            } else {
-                video.pause();
-                videoPlaying = false;
-                showBtn();
-            }
-        });
-
-        // Mobile touch events for video
-        if (isMobile) {
-            let videoTouchStart = 0;
-            video.addEventListener('touchstart', function(e) {
-                videoTouchStart = Date.now();
-            }, { passive: true });
-            
-            video.addEventListener('touchend', function(e) {
-                if (Date.now() - videoTouchStart < 300) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (video.paused) {
-                        playVideo();
-                    } else {
-                        video.pause();
-                        videoPlaying = false;
-                        showBtn();
-                    }
-                }
-            }, { passive: false });
-        }
-
-        // Video event handlers
-        video.addEventListener('ended', function() {
-            videoPlaying = false;
-            if (isMobile) {
-                video.muted = true; // Re-mute on mobile after video ends
-            }
-            showBtn();
         });
         
-        video.addEventListener('pause', function() {
-            if (video.paused) {
-                videoPlaying = false;
-                showBtn();
+        // Fullscreen support for iOS/Android
+        video.addEventListener("click", function() {
+            if (video.webkitEnterFullscreen) {
+                video.webkitEnterFullscreen();
             }
         });
-
+        
         // Error handling
-        video.addEventListener('error', function() {
-            videoPlaying = false;
-            showBtn();
-            console.log('Video load error for:', video.dataset.videoSrc || video.querySelector('source')?.src);
+        video.addEventListener("error", function() {
+            console.warn("Video load error:", video.querySelector("source")?.src);
         });
     });
 

@@ -1628,6 +1628,70 @@
         <i class="fab fa-whatsapp" aria-hidden="true"></i>
     </a>
 
+    <!-- Appointment Popup Modal -->
+    <div id="appointmentPopup" class="modal">
+        <div class="modal-content appointment-anim">
+            <button id="appointmentPopupClose" class="close-modal" aria-label="Close appointment modal">×</button>
+            <h2>Book Appointment</h2>
+            <form id="appointmentPopupForm" autocomplete="off">
+                <div class="form-group">
+                    <input id="popupName" name="popupName" type="text" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <input id="popupEmail" name="popupEmail" type="email" placeholder="Your Email" required>
+                </div>
+                <div class="form-group">
+                    <input id="popupPhone" name="popupPhone" type="tel" placeholder="Phone" required>
+                </div>
+                <div class="form-group">
+                    <select id="popupService" name="popupService" required>
+                        <option value="">Select Service</option>
+                        <option>Teeth Whitening</option>
+                        <option>Dental Implants</option>
+                        <option>Orthodontics</option>
+                        <option>Cosmetic Dentistry</option>
+                        <option>Botox & Fillers</option>
+                        <option>Laser Treatments</option>
+                        <option>Pediatric Dental Care</option>
+                        <option>General Consultation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input id="popupDate" name="popupDate" type="date">
+                </div>
+                <div class="form-group">
+                    <input id="popupTime" name="popupTime" type="time">
+                </div>
+                <div class="form-group">
+                    <textarea id="popupMessage" name="popupMessage" placeholder="Message (Optional)" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Book Appointment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Appointment Confirmation Modal -->
+    <div id="appointmentConfirmationModal" class="modal">
+        <div class="modal-content confirm-content">
+            <div class="success-check" aria-hidden="true"></div>
+            <h2>Appointment Request Sent!</h2>
+            <p>Thank you! We will contact you shortly to confirm your appointment.</p>
+            
+            <!-- Add to calendar controls -->
+            <div class="confirmation-actions">
+                <button id="addToCalendarBtn" class="btn-ghost">📅 Add to Phone Calendar</button>
+                <a id="googleCalendarLink" class="btn-ghost" target="_blank" rel="noopener">📆 Add to Google Calendar</a>
+            </div>
+            
+            <button id="appointmentConfirmClose" class="btn btn-primary">OK</button>
+        </div>
+    </div>
+
+    <!-- Chatbox CTA -->
+    <div id="chatboxCTA" class="chatbox-cta" style="display:none;">
+        Need help? <button id="ctaAppointmentBtn" class="cta-btn">Book Appointment</button>
+    </div>
+
     <!-- Kids Appointment Modal -->
     <div id="kidsAppointmentModal" class="modal kids-modal">
         <div class="modal-content kids-modal-content">

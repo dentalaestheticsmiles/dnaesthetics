@@ -4377,3 +4377,295 @@ video:-ms-fullscreen {
     display: none !important;
 }
 
+/* ============================================
+   APPOINTMENT BOOKING FLOW - ANIMATIONS & STYLES
+   ============================================ */
+
+/* Appointment Popup Animation */
+.appointment-anim {
+    animation: appointmentPop 0.35s ease-out;
+}
+
+@keyframes appointmentPop {
+    0% {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Confirmation Modal Animation */
+.confirm-content {
+    animation: confirmPop 0.35s ease-out;
+}
+
+@keyframes confirmPop {
+    0% {
+        transform: scale(0.85);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Success Checkmark */
+.success-check {
+    width: 72px;
+    height: 72px;
+    margin: 8px auto 14px auto;
+    border-radius: 50%;
+    border: 4px solid #34d399;
+    position: relative;
+    display: block;
+    background: rgba(52, 211, 153, 0.06);
+    animation: checkPop 0.45s ease-out;
+}
+
+.success-check::after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 18px;
+    width: 14px;
+    height: 28px;
+    border-right: 4px solid #10b981;
+    border-bottom: 4px solid #10b981;
+    transform: rotate(45deg);
+    animation: drawCheck 0.45s ease-out;
+}
+
+@keyframes checkPop {
+    0% {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes drawCheck {
+    0% {
+        opacity: 0;
+        transform: rotate(45deg) scale(0.4);
+    }
+    100% {
+        opacity: 1;
+        transform: rotate(45deg) scale(1);
+    }
+}
+
+/* Chatbox CTA */
+.chatbox-cta {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    padding: 12px 16px;
+    border-radius: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
+    z-index: 9999;
+    animation: ctaBounce 0.8s ease-out;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+@keyframes ctaBounce {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.cta-btn {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.18s ease;
+}
+
+.cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
+    background: var(--secondary-color);
+}
+
+.cta-btn:active {
+    transform: translateY(0);
+}
+
+/* Confirmation Actions */
+.confirmation-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid #e6e6e6;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--text-dark);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-ghost:hover {
+    background: #f5f5f5;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+/* Validation Error Styling */
+.input-error {
+    border: 2px solid #ef4444 !important;
+    animation: shake 0.32s ease;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+    75% {
+        transform: translateX(-3px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Chatbox Minimize Animation */
+#question-popup.minimized {
+    transform: translateY(100px) scale(0.90);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.35s ease-in-out;
+}
+
+/* Appointment Popup Form Styling */
+#appointmentPopupForm {
+    text-align: left;
+}
+
+#appointmentPopupForm .form-group {
+    margin-bottom: 1.2rem;
+}
+
+#appointmentPopupForm input,
+#appointmentPopupForm select,
+#appointmentPopupForm textarea {
+    width: 100%;
+    padding: 0.9rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text-dark);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+#appointmentPopupForm input:focus,
+#appointmentPopupForm select:focus,
+#appointmentPopupForm textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+#appointmentPopupForm select {
+    cursor: pointer;
+}
+
+#appointmentPopupForm textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+#appointmentPopupForm h2 {
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+    text-align: center;
+}
+
+/* Confirmation Modal Styling */
+#appointmentConfirmationModal .modal-content {
+    text-align: center;
+}
+
+#appointmentConfirmationModal h2 {
+    color: var(--text-dark);
+    margin-bottom: 0.8rem;
+}
+
+#appointmentConfirmationModal p {
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+/* Mobile Responsive for CTA */
+@media (max-width: 768px) {
+    .chatbox-cta {
+        bottom: 70px;
+        right: 10px;
+        left: 10px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+    
+    .confirmation-actions {
+        flex-direction: column;
+    }
+    
+    .btn-ghost {
+        width: 100%;
+        text-align: center;
+    }
+    
+    #appointmentPopupForm {
+        padding: 0;
+    }
+    
+    .appointment-anim {
+        padding: 2rem 1.5rem !important;
+    }
+}
+

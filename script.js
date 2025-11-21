@@ -2,6 +2,16 @@
 // DNA CLINIC WEBSITE - MAIN JAVASCRIPT FILE
 // Fully error-proof with all null checks and safe DOM handling
 // ============================================
+//
+// TESTING CHECKLIST:
+// 1. Click "Book Appointment" button → popup opens with scale animation
+// 2. Fill form and submit → validation works (red border + shake on empty fields)
+// 3. Successful submission → confirmation modal shows with checkmark animation
+// 4. Click "Add to Phone Calendar" → .ics file downloads (test on iPhone/Android)
+// 5. Click "Add to Google Calendar" → Google Calendar opens with prefilled event
+// 6. AI chatbox "Book Appointment" → scrolls to contact section OR opens popup
+// 7. CTA button appears after AI chat minimizes → opens appointment popup
+// ============================================
 
 document.addEventListener("DOMContentLoaded", function() {
     'use strict';
@@ -628,6 +638,24 @@ Important guidelines:
                     message = "Tell me about kids dentistry";
                     break;
                 case "book-appointment":
+                    // Open appointment popup directly
+                    if (typeof openAppointmentPopup === "function") {
+                        const chatPopup = document.getElementById('question-popup');
+                        if (chatPopup && !chatPopup.classList.contains('hidden')) {
+                            if (typeof hidePopup === "function") {
+                                hidePopup();
+                            } else {
+                                chatPopup.classList.remove("visible");
+                                setTimeout(function() {
+                                    chatPopup.classList.add("hidden");
+                                }, 150);
+                            }
+                        }
+                        setTimeout(function() {
+                            openAppointmentPopup();
+                        }, 200);
+                        return; // Don't send message, just open popup
+                    }
                     message = "I want to book an appointment";
                     break;
                 case "clinic-timings":
@@ -729,7 +757,25 @@ Important guidelines:
                         addMessageToChat("I've opened WhatsApp for you. Our team will respond quickly to help with your questions!", "bot");
                     }, 500);
                 } else if (action === "book-appointment") {
-                    handleUserMessage("I want to book an appointment");
+                    // Open appointment popup directly
+                    if (typeof openAppointmentPopup === "function") {
+                        const chatPopup = document.getElementById('question-popup');
+                        if (chatPopup && !chatPopup.classList.contains('hidden')) {
+                            if (typeof hidePopup === "function") {
+                                hidePopup();
+                            } else {
+                                chatPopup.classList.remove("visible");
+                                setTimeout(function() {
+                                    chatPopup.classList.add("hidden");
+                                }, 150);
+                            }
+                        }
+                        setTimeout(function() {
+                            openAppointmentPopup();
+                        }, 200);
+                    } else {
+                        handleUserMessage("I want to book an appointment");
+                    }
                 } else if (action === "contact-info") {
                     handleUserMessage("What is your contact information?");
                 } else {
@@ -1218,6 +1264,405 @@ Important guidelines:
             this.reset();
         });
     }
+
+    // ============================================
+    // APPOINTMENT POPUP MODAL - BOOKING FLOW
+    // ============================================
+    
+    // Calendar Utility Functions
+    function toUTCStringForICS(dateObj) {
+        const pad = function(n) {
+            return String(n).padStart(2, '0');
+        };
+        return dateObj.getUTCFullYear() + 
+               pad(dateObj.getUTCMonth() + 1) + 
+               pad(dateObj.getUTCDate()) + 
+               'T' + 
+               pad(dateObj.getUTCHours()) + 
+               pad(dateObj.getUTCMinutes()) + 
+               pad(dateObj.getUTCSeconds()) + 
+               'Z';
+    }
+
+    function escapeICSText(s) {
+        return (s || '').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+    }
+
+    function downloadICS(params) {
+        const title = params.title || 'DNA Clinic Appointment';
+        const description = params.description || '';
+        const location = params.location || 'DNA Clinic, 123 Dental Avenue, Health District';
+        const startDate = params.startDate || new Date();
+        const endDate = params.endDate || new Date(startDate.getTime() + 45 * 60000);
+        const filename = params.filename || 'DNA-Clinic-Appointment.ics';
+
+        const dtStart = toUTCStringForICS(startDate);
+        const dtEnd = toUTCStringForICS(endDate);
+
+        const icsLines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//DNA Clinic//EN',
+            'CALSCALE:GREGORIAN',
+            'BEGIN:VEVENT',
+            'DTSTART:' + dtStart,
+            'DTEND:' + dtEnd,
+            'SUMMARY:' + escapeICSText(title),
+            'DESCRIPTION:' + escapeICSText(description),
+            'LOCATION:' + escapeICSText(location),
+            'END:VEVENT',
+            'END:VCALENDAR'
+        ];
+
+        const blob = new Blob([icsLines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function() {
+            URL.revokeObjectURL(url);
+        }, 1000);
+    }
+
+    function createGoogleCalendarLink(params) {
+        const title = params.title || 'DNA Clinic Appointment';
+        const description = params.description || '';
+        const location = params.location || 'DNA Clinic, 123 Dental Avenue, Health District';
+        const startDate = params.startDate || new Date();
+        const endDate = params.endDate || new Date(startDate.getTime() + 45 * 60000);
+
+        const fmt = function(d) {
+            return toUTCStringForICS(d);
+        };
+
+        const paramsObj = {
+            text: title,
+            dates: fmt(startDate) + '/' + fmt(endDate),
+            details: description,
+            location: location
+        };
+
+        const queryString = Object.keys(paramsObj).map(function(key) {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
+        }).join('&');
+
+        return 'https://calendar.google.com/calendar/r/eventedit?' + queryString;
+    }
+
+    // Appointment Popup Modal Functions
+    const appointmentPopup = document.getElementById('appointmentPopup');
+    const appointmentPopupClose = document.getElementById('appointmentPopupClose');
+    const appointmentPopupForm = document.getElementById('appointmentPopupForm');
+    const appointmentConfirmationModal = document.getElementById('appointmentConfirmationModal');
+    const appointmentConfirmClose = document.getElementById('appointmentConfirmClose');
+    const addToCalendarBtn = document.getElementById('addToCalendarBtn');
+    const googleCalendarLink = document.getElementById('googleCalendarLink');
+    const chatboxCTA = document.getElementById('chatboxCTA');
+    const ctaAppointmentBtn = document.getElementById('ctaAppointmentBtn');
+
+    // Store appointment data for calendar
+    let lastAppointmentData = null;
+
+    // Open appointment popup
+    function openAppointmentPopup() {
+        if (appointmentPopup) {
+            appointmentPopup.style.display = 'flex';
+            setTimeout(function() {
+                appointmentPopup.classList.add('show');
+                const nameInput = document.getElementById('popupName');
+                if (nameInput) {
+                    setTimeout(function() {
+                        nameInput.focus();
+                    }, 100);
+                }
+            }, 10);
+        }
+    }
+
+    // Close appointment popup
+    function closeAppointmentPopup() {
+        if (appointmentPopup) {
+            appointmentPopup.classList.remove('show');
+            setTimeout(function() {
+                appointmentPopup.style.display = 'none';
+            }, 300);
+        }
+    }
+
+    // Show confirmation modal
+    function showAppointmentConfirmation(appointmentData) {
+        lastAppointmentData = appointmentData;
+        
+        if (appointmentConfirmationModal) {
+            appointmentConfirmationModal.style.display = 'flex';
+            setTimeout(function() {
+                appointmentConfirmationModal.classList.add('show');
+            }, 10);
+
+            // Set up calendar links
+            if (appointmentData) {
+                const service = appointmentData.service || 'Appointment';
+                const name = appointmentData.name || '';
+                const phone = appointmentData.phone || '+91 80729 80232';
+                const message = appointmentData.message || '';
+
+                // Calculate appointment date/time
+                let startDate = new Date();
+                let endDate = new Date(startDate.getTime() + 45 * 60000); // Default 45 min
+
+                if (appointmentData.date) {
+                    const dateStr = appointmentData.date;
+                    const timeStr = appointmentData.time || '10:00';
+                    const [hours, minutes] = timeStr.split(':').map(Number);
+                    
+                    startDate = new Date(dateStr);
+                    startDate.setHours(hours || 10, minutes || 0, 0, 0);
+                    endDate = new Date(startDate.getTime() + 45 * 60000);
+                }
+
+                const title = 'DNA Clinic - ' + service;
+                const description = 'Service: ' + service + '\\nPatient: ' + name + '\\nPhone: ' + phone + '\\nNotes: ' + message;
+                const location = 'DNA Clinic, 123 Dental Avenue, Health District';
+
+                // Set up Add to Phone Calendar button
+                if (addToCalendarBtn) {
+                    addToCalendarBtn.onclick = function() {
+                        downloadICS({
+                            title: title,
+                            description: description,
+                            location: location,
+                            startDate: startDate,
+                            endDate: endDate,
+                            filename: 'DNA-Clinic-Appointment.ics'
+                        });
+                    };
+                }
+
+                // Set up Google Calendar link
+                if (googleCalendarLink) {
+                    googleCalendarLink.href = createGoogleCalendarLink({
+                        title: title,
+                        description: description,
+                        location: location,
+                        startDate: startDate,
+                        endDate: endDate
+                    });
+                }
+            }
+        }
+    }
+
+    // Close confirmation modal
+    function closeAppointmentConfirmation() {
+        if (appointmentConfirmationModal) {
+            appointmentConfirmationModal.classList.remove('show');
+            setTimeout(function() {
+                appointmentConfirmationModal.style.display = 'none';
+            }, 300);
+        }
+    }
+
+    // Form validation
+    function validateAppointmentForm() {
+        const nameInput = document.getElementById('popupName');
+        const emailInput = document.getElementById('popupEmail');
+        const phoneInput = document.getElementById('popupPhone');
+        const serviceInput = document.getElementById('popupService');
+
+        let isValid = true;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // Remove previous errors
+        [nameInput, emailInput, phoneInput, serviceInput].forEach(function(input) {
+            if (input) {
+                input.classList.remove('input-error');
+            }
+        });
+
+        // Validate name
+        if (!nameInput || !nameInput.value.trim()) {
+            if (nameInput) {
+                nameInput.classList.add('input-error');
+            }
+            isValid = false;
+        }
+
+        // Validate email
+        if (!emailInput || !emailInput.value.trim() || !emailRegex.test(emailInput.value.trim())) {
+            if (emailInput) {
+                emailInput.classList.add('input-error');
+            }
+            isValid = false;
+        }
+
+        // Validate phone (at least 10 digits)
+        if (!phoneInput || !phoneInput.value.trim() || phoneInput.value.replace(/\D/g, '').length < 10) {
+            if (phoneInput) {
+                phoneInput.classList.add('input-error');
+            }
+            isValid = false;
+        }
+
+        // Validate service
+        if (!serviceInput || !serviceInput.value) {
+            if (serviceInput) {
+                serviceInput.classList.add('input-error');
+            }
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Event Listeners for Appointment Popup
+    if (appointmentPopupClose) {
+        appointmentPopupClose.addEventListener('click', closeAppointmentPopup);
+    }
+
+    if (appointmentPopup) {
+        appointmentPopup.addEventListener('click', function(e) {
+            if (e.target === appointmentPopup) {
+                closeAppointmentPopup();
+            }
+        });
+    }
+
+    if (appointmentConfirmClose) {
+        appointmentConfirmClose.addEventListener('click', closeAppointmentConfirmation);
+    }
+
+    if (appointmentConfirmationModal) {
+        appointmentConfirmationModal.addEventListener('click', function(e) {
+            if (e.target === appointmentConfirmationModal) {
+                closeAppointmentConfirmation();
+            }
+        });
+    }
+
+    // Open popup from buttons with class .bookAppointmentBtn
+    document.querySelectorAll('.bookAppointmentBtn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openAppointmentPopup();
+        });
+    });
+
+    // CTA Appointment Button
+    if (ctaAppointmentBtn) {
+        ctaAppointmentBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openAppointmentPopup();
+        });
+    }
+
+    // Form Submission
+    if (appointmentPopupForm) {
+        appointmentPopupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!validateAppointmentForm()) {
+                return;
+            }
+
+            const nameInput = document.getElementById('popupName');
+            const emailInput = document.getElementById('popupEmail');
+            const phoneInput = document.getElementById('popupPhone');
+            const serviceInput = document.getElementById('popupService');
+            const dateInput = document.getElementById('popupDate');
+            const timeInput = document.getElementById('popupTime');
+            const messageInput = document.getElementById('popupMessage');
+
+            if (!nameInput || !emailInput || !phoneInput || !serviceInput) {
+                return;
+            }
+
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const phone = phoneInput.value.trim();
+            const service = serviceInput.value;
+            const date = dateInput ? dateInput.value : '';
+            const time = timeInput ? timeInput.value : '';
+            const message = messageInput ? messageInput.value.trim() : '';
+
+            // Prepare email data
+            const EMAILJS_CONFIG = {
+                PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
+                SERVICE_ID: 'service_13xdgm3',
+                TEMPLATE_ID: 'template_lpjsx54'
+            };
+
+            const emailData = {
+                to_email: 'dentalaestheticsmiles@gmail.com',
+                name: name,
+                email: email,
+                phone: phone,
+                service: service,
+                message: message || 'No additional message',
+                date: date || 'Not specified',
+                time: time || 'Not specified'
+            };
+
+            // Send email via EmailJS
+            if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
+                emailjs.send(
+                    EMAILJS_CONFIG.SERVICE_ID,
+                    EMAILJS_CONFIG.TEMPLATE_ID,
+                    emailData,
+                    EMAILJS_CONFIG.PUBLIC_KEY
+                )
+                .then(function(response) {
+                    // Close popup
+                    closeAppointmentPopup();
+                    
+                    // Show confirmation modal
+                    showAppointmentConfirmation({
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        service: service,
+                        date: date,
+                        time: time,
+                        message: message
+                    });
+                    
+                    // Reset form
+                    appointmentPopupForm.reset();
+                }, function(error) {
+                    alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us.');
+                });
+            } else {
+                // Fallback if EmailJS not loaded
+                closeAppointmentPopup();
+                showAppointmentConfirmation({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    service: service,
+                    date: date,
+                    time: time,
+                    message: message
+                });
+                appointmentPopupForm.reset();
+            }
+        });
+    }
+
+    // Make functions globally accessible for AI chatbox integration
+    window.openAppointmentPopup = openAppointmentPopup;
+    window.finishAIChatAndMinimize = function() {
+        const chatbox = document.getElementById('question-popup');
+        if (chatbox) {
+            chatbox.classList.add('minimized');
+            setTimeout(function() {
+                if (chatboxCTA) {
+                    chatboxCTA.style.display = 'flex';
+                }
+            }, 350);
+        }
+    };
 
     // ============================================
     // KIDS APPOINTMENT MODAL

@@ -8,8 +8,9 @@
     <!-- Note: 'unsafe-inline' is required for EmailJS, but we avoid eval() in our code -->
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://api.emailjs.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; media-src 'self' blob:; connect-src 'self' https://api.emailjs.com https://cdn.jsdelivr.net; default-src 'self';">
     
-    <!-- Favicon - DNA Clinic Logo (Brand Purple #7C3AED to match text color) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%237C3AED;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%236B46C1;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23grad)' rx='22'/%3E%3Cpath d='M30 40 L50 25 L70 40 L70 60 L50 75 L30 60 Z' fill='white' opacity='0.95'/%3E%3Ccircle cx='50' cy='50' r='8' fill='%237C3AED'/%3E%3C/svg%3E">
+    <!-- Favicon - DNA Clinic Logo (Brand Purple #4B2B7F to match theme-color) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234B2B7F;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%235B3A8F;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23grad)' rx='22'/%3E%3Cpath d='M30 40 L50 25 L70 40 L70 60 L50 75 L30 60 Z' fill='white' opacity='0.95'/%3E%3Ccircle cx='50' cy='50' r='8' fill='%234B2B7F'/%3E%3C/svg%3E">
+    <link rel="mask-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234B2B7F' rx='22'/%3E%3C/svg%3E" color="#4B2B7F">
     <link rel="icon" type="image/png" href="dnalogo.png">
     <link rel="shortcut icon" type="image/png" href="dnalogo.png">
     <link rel="apple-touch-icon" href="dnalogo.png">
@@ -22,10 +23,11 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://dnaesthetics.in">
     
-    <!-- Browser Theme Color - Matches primary brand color (#7C3AED) -->
-    <meta name="theme-color" content="#7C3AED">
-    <meta name="msapplication-TileColor" content="#7C3AED">
+    <!-- Browser Theme Color - Matches primary brand color (#4B2B7F) -->
+    <meta name="theme-color" content="#4B2B7F">
+    <meta name="msapplication-TileColor" content="#4B2B7F">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#4B2B7F">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -530,14 +532,39 @@
 
     <!-- Hero Section -->
     <section id="home" class="hero">
+        <div class="hero-banner-image-wrapper">
+            <img src="./assets/images/A_digital_photograph_for_DNA_Clinic's_homepage_ban.png" 
+                 alt="DNA Clinic - Modern Dental and Aesthetic Care" 
+                 class="hero-banner-image"
+                 loading="eager"
+                 fetchpriority="high"
+                 width="1920"
+                 height="1080"
+                 decoding="async">
+        </div>
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <div class="container">
-                <h1 class="hero-title">Transform Your Smile, Transform Your Life</h1>
-                <p class="hero-subtitle">Experience world-class dental and aesthetic treatments in a state-of-the-art facility</p>
-                <div class="hero-buttons">
+                <h1 class="hero-title anim-hero-title">Transform Your Smile, Transform Your Life</h1>
+                <p class="hero-subtitle anim-hero-subtitle">Experience world-class dental and aesthetic treatments in a state-of-the-art facility</p>
+                <div class="hero-buttons anim-hero-buttons">
                     <a href="#contact" class="btn btn-hero-primary">Book Your Appointment</a>
                     <a href="#services" class="btn btn-hero-secondary">Explore Services</a>
+                </div>
+                <!-- Hero Info Blurbs -->
+                <div class="hero-info-blurbs">
+                    <div class="hero-blurb anim-blurb-1">
+                        <i class="fas fa-award"></i>
+                        <span>Expert Team</span>
+                    </div>
+                    <div class="hero-blurb anim-blurb-2">
+                        <i class="fas fa-microscope"></i>
+                        <span>Advanced Technology</span>
+                    </div>
+                    <div class="hero-blurb anim-blurb-3">
+                        <i class="fas fa-heart"></i>
+                        <span>Patient-Centered Care</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -555,9 +582,11 @@
             </div>
             <div class="about-content">
                 <div class="about-image">
-                    <img src="./assets/images/A_digital_photograph_for_DNA_Clinic's_homepage_ban.png" 
+                    <img src="./assets/images/A_high-resolution_digital_photograph_captures_a_de.png" 
                          alt="DNA Clinic - Modern Dental and Aesthetic Care" 
                          class="about-banner-image anim-fade-in-float"
+                         width="800"
+                         height="600"
                          loading="lazy" 
                          decoding="async">
                 </div>
@@ -602,9 +631,11 @@
                             <div class="service-icon">
                                 <i class="fas fa-smile"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400&q=75&auto=format&fit=crop" 
+                            <img src="./assets/images/A_high-resolution_digital_photograph_captures_a_de.png" 
                                  alt="Teeth Whitening" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Teeth Whitening</h4>
@@ -614,9 +645,11 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=75&auto=format&fit=crop" 
+                            <img src="./assets/images/A_high-resolution_digital_photograph_provides_a_de.png" 
                                  alt="Dental implant procedure and prosthetic tooth" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Dental Implants</h4>
@@ -626,9 +659,11 @@
                             <div class="service-icon">
                                 <i class="fas fa-teeth-open"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=400&q=75&auto=format&fit=crop" 
+                            <img src="./assets/images/8D1C1328-403D-4126-9E9C-D6EB77C06A79.jpeg" 
                                  alt="Orthodontic braces and clear aligners treatment" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Orthodontics</h4>
@@ -641,6 +676,8 @@
                             <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&q=75&auto=format&fit=crop" 
                                  alt="Root canal treatment procedure" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Root Canal Treatment</h4>
@@ -653,6 +690,8 @@
                             <img src="./assets/images/A_high-resolution_digital_photograph_captures_a_yo.png" 
                                  alt="Cosmetic dentistry veneers and smile makeover transformation" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Cosmetic Dentistry</h4>
@@ -665,6 +704,8 @@
                             <img src="./assets/images/A_high-resolution_photograph_captures_a_dentist,_a.png" 
                                  alt="General dental care and preventive treatment" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">General Dentistry</h4>
@@ -681,9 +722,11 @@
                             <div class="service-icon">
                                 <i class="fas fa-face-smile"></i>
                             </div>
-                            <img src="./assets/images/A_high-resolution_photograph_captures_a_young_Cauc.png" 
+                            <img src="./assets/images/D606A085-2626-409E-AE6D-C85057AB305B.jpeg" 
                                  alt="Botox and dermal fillers facial rejuvenation" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Botox & Fillers</h4>
@@ -693,9 +736,11 @@
                             <div class="service-icon">
                                 <i class="fas fa-sparkles"></i>
                             </div>
-                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=75&auto=format&fit=crop" 
+                            <img src="./assets/images/A7216D23-6FEA-4E6C-960E-5FE1BAC60D73.jpeg" 
                                  alt="Dermal fillers and facial contouring treatment" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Dermal Fillers</h4>
@@ -708,6 +753,8 @@
                             <img src="./assets/images/A_photograph_captures_a_close-up_of_a_skincare_tre.png" 
                                  alt="Chemical peel facial treatment and skincare procedure" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Chemical Peels</h4>
@@ -720,6 +767,8 @@
                             <img src="./assets/images/A_photograph_showcases_a_young_Caucasian_woman_und.png" 
                                  alt="Laser skin rejuvenation and pigmentation treatment" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Laser Skin Treatments</h4>
@@ -729,9 +778,11 @@
                             <div class="service-icon">
                                 <i class="fas fa-gem"></i>
                             </div>
-                            <img src="./assets/images/A_resized_cropped_facial_aesthetics_image.png" 
+                            <img src="./assets/images/A_high-resolution_digital_photograph_captures_a_young_Cauc.png" 
                                  alt="Facial aesthetic treatments and professional skincare" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Facial Aesthetics</h4>
@@ -744,6 +795,8 @@
                             <img src="./assets/images/A_high-resolution_close-up_photograph_captures_a_l.png" 
                                  alt="Anti-aging aesthetic treatments" 
                                  class="service-image-standardized anim-fade-in-float"
+                                 width="400"
+                                 height="300"
                                  loading="lazy" 
                                  decoding="async">
                             <h4 class="service-card-title">Anti-Aging Solutions</h4>

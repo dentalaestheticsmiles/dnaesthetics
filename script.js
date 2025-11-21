@@ -464,10 +464,20 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         
         try {
-            const systemPrompt = `You are a helpful AI assistant for DNA Clinic, a dental and aesthetic clinic. 
-Provide friendly, general information about dental services, aesthetic treatments, and pediatric dentistry.
-Always remind users: "For clinical decisions, please consult our dentist directly."
-Keep responses concise (2-3 sentences max) and conversational.`;
+            const systemPrompt = `You are a knowledgeable and friendly AI assistant for DNA Clinic, a premier dental and aesthetic clinic. 
+
+Your role:
+- Provide detailed, helpful information about dental services, aesthetic treatments, and pediatric dentistry
+- Answer questions clearly and conversationally (3-4 sentences when needed)
+- Be empathetic and reassuring
+- Always end with: "For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists."
+
+Important guidelines:
+- Give comprehensive answers that help users understand their options
+- If asked about pricing, politely explain that pricing varies and suggest booking a consultation
+- When users seem ready for next steps, naturally guide them to book an appointment or chat with a human
+- Be warm, professional, and helpful
+- Never provide medical diagnoses - always recommend consulting a dentist`;
             
             const response = await fetch(OPENAI_API_URL, {
                 method: "POST",
@@ -481,8 +491,8 @@ Keep responses concise (2-3 sentences max) and conversational.`;
                         { role: "system", content: systemPrompt },
                         { role: "user", content: userMessage }
                     ],
-                    max_tokens: 150,
-                    temperature: 0.7
+                    max_tokens: 250,
+                    temperature: 0.8
                 })
             });
             
@@ -491,7 +501,18 @@ Keep responses concise (2-3 sentences max) and conversational.`;
             }
             
             const data = await response.json();
-            return data.choices[0].message.content.trim();
+            let aiResponse = data.choices[0].message.content.trim();
+            
+            // Ensure AI response includes helpful guidance if it doesn't already
+            const lowerResponse = aiResponse.toLowerCase();
+            if (!lowerResponse.includes("consult") && !lowerResponse.includes("speak") && 
+                !lowerResponse.includes("book") && !lowerResponse.includes("whatsapp") &&
+                !lowerResponse.includes("recommend")) {
+                // Add gentle CTA if response doesn't have one
+                aiResponse += " Would you like to book a consultation or chat with our team for more personalized information?";
+            }
+            
+            return aiResponse;
         } catch (error) {
             console.error("AI API error:", error);
             return getRuleBasedResponse(userMessage);
@@ -505,72 +526,89 @@ Keep responses concise (2-3 sentences max) and conversational.`;
         // Dental Services
         if (lowerMsg.includes("dental") || lowerMsg.includes("teeth") || lowerMsg.includes("tooth")) {
             if (lowerMsg.includes("whiten") || lowerMsg.includes("white")) {
-                return "Teeth whitening is a safe, non-invasive procedure that can brighten your smile by several shades. The process is generally painless, though some may experience mild sensitivity. For clinical decisions, please consult our dentist directly.";
+                return "Teeth whitening is a safe, non-invasive procedure that can brighten your smile by several shades. We offer both in-office professional whitening and take-home kits. The process is generally painless, though some may experience mild sensitivity that typically subsides quickly. Results can last 1-3 years depending on your habits. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
             }
             if (lowerMsg.includes("implant")) {
-                return "Dental implants are permanent tooth replacements that look and feel natural. They're made of biocompatible materials and can last a lifetime with proper care. For clinical decisions, please consult our dentist directly.";
+                return "Dental implants are the gold standard for permanent tooth replacement. They're made of biocompatible titanium that fuses with your jawbone, providing a stable foundation for crowns that look and feel natural. The procedure is done in stages with local anesthesia, and implants can last a lifetime with proper care. We use advanced 3D imaging to plan your treatment precisely. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
             }
             if (lowerMsg.includes("root canal") || lowerMsg.includes("rct")) {
-                return "Root canal treatment is a pain-free procedure that saves your natural tooth by removing infected pulp. Modern techniques make it comfortable and efficient. For clinical decisions, please consult our dentist directly.";
+                return "Root canal treatment is a modern, pain-free procedure that saves your natural tooth by removing infected or damaged pulp. Thanks to advanced techniques and local anesthesia, most patients report it's no more uncomfortable than a regular filling. The procedure typically takes 1-2 visits, and your tooth will be restored with a crown for protection. Saving your natural tooth is always the best option. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
             }
             if (lowerMsg.includes("brace") || lowerMsg.includes("orthodont") || lowerMsg.includes("invisalign")) {
-                return "We offer both traditional braces and Invisalign clear aligners for straightening teeth. Treatment duration varies based on individual needs. For clinical decisions, please consult our dentist directly.";
+                return "We offer both traditional braces and Invisalign clear aligners for straightening teeth. Invisalign uses custom-made, nearly invisible aligners that you can remove for eating and cleaning. Traditional braces are highly effective for complex cases. Treatment duration typically ranges from 12-24 months depending on your needs. We'll assess your case and recommend the best option for you. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
             }
-            return "We offer comprehensive dental services including implants, root canals, whitening, braces, and smile makeovers. Would you like to book an appointment? For clinical decisions, please consult our dentist directly.";
+            if (lowerMsg.includes("smile") || lowerMsg.includes("makeover") || lowerMsg.includes("cosmetic")) {
+                return "A smile makeover combines multiple cosmetic dental procedures to transform your smile. This can include teeth whitening, veneers, bonding, crowns, or orthodontics. We'll create a customized treatment plan based on your goals, budget, and timeline. During your consultation, we'll show you a preview of your new smile. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
+            }
+            return "We offer comprehensive dental services including dental implants, root canal treatment, teeth whitening, braces/Invisalign, smile makeovers, and general dentistry. Each treatment is customized to your specific needs. Our experienced team uses the latest technology to ensure comfortable, effective care. Would you like to learn more about a specific treatment or book a consultation? For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
         }
         
         // Aesthetic Services
-        if (lowerMsg.includes("aesthetic") || lowerMsg.includes("botox") || lowerMsg.includes("filler") || lowerMsg.includes("skin")) {
+        if (lowerMsg.includes("aesthetic") || lowerMsg.includes("botox") || lowerMsg.includes("filler") || lowerMsg.includes("skin") || lowerMsg.includes("facial")) {
             if (lowerMsg.includes("botox")) {
-                return "Botox is a safe, FDA-approved treatment for reducing wrinkles and fine lines. Results typically last 3-4 months. For clinical decisions, please consult our dentist directly.";
+                return "Botox is a safe, FDA-approved neurotoxin that temporarily relaxes facial muscles to smooth wrinkles and fine lines. It's most commonly used for forehead lines, crow's feet, and frown lines. The procedure takes just 10-15 minutes with minimal discomfort, and results appear within 3-7 days, lasting 3-4 months. There's no downtime - you can return to normal activities immediately. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
             }
-            if (lowerMsg.includes("filler")) {
-                return "Dermal fillers restore volume and smooth out wrinkles. The procedure is quick with minimal downtime. For clinical decisions, please consult our dentist directly.";
+            if (lowerMsg.includes("filler") || lowerMsg.includes("dermal")) {
+                return "Dermal fillers restore lost volume, smooth wrinkles, and enhance facial contours. We use hyaluronic acid-based fillers that are safe and reversible. The procedure is quick (15-30 minutes) with immediate results and minimal downtime. Fillers can plump lips, enhance cheekbones, smooth nasolabial folds, and restore youthful volume. Results typically last 6-18 months depending on the area treated. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
             }
             if (lowerMsg.includes("peel") || lowerMsg.includes("chemical")) {
-                return "Chemical peels improve skin texture and reduce signs of aging. We offer various strengths based on your skin type. For clinical decisions, please consult our dentist directly.";
+                return "Chemical peels use safe acids to exfoliate the skin, improving texture, reducing fine lines, and treating pigmentation. We offer light, medium, and deep peels depending on your skin concerns and type. Light peels require no downtime, while deeper peels may need a few days of recovery. Peels can address acne, sun damage, fine lines, and uneven skin tone. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
             }
-            return "We offer Botox, fillers, chemical peels, laser treatments, and facial aesthetics. Would you like to book a consultation? For clinical decisions, please consult our dentist directly.";
+            if (lowerMsg.includes("laser") || lowerMsg.includes("rejuvenation")) {
+                return "Laser skin treatments use advanced technology to address various skin concerns including pigmentation, fine lines, acne scars, and overall skin rejuvenation. We offer different laser types for different concerns - some for resurfacing, others for targeting specific issues. Treatments are customized to your skin type and goals. Most procedures have minimal downtime. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
+            }
+            return "We offer a comprehensive range of aesthetic services including Botox, dermal fillers, chemical peels, laser skin treatments, and facial aesthetics. Our treatments are performed by experienced professionals using premium products. Each treatment is customized to your unique needs and goals. Would you like to learn more about a specific treatment or book a consultation? For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
         }
         
         // Kids Dentistry
         if (lowerMsg.includes("kid") || lowerMsg.includes("child") || lowerMsg.includes("pediatric")) {
-            if (lowerMsg.includes("first visit") || lowerMsg.includes("age")) {
-                return "We recommend children have their first dental visit by age 1 or within 6 months of their first tooth. Our pediatric specialists create a fun, stress-free environment. For clinical decisions, please consult our dentist directly.";
+            if (lowerMsg.includes("first visit") || lowerMsg.includes("age") || lowerMsg.includes("when")) {
+                return "We recommend children have their first dental visit by age 1 or within 6 months of their first tooth erupting. Early visits help establish good oral health habits and allow us to monitor development. Our pediatric specialists create a fun, welcoming environment with child-friendly language and gentle techniques. We focus on making dental care a positive experience from the start. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
             }
-            if (lowerMsg.includes("clean") || lowerMsg.includes("fluoride")) {
-                return "Regular cleanings and fluoride treatments help prevent cavities in children. We make the experience enjoyable and educational. For clinical decisions, please consult our dentist directly.";
+            if (lowerMsg.includes("clean") || lowerMsg.includes("fluoride") || lowerMsg.includes("cleaning")) {
+                return "Regular professional cleanings and fluoride treatments are essential for preventing cavities in children. We make the experience enjoyable with kid-friendly tools, fun explanations, and rewards. Fluoride strengthens developing teeth and helps prevent decay. Cleanings remove plaque and tartar that regular brushing might miss. We also educate both children and parents on proper home care. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
             }
-            return "We provide gentle pediatric dental care including first visits, cleanings, sealants, fluoride treatments, and early orthodontic evaluation. Would you like to book an appointment for your child? For clinical decisions, please consult our dentist directly.";
+            if (lowerMsg.includes("sealant") || lowerMsg.includes("cavity") || lowerMsg.includes("prevent")) {
+                return "Dental sealants are a protective coating applied to the chewing surfaces of back teeth to prevent cavities. They're especially important for children whose permanent molars are just coming in. The procedure is quick, painless, and can protect teeth for several years. We also provide fluoride treatments and educate on proper brushing and flossing techniques. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
+            }
+            if (lowerMsg.includes("brace") || lowerMsg.includes("orthodont") || lowerMsg.includes("straighten")) {
+                return "Early orthodontic evaluation helps identify and address issues before they become more complex. We can assess jaw growth, tooth alignment, and bite problems. Some children benefit from early intervention (ages 7-9), while others are better suited for treatment during adolescence. We'll monitor your child's development and recommend the best timing for treatment if needed. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
+            }
+            return "We provide comprehensive, gentle pediatric dental care including first visits, regular cleanings, fluoride treatments, dental sealants, early orthodontic evaluation, and emergency care. Our child-friendly approach ensures a positive experience that sets the foundation for lifelong oral health. We work closely with parents to ensure the best care for their children. Would you like to book an appointment for your child? For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists.";
         }
         
-        // Pricing
-        if (lowerMsg.includes("price") || lowerMsg.includes("cost") || lowerMsg.includes("fee")) {
-            return "Pricing varies based on the treatment and individual needs. For exact pricing and payment plans, please continue on WhatsApp or book a consultation. We offer flexible payment options.";
+        // Pricing - Redirect to consultation
+        if (lowerMsg.includes("price") || lowerMsg.includes("cost") || lowerMsg.includes("fee") || lowerMsg.includes("how much") || lowerMsg.includes("charge")) {
+            return "I understand you'd like to know about pricing. Treatment costs vary based on individual needs, complexity, and the specific procedure. To get accurate pricing information tailored to your situation, I'd recommend booking a consultation with our dentists. During the consultation, we'll assess your needs and provide detailed treatment plans with transparent pricing. We also offer flexible payment options. Would you like to book a consultation or chat with our team on WhatsApp for more information?";
         }
         
         // Appointment
-        if (lowerMsg.includes("appointment") || lowerMsg.includes("book") || lowerMsg.includes("schedule")) {
-            return "Great! I can help you book an appointment. Would you like to continue on WhatsApp to confirm your preferred date and time?";
+        if (lowerMsg.includes("appointment") || lowerMsg.includes("book") || lowerMsg.includes("schedule") || lowerMsg.includes("visit")) {
+            return "Excellent! I'd be happy to help you book an appointment. To find the best time slot for you and ensure we have the right specialist available, I recommend connecting with our team directly. You can book through WhatsApp where our team can check real-time availability, or you can call us. This way we can confirm your preferred date and time, and gather any necessary information beforehand. Would you like to continue on WhatsApp or speak with a team member?";
         }
         
         // Clinic Timings
-        if (lowerMsg.includes("time") || lowerMsg.includes("hour") || lowerMsg.includes("open") || lowerMsg.includes("close")) {
-            return "Our clinic hours are typically Monday to Saturday, 9 AM to 7 PM. For exact timings and availability, please contact us on WhatsApp or call us directly.";
+        if (lowerMsg.includes("time") || lowerMsg.includes("hour") || lowerMsg.includes("open") || lowerMsg.includes("close") || lowerMsg.includes("when") && lowerMsg.includes("available")) {
+            return "Our clinic is typically open Monday to Saturday, from 9 AM to 7 PM. However, specific availability may vary, and we recommend checking with us directly for the most current schedule and to find a time that works best for you. You can reach us on WhatsApp at +91 80729 80232 for immediate assistance with scheduling.";
         }
         
         // Contact
-        if (lowerMsg.includes("contact") || lowerMsg.includes("phone") || lowerMsg.includes("address")) {
-            return "You can reach us via WhatsApp at +91 80729 80232, or visit our clinic. Would you like to continue on WhatsApp for immediate assistance?";
+        if (lowerMsg.includes("contact") || lowerMsg.includes("phone") || lowerMsg.includes("address") || lowerMsg.includes("location") || lowerMsg.includes("where")) {
+            return "You can reach us via WhatsApp at +91 80729 80232 for quick responses and easy scheduling. Our team is available to answer your questions, help you book appointments, and provide any information you need. For immediate assistance or to speak with our team directly, WhatsApp is the fastest way to connect. Would you like to continue the conversation on WhatsApp?";
         }
         
         // Emergency
-        if (lowerMsg.includes("pain") || lowerMsg.includes("emergency") || lowerMsg.includes("urgent")) {
-            return "If you're experiencing dental pain, please contact us immediately. For emergencies, call us or message on WhatsApp. We'll help you get the care you need right away.";
+        if (lowerMsg.includes("pain") || lowerMsg.includes("emergency") || lowerMsg.includes("urgent") || lowerMsg.includes("hurt") || lowerMsg.includes("ache")) {
+            return "I'm sorry to hear you're experiencing dental pain. For urgent dental issues, please contact us immediately. You can reach us on WhatsApp at +91 80729 80232 or call us directly. Our team will help you get the care you need as quickly as possible. If it's a severe emergency outside our hours, we can guide you to the best course of action. Please don't hesitate to reach out - we're here to help.";
         }
         
-        // Default
-        return "I'm here to help with questions about dental services, aesthetic treatments, kids dentistry, pricing, appointments, and more. How can I assist you today? For clinical decisions, please consult our dentist directly.";
+        // General questions about procedures, safety, etc.
+        if (lowerMsg.includes("safe") || lowerMsg.includes("risk") || lowerMsg.includes("side effect") || lowerMsg.includes("painful") || lowerMsg.includes("hurt")) {
+            return "I understand your concern about safety and comfort. All our treatments are performed using modern techniques and high-quality materials. Most procedures are performed with local anesthesia to ensure comfort, and we prioritize patient safety in everything we do. The specific details about any procedure, including what to expect, will be thoroughly discussed during your consultation. For personalized information about your specific situation and any concerns, I'd recommend speaking directly with our dentists who can address your questions in detail. Would you like to book a consultation to discuss this further?";
+        }
+        
+        // Default - More helpful and engaging
+        return "I'm here to help answer your questions about dental services, aesthetic treatments, kids dentistry, appointments, and more. Feel free to ask me anything - whether it's about a specific procedure, what to expect, or how we can help you achieve your goals. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists. How can I assist you today?";
     }
     
     // Handle quick reply chips
@@ -588,9 +626,6 @@ Keep responses concise (2-3 sentences max) and conversational.`;
                     break;
                 case "kids-dentistry":
                     message = "Tell me about kids dentistry";
-                    break;
-                case "pricing":
-                    message = "What are the prices?";
                     break;
                 case "book-appointment":
                     message = "I want to book an appointment";
@@ -634,11 +669,11 @@ Keep responses concise (2-3 sentences max) and conversational.`;
         // Add bot response
         addMessageToChat(aiResponse, "bot");
         
-        // Show quick reply chips for common actions
+        // Always show helpful CTAs after response - especially when user is looking for solutions
         showContextualQuickReplies(message);
     }
     
-    // Show contextual quick replies
+    // Show contextual quick replies - Always promote human contact and booking
     function showContextualQuickReplies(userMessage) {
         if (!chatContainer) return;
         
@@ -646,27 +681,40 @@ Keep responses concise (2-3 sentences max) and conversational.`;
         const quickRepliesDiv = document.createElement("div");
         quickRepliesDiv.className = "qp-quick-replies";
         
-        if (lowerMsg.includes("dental") || lowerMsg.includes("service")) {
+        // Detect if user is looking for a solution or ready for next steps
+        const isLookingForSolution = lowerMsg.includes("need") || lowerMsg.includes("want") || 
+                                     lowerMsg.includes("interested") || lowerMsg.includes("consider") ||
+                                     lowerMsg.includes("help") || lowerMsg.includes("problem") ||
+                                     lowerMsg.includes("issue") || lowerMsg.includes("treatment");
+        
+        // Always show helpful CTAs, especially when user seems ready
+        if (isLookingForSolution || lowerMsg.includes("dental") || lowerMsg.includes("aesthetic") || 
+            lowerMsg.includes("service") || lowerMsg.includes("treatment") || lowerMsg.includes("procedure")) {
             quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="book-appointment">Book Appointment</button>
-                <button class="qp-chip" data-action="pricing">Check Pricing</button>
-                <button class="qp-chip" data-action="whatsapp">Continue on WhatsApp</button>
+                <button class="qp-chip" data-action="book-appointment">📅 Book Appointment</button>
+                <button class="qp-chip" data-action="whatsapp">💬 Talk to Human</button>
+                <button class="qp-chip" data-action="whatsapp-chat">📱 Chat on WhatsApp</button>
             `;
-        } else if (lowerMsg.includes("aesthetic")) {
+        } else if (lowerMsg.includes("appointment") || lowerMsg.includes("book") || lowerMsg.includes("schedule")) {
             quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="book-appointment">Book Consultation</button>
-                <button class="qp-chip" data-action="pricing">Check Pricing</button>
-                <button class="qp-chip" data-action="whatsapp">Continue on WhatsApp</button>
+                <button class="qp-chip" data-action="whatsapp">💬 Confirm on WhatsApp</button>
+                <button class="qp-chip" data-action="contact-info">📞 Contact Info</button>
             `;
-        } else if (lowerMsg.includes("price") || lowerMsg.includes("cost")) {
+        } else if (lowerMsg.includes("price") || lowerMsg.includes("cost") || lowerMsg.includes("fee")) {
             quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="whatsapp">Get Exact Pricing</button>
-                <button class="qp-chip" data-action="book-appointment">Book Consultation</button>
+                <button class="qp-chip" data-action="book-appointment">📅 Book Consultation</button>
+                <button class="qp-chip" data-action="whatsapp">💬 Get Details</button>
+            `;
+        } else if (lowerMsg.includes("emergency") || lowerMsg.includes("pain") || lowerMsg.includes("urgent")) {
+            quickRepliesDiv.innerHTML = `
+                <button class="qp-chip" data-action="whatsapp">🚨 Contact Now</button>
+                <button class="qp-chip" data-action="contact-info">📞 Call Us</button>
             `;
         } else {
+            // Default CTAs for any other conversation
             quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="book-appointment">Book Appointment</button>
-                <button class="qp-chip" data-action="whatsapp">Talk to Human</button>
+                <button class="qp-chip" data-action="book-appointment">📅 Book Appointment</button>
+                <button class="qp-chip" data-action="whatsapp">💬 Talk to Human</button>
             `;
         }
         
@@ -674,8 +722,16 @@ Keep responses concise (2-3 sentences max) and conversational.`;
         quickRepliesDiv.querySelectorAll(".qp-chip").forEach(function(chip) {
             chip.addEventListener("click", function() {
                 const action = this.getAttribute("data-action");
-                if (action === "whatsapp") {
+                if (action === "whatsapp" || action === "whatsapp-chat") {
                     window.open("https://wa.me/918072980232", "_blank");
+                    // Add a message about WhatsApp
+                    setTimeout(function() {
+                        addMessageToChat("I've opened WhatsApp for you. Our team will respond quickly to help with your questions!", "bot");
+                    }, 500);
+                } else if (action === "book-appointment") {
+                    handleUserMessage("I want to book an appointment");
+                } else if (action === "contact-info") {
+                    handleUserMessage("What is your contact information?");
                 } else {
                     handleUserMessage(this.textContent);
                 }

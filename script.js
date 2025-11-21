@@ -147,10 +147,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // Show modal on first visit - Defer to avoid blocking LCP - CSP-safe
     if (welcomeModal && !hasVisitedBefore()) {
         var showWelcomeModal = function() {
-            if (welcomeModal) {
-                welcomeModal.classList.add('show');
-                setVisited();
-            }
+                    if (welcomeModal) {
+                        welcomeModal.classList.add('show');
+                        setVisited();
+                    }
         };
         
         if ('requestIdleCallback' in window) {
@@ -234,11 +234,19 @@ document.addEventListener("DOMContentLoaded", function() {
         return timeSinceLastPopup >= 20000; // 20 seconds minimum
     }
 
+    // Track if popup is currently showing to prevent twitching
+    let isPopupShowing = false;
+    
     function showPopup(treatment) {
         if (!treatment) treatment = "treatment";
         if (!canShowPopup()) return;
         if (!popup) return;
         
+        // Prevent multiple simultaneous show calls (fixes twitching)
+        if (isPopupShowing) return;
+        if (!popup.classList.contains("hidden") && popup.classList.contains("visible")) return;
+        
+        isPopupShowing = true;
         popup.classList.remove("hidden");
         setTimeout(function() {
             popup.classList.add("visible");
@@ -260,6 +268,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function hidePopup() {
         if (!popup) return;
+        isPopupShowing = false;
         popup.classList.remove("visible");
         setTimeout(function() {
             popup.classList.add("hidden");
@@ -617,6 +626,23 @@ Important guidelines:
             return "I understand your concern about safety and comfort. All our treatments are performed using modern techniques and high-quality materials. Most procedures are performed with local anesthesia to ensure comfort, and we prioritize patient safety in everything we do. The specific details about any procedure, including what to expect, will be thoroughly discussed during your consultation. For personalized information about your specific situation and any concerns, I'd recommend speaking directly with our dentists who can address your questions in detail. Would you like to book a consultation to discuss this further?";
         }
         
+        // Generic questions - provide helpful general answers
+        if (lowerMsg.includes("hello") || lowerMsg.includes("hi") || lowerMsg.includes("hey")) {
+            return "Hello! I'm here to help you with questions about DNA Clinic's dental and aesthetic services. I can provide information about treatments, procedures, kids dentistry, appointments, and more. What would you like to know?";
+        }
+        
+        if (lowerMsg.includes("what") && (lowerMsg.includes("do") || lowerMsg.includes("offer") || lowerMsg.includes("provide"))) {
+            return "DNA Clinic offers comprehensive dental and aesthetic services. On the dental side, we provide implants, root canals, teeth whitening, orthodontics (braces and Invisalign), smile makeovers, and general dentistry. For aesthetics, we offer Botox, dermal fillers, chemical peels, laser skin treatments, and facial aesthetics. We also specialize in pediatric dental care for children. Would you like more details about any specific service?";
+        }
+        
+        if (lowerMsg.includes("how") && (lowerMsg.includes("long") || lowerMsg.includes("duration") || lowerMsg.includes("take"))) {
+            return "Treatment duration varies depending on the procedure. Simple procedures like cleanings or Botox take 15-30 minutes, while more complex treatments like implants or orthodontics can take several months. During your consultation, we'll provide a detailed timeline for your specific treatment plan. Would you like to book a consultation to discuss your timeline?";
+        }
+        
+        if (lowerMsg.includes("where") || (lowerMsg.includes("location") && !lowerMsg.includes("contact")) || (lowerMsg.includes("address") && !lowerMsg.includes("contact"))) {
+            return "DNA Clinic is located at 123 Dental Avenue, Health District. We're easily accessible and have convenient parking. Our clinic hours are Monday to Saturday, 9 AM to 7 PM. Would you like directions or help scheduling a visit?";
+        }
+        
         // Default - More helpful and engaging
         return "I'm here to help answer your questions about dental services, aesthetic treatments, kids dentistry, appointments, and more. Feel free to ask me anything - whether it's about a specific procedure, what to expect, or how we can help you achieve your goals. For personalized treatment plans and clinical decisions, I recommend speaking directly with our expert dentists. How can I assist you today?";
     }
@@ -672,9 +698,28 @@ Important guidelines:
         });
     });
     
+    // Track conversation count to suggest doctor after a few questions
+    let conversationCount = 0;
+    const conversationCountKey = "dnaChatConversationCount";
+    
+    // Load conversation count
+    try {
+        conversationCount = parseInt(sessionStorage.getItem(conversationCountKey) || "0", 10);
+    } catch (e) {
+        conversationCount = 0;
+    }
+    
     // Handle user message
     async function handleUserMessage(message) {
         if (!message.trim()) return;
+        
+        // Increment conversation count
+        conversationCount++;
+        try {
+            sessionStorage.setItem(conversationCountKey, String(conversationCount));
+        } catch (e) {
+            // Ignore storage errors
+        }
         
         // Add user message
         addMessageToChat(message, "user");
@@ -697,53 +742,58 @@ Important guidelines:
         // Add bot response
         addMessageToChat(aiResponse, "bot");
         
-        // Always show helpful CTAs after response - especially when user is looking for solutions
-        showContextualQuickReplies(message);
+        // Show contextual quick replies based on conversation count and message
+        // After 3+ questions, suggest talking to doctor/specialist
+        showContextualQuickReplies(message, conversationCount);
     }
     
-    // Show contextual quick replies - Always promote human contact and booking
-    function showContextualQuickReplies(userMessage) {
+    // Show contextual quick replies - Answer questions first, then suggest next steps
+    function showContextualQuickReplies(userMessage, convCount) {
         if (!chatContainer) return;
         
         const lowerMsg = userMessage.toLowerCase();
         const quickRepliesDiv = document.createElement("div");
         quickRepliesDiv.className = "qp-quick-replies";
         
-        // Detect if user is looking for a solution or ready for next steps
-        const isLookingForSolution = lowerMsg.includes("need") || lowerMsg.includes("want") || 
-                                     lowerMsg.includes("interested") || lowerMsg.includes("consider") ||
-                                     lowerMsg.includes("help") || lowerMsg.includes("problem") ||
-                                     lowerMsg.includes("issue") || lowerMsg.includes("treatment");
-        
-        // Always show helpful CTAs, especially when user seems ready
-        if (isLookingForSolution || lowerMsg.includes("dental") || lowerMsg.includes("aesthetic") || 
-            lowerMsg.includes("service") || lowerMsg.includes("treatment") || lowerMsg.includes("procedure")) {
+        // After 3+ questions, strongly suggest talking to doctor/specialist
+        if (convCount >= 3) {
             quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="book-appointment">📅 Book Appointment</button>
-                <button class="qp-chip" data-action="whatsapp">💬 Talk to Human</button>
-                <button class="qp-chip" data-action="whatsapp-chat">📱 Chat on WhatsApp</button>
+                <button class="qp-chip" data-action="whatsapp">👨‍⚕️ Talk to Doctor/Specialist</button>
+                <button class="qp-chip" data-action="book-appointment">📅 Book Consultation</button>
             `;
         } else if (lowerMsg.includes("appointment") || lowerMsg.includes("book") || lowerMsg.includes("schedule")) {
+            // User is already interested in booking
             quickRepliesDiv.innerHTML = `
+                <button class="qp-chip" data-action="book-appointment">📅 Book Now</button>
                 <button class="qp-chip" data-action="whatsapp">💬 Confirm on WhatsApp</button>
-                <button class="qp-chip" data-action="contact-info">📞 Contact Info</button>
             `;
         } else if (lowerMsg.includes("price") || lowerMsg.includes("cost") || lowerMsg.includes("fee")) {
             quickRepliesDiv.innerHTML = `
                 <button class="qp-chip" data-action="book-appointment">📅 Book Consultation</button>
-                <button class="qp-chip" data-action="whatsapp">💬 Get Details</button>
+                <button class="qp-chip" data-action="whatsapp">💬 Get Exact Pricing</button>
             `;
         } else if (lowerMsg.includes("emergency") || lowerMsg.includes("pain") || lowerMsg.includes("urgent")) {
             quickRepliesDiv.innerHTML = `
                 <button class="qp-chip" data-action="whatsapp">🚨 Contact Now</button>
                 <button class="qp-chip" data-action="contact-info">📞 Call Us</button>
             `;
-        } else {
-            // Default CTAs for any other conversation
+        } else if (lowerMsg.includes("need") || lowerMsg.includes("want") || lowerMsg.includes("interested") || 
+                   lowerMsg.includes("help") || lowerMsg.includes("problem") || lowerMsg.includes("treatment")) {
+            // User is looking for a solution - show booking options
             quickRepliesDiv.innerHTML = `
                 <button class="qp-chip" data-action="book-appointment">📅 Book Appointment</button>
-                <button class="qp-chip" data-action="whatsapp">💬 Talk to Human</button>
+                <button class="qp-chip" data-action="whatsapp">💬 Talk to Specialist</button>
             `;
+        } else {
+            // For general questions, show subtle CTAs (don't push too hard)
+            // Only show CTAs after first question
+            if (convCount > 1) {
+                quickRepliesDiv.innerHTML = `
+                    <button class="qp-chip" data-action="book-appointment">📅 Book Appointment</button>
+                    <button class="qp-chip" data-action="whatsapp">💬 Need More Help?</button>
+                `;
+            }
+            // If first question, don't show CTAs - let AI answer first
         }
         
         // Attach event listeners to new chips
@@ -1125,18 +1175,18 @@ Important guidelines:
             }
         }, 500);
         
-                window.addEventListener('scroll', function() {
-                    if (isBrowsingServices() && expertConsultationModal && !expertConsultationModal.classList.contains('show')) {
+        window.addEventListener('scroll', function() {
+            if (isBrowsingServices() && expertConsultationModal && !expertConsultationModal.classList.contains('show')) {
                         if (window.servicesScrollTimeout) {
-                            clearTimeout(window.servicesScrollTimeout);
+                clearTimeout(window.servicesScrollTimeout);
                         }
                         window.servicesScrollTimeout = setTimeout(function showExpertModalOnScroll() {
-                            if (shouldShowExpertModal()) {
-                                showExpertModal();
-                            }
-                        }, 1000);
+                    if (shouldShowExpertModal()) {
+                        showExpertModal();
                     }
-                }, { passive: true });
+                }, 1000);
+            }
+        }, { passive: true });
     }
     
     if ('requestIdleCallback' in window) {
@@ -1369,6 +1419,17 @@ Important guidelines:
     // Open appointment popup
     function openAppointmentPopup() {
         if (appointmentPopup) {
+            // Set minimum date to today (prevent past dates)
+            const dateInput = document.getElementById('popupDate');
+            if (dateInput) {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const minDate = year + '-' + month + '-' + day;
+                dateInput.setAttribute('min', minDate);
+            }
+            
             appointmentPopup.style.display = 'flex';
             setTimeout(function() {
                 appointmentPopup.classList.add('show');
@@ -1897,13 +1958,13 @@ Important guidelines:
         
         // CSP-safe event listeners with function references
         var initAnimationsOnEvent = function() {
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(initAnimations, { timeout: 2000 });
-            } else {
+                if ('requestIdleCallback' in window) {
+                    requestIdleCallback(initAnimations, { timeout: 2000 });
+                } else {
                 var animTimeout = setTimeout(function() {
                     initAnimations();
                 }, 1000);
-            }
+                }
         };
         
         ['click', 'touchstart', 'scroll'].forEach(function(e) {
@@ -2198,11 +2259,24 @@ Important guidelines:
         video.setAttribute("x5-video-player-type", "h5"); // Android X5 browser
         video.setAttribute("x5-video-player-fullscreen", "true"); // Android X5 browser
         
-        // CRITICAL FOR FIRST VIDEO: Force enable fullscreen capability
+        // CRITICAL FOR FIRST VIDEO: Enhanced fullscreen capability
         if (isFirstVideo) {
+            // Force enable fullscreen on iOS Safari
             video.setAttribute("webkit-playsinline", "true"); // Allow inline, but enable fullscreen
-            video.removeAttribute("playsinline"); // Remove conflicting attribute temporarily
-            video.setAttribute("playsinline", ""); // Re-add to ensure compatibility
+            video.setAttribute("playsinline", "true"); // iOS compatibility
+            // Ensure video wrapper doesn't block fullscreen
+            const wrapper = video.closest(".video-wrapper");
+            if (wrapper) {
+                wrapper.style.position = "relative";
+                wrapper.style.zIndex = "auto";
+                wrapper.style.overflow = "visible";
+            }
+            // Ensure video card doesn't block
+            const card = video.closest(".video-card");
+            if (card) {
+                card.style.overflow = "visible";
+                card.style.zIndex = "auto";
+            }
         }
 
         // PREVENT BROKEN AUTOPLAY
@@ -2217,7 +2291,7 @@ Important guidelines:
                     canvas.height = video.videoHeight;
                     canvas.getContext("2d").drawImage(video, 0, 0);
                     video.setAttribute("poster", canvas.toDataURL("image/png"));
-                } catch (e) {
+                    } catch (e) {
                     console.warn("Poster generation failed", e);
                 }
             }
@@ -2238,17 +2312,39 @@ Important guidelines:
         });
 
         // FULLSCREEN API HANDLER - Cross-browser support (including mobile)
+        // ENHANCED FOR FIRST VIDEO - 100% RELIABILITY
         function enterFullscreen() {
-            // Try standard fullscreen first
+            // CRITICAL FOR FIRST VIDEO: Try iOS Safari first on mobile
+            if (isFirstVideo && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                // iOS Safari - this is the key for mobile!
+                if (video.webkitEnterFullscreen) {
+                    try {
+                        video.webkitEnterFullscreen();
+                        return; // Exit early if successful
+                    } catch (e) {
+                        console.warn("iOS fullscreen failed, trying fallback:", e);
+                    }
+                }
+            }
+            
+            // Try standard fullscreen first (desktop)
             if (video.requestFullscreen) {
                 video.requestFullscreen().catch(function(err) {
                     console.warn("Fullscreen request failed:", err);
+                    // Fallback for first video
+                    if (isFirstVideo && video.webkitEnterFullscreen) {
+                        try {
+                            video.webkitEnterFullscreen();
+                        } catch (e) {
+                            console.warn("Fallback fullscreen failed:", e);
+                        }
+                    }
                 });
             } else if (video.webkitRequestFullscreen) {
                 // Chrome/Edge
                 video.webkitRequestFullscreen();
             } else if (video.webkitEnterFullscreen) {
-                // iOS Safari - this is the key for mobile!
+                // iOS Safari fallback
                 try {
                     video.webkitEnterFullscreen();
                 } catch (e) {
@@ -2264,19 +2360,30 @@ Important guidelines:
         }
 
         // For mobile: Add tap handler to enter fullscreen when video is playing
+        // ENHANCED FOR FIRST VIDEO: More reliable tap detection
         let tapCount = 0;
         let tapTimer = null;
         video.addEventListener("click", function(e) {
-            // On mobile, double-tap to enter fullscreen
-            tapCount++;
-            if (tapTimer) clearTimeout(tapTimer);
-            tapTimer = setTimeout(function() {
-                if (tapCount === 2 && !document.fullscreenElement && !document.webkitFullscreenElement) {
-                    // Double tap detected and not in fullscreen
-                    enterFullscreen();
+            // CRITICAL FOR FIRST VIDEO: Single tap on mobile to enter fullscreen
+            if (isFirstVideo && /iPhone|iPad|iPod|Android/.test(navigator.userAgent)) {
+                // On first video, try fullscreen immediately on mobile
+                if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+                    setTimeout(function() {
+                        enterFullscreen();
+                    }, 100);
                 }
-                tapCount = 0;
-            }, 300);
+            } else {
+                // On other videos, double-tap to enter fullscreen
+                tapCount++;
+                if (tapTimer) clearTimeout(tapTimer);
+                tapTimer = setTimeout(function() {
+                    if (tapCount === 2 && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                        // Double tap detected and not in fullscreen
+                        enterFullscreen();
+                    }
+                    tapCount = 0;
+                }, 300);
+            }
         });
 
         // Add double-click for fullscreen (desktop)
@@ -2286,7 +2393,7 @@ Important guidelines:
 
         // DISABLE DOWNLOAD & CONTEXT MENU
         video.addEventListener("contextmenu", function(e) {
-            e.preventDefault();
+                    e.preventDefault();
         });
     }
     

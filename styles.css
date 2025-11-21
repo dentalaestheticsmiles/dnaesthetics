@@ -602,21 +602,32 @@ section {
     align-items: center;
 }
 
+@media (max-width: 768px) {
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+}
+
 .about-image {
     position: relative;
     overflow: hidden;
-    border-radius: 20px;
+    border-radius: 12px;
 }
 
-.about-image img {
+.about-image img,
+.about-banner-image {
     width: 100%;
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    transition: transform 0.5s ease;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    display: block;
 }
 
-.about-image:hover img {
-    transform: scale(1.05);
+.about-image:hover img,
+.about-banner-image:hover {
+    transform: translateY(-5px);
 }
 
 .about-text h3 {
@@ -757,17 +768,24 @@ section {
     border-color: var(--primary-color);
 }
 
-.service-card img {
+/* Standardized service card image styling - matches Root Canal section */
+.service-card img,
+.service-image-standardized {
     width: 100%;
-    height: 200px;
+    height: 300px;
     object-fit: cover;
-    transition: transform 0.5s ease, filter 0.3s ease;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
     filter: brightness(1);
+    display: block;
 }
 
-.service-card:hover img {
-    transform: scale(1.1);
-    filter: brightness(1.1);
+.service-card:hover img,
+.service-image-standardized:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    filter: brightness(1.05);
 }
 
 .service-icon {
@@ -789,16 +807,20 @@ section {
     color: var(--primary-color);
 }
 
-.service-card h4 {
+.service-card h4,
+.service-card-title {
     padding: 1.5rem 1.5rem 0.5rem;
     color: var(--dark-color);
     font-size: 1.3rem;
+    margin: 0;
 }
 
-.service-card p {
+.service-card p,
+.service-card-description {
     padding: 0 1.5rem 1.5rem;
     color: var(--text-light);
     line-height: 1.6;
+    margin: 0;
 }
 
 /* Tour Section */
@@ -1520,6 +1542,27 @@ section {
     position: relative;
     display: flex;
     flex-direction: column;
+}
+
+/* CRITICAL: Ensure first video card doesn't block fullscreen */
+.testimonial-card-1 {
+    overflow: visible !important; /* Allow fullscreen to work */
+}
+
+.testimonial-card-1 .video-wrapper {
+    overflow: visible !important; /* Don't clip video */
+    position: relative;
+    z-index: auto;
+}
+
+.testimonial-card-1 .video-card {
+    overflow: visible !important; /* Don't block fullscreen */
+}
+
+/* Ensure video can enter fullscreen without CSS blocking */
+.testimonial-card-1 video.testimonial-video {
+    position: relative;
+    z-index: 1;
 }
 
 .testimonial-card::before {
@@ -2595,8 +2638,20 @@ section {
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.15s ease, transform 0.15s ease;
-    /* Center horizontally on mobile */
-    margin: 0 auto;
+}
+
+/* Center popup perfectly on mobile devices */
+@media (max-width: 768px) {
+    .question-popup {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%) translateY(10px);
+        margin: 0;
+    }
+    
+    .question-popup.visible {
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 .question-popup.visible {
@@ -4601,6 +4656,16 @@ video:-ms-fullscreen {
     font-family: 'Poppins', sans-serif;
     font-size: 0.95rem;
     transition: all 0.3s ease;
+    display: block;
+}
+
+#appointmentPopupForm input::placeholder {
+    color: #999;
+    opacity: 1;
+}
+
+#appointmentPopupForm input:focus::placeholder {
+    opacity: 0.5;
 }
 
 #appointmentPopupForm input:focus,
@@ -4666,6 +4731,181 @@ video:-ms-fullscreen {
     
     .appointment-anim {
         padding: 2rem 1.5rem !important;
+    }
+}
+
+/* ============================================
+   SMOOTH ANIMATIONS FOR IMAGE SECTIONS
+   ============================================ */
+
+/* Fade-in with upward float animation */
+@keyframes fadeInFloat {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade-in from right */
+@keyframes fadeInFromRight {
+    0% {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Fade-in from left */
+@keyframes fadeInFromLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Fade-up animation */
+@keyframes fadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Reusable animation utility classes */
+.anim-fade-in-float {
+    animation: fadeInFloat 0.8s ease-out forwards;
+    opacity: 0;
+}
+
+.anim-fade-in-right {
+    animation: fadeInFromRight 0.7s ease-out forwards;
+    opacity: 0;
+}
+
+.anim-fade-in-left {
+    animation: fadeInFromLeft 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+.anim-fade-up {
+    animation: fadeUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+.anim-fade-up-delay-1 {
+    animation: fadeUp 0.4s ease-out 0.2s forwards;
+    opacity: 0;
+}
+
+.anim-fade-up-delay-2 {
+    animation: fadeUp 0.4s ease-out 0.4s forwards;
+    opacity: 0;
+}
+
+/* Standardized image styling for service sections - consolidated above */
+
+/* About Us banner image styling */
+.about-banner-image {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.about-banner-image:hover {
+    transform: translateY(-5px);
+}
+
+/* Service card title animation */
+.service-card-title {
+    animation: fadeInFromLeft 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+/* Service card description animation */
+.service-card-description {
+    animation: fadeUp 0.4s ease-out 0.2s forwards;
+    opacity: 0;
+}
+
+/* Feature items staggered animation */
+.feature-item:nth-child(1) {
+    animation: fadeUp 0.4s ease-out 0.1s forwards;
+    opacity: 0;
+}
+
+.feature-item:nth-child(2) {
+    animation: fadeUp 0.4s ease-out 0.3s forwards;
+    opacity: 0;
+}
+
+.feature-item:nth-child(3) {
+    animation: fadeUp 0.4s ease-out 0.5s forwards;
+    opacity: 0;
+}
+
+/* About text headline animation */
+.about-headline {
+    animation: fadeInFromRight 0.7s ease-out forwards;
+    opacity: 0;
+}
+
+.about-subtext {
+    animation: fadeInFromRight 0.7s ease-out 0.2s forwards;
+    opacity: 0;
+}
+
+/* Responsive: Image above text on mobile - Service Cards */
+@media (max-width: 768px) {
+    .about-image {
+        order: -1;
+        margin-bottom: 2rem;
+        width: 100%;
+    }
+    
+    .about-banner-image {
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+    }
+    
+    .service-card {
+        flex-direction: column;
+        display: flex;
+    }
+    
+    .service-card img,
+    .service-image-standardized {
+        height: 250px;
+        margin-bottom: 1rem;
+        order: -1;
+    }
+    
+    .service-card h4,
+    .service-card-title {
+        padding-top: 0;
+    }
+    
+    /* Ensure about-content uses single column on mobile */
+    .about-content {
+        grid-template-columns: 1fr;
     }
 }
 

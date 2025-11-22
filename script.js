@@ -1744,10 +1744,14 @@ Important guidelines:
     // ============================================
     // KIDS APPOINTMENT MODAL
     // ============================================
+    // ============================================
+    // KIDS APPOINTMENT MODAL - CLEAN REBUILD
+    // ============================================
     function initKidsModal() {
         const kidsAppointmentBtn = document.getElementById('kidsAppointmentBtn');
-        const kidsAppointmentModal = document.getElementById('kidsAppointmentModal');
-        const kidsCloseModal = document.querySelector('.kids-close-modal');
+        const kidsModalBackdrop = document.getElementById('kidsModalBackdrop');
+        const kidsModalContainer = document.getElementById('kidsModalContainer');
+        const kidsCloseBtn = document.querySelector('.kids-close-btn');
         const kidsAppointmentForm = document.getElementById('kidsAppointmentForm');
 
         // Set minimum date to today
@@ -1757,179 +1761,100 @@ Important guidelines:
             kidDateInput.setAttribute('min', today);
         }
 
-        // Open Kids Modal - simplified and reliable approach
-        if (kidsAppointmentBtn && kidsAppointmentModal) {
-            // Direct event handler - ensure it works
+        // Open Modal Function
+        function openKidsModal() {
+            if (!kidsModalBackdrop || !kidsModalContainer) return;
+            
+            // Show backdrop and container
+            kidsModalBackdrop.style.display = 'block';
+            kidsModalContainer.style.display = 'block';
+            
+            // Trigger animation
+            setTimeout(() => {
+                kidsModalBackdrop.classList.add('show');
+                kidsModalContainer.classList.add('show');
+            }, 10);
+            
+            // Prevent body scroll
+            document.body.classList.add('no-scroll');
+        }
+
+        // Close Modal Function
+        function closeKidsModal() {
+            if (!kidsModalBackdrop || !kidsModalContainer) return;
+            
+            // Remove show classes
+            kidsModalBackdrop.classList.remove('show');
+            kidsModalContainer.classList.remove('show');
+            
+            // Hide after animation
+            setTimeout(() => {
+                kidsModalBackdrop.style.display = 'none';
+                kidsModalContainer.style.display = 'none';
+            }, 200);
+            
+            // Restore body scroll
+            document.body.classList.remove('no-scroll');
+        }
+
+        // Open on button click
+        if (kidsAppointmentBtn) {
             kidsAppointmentBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                e.stopImmediatePropagation();
-                
-                console.log('Kids appointment button clicked - opening modal');
-                
-                if (kidsAppointmentModal) {
-                    // Show modal immediately
-                    kidsAppointmentModal.style.display = 'flex';
-                    kidsAppointmentModal.style.visibility = 'visible';
-                    kidsAppointmentModal.style.opacity = '1';
-                    kidsAppointmentModal.style.zIndex = '99999';
-                    
-                    // Ensure content is visible
-                    const modalContent = kidsAppointmentModal.querySelector('.kids-modal-content');
-                    if (modalContent) {
-                        modalContent.style.display = 'block';
-                        modalContent.style.visibility = 'visible';
-                        modalContent.style.opacity = '1';
-                    }
-                    
-                    // Add show class for styling
-                    setTimeout(function() {
-                        kidsAppointmentModal.classList.add('show');
-                        document.body.style.overflow = 'hidden';
-                    }, 10);
+                openKidsModal();
+            });
+        }
+
+        // Close on X button click
+        if (kidsCloseBtn) {
+            kidsCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeKidsModal();
+            });
+        }
+
+        // Close on backdrop click
+        if (kidsModalBackdrop) {
+            kidsModalBackdrop.addEventListener('click', function(e) {
+                if (e.target === kidsModalBackdrop) {
+                    closeKidsModal();
                 }
-                return false;
-            }, false); // Use bubble phase for better compatibility
+            });
         }
 
-        // Close Kids Modal
-        if (kidsCloseModal && kidsAppointmentModal) {
-            // Remove any existing listeners
-            const newCloseBtn = kidsCloseModal.cloneNode(true);
-            kidsCloseModal.parentNode.replaceChild(newCloseBtn, kidsCloseModal);
-            const freshCloseBtn = document.querySelector('.kids-close-modal');
-            
-            if (freshCloseBtn) {
-                freshCloseBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    if (kidsAppointmentModal) {
-                        kidsAppointmentModal.classList.remove('show');
-                                setTimeout(function() {
-                                    kidsAppointmentModal.style.display = 'none';
-                        document.body.style.overflow = 'auto';
-                                }, 300);
-                    }
-                });
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && kidsModalContainer && kidsModalContainer.style.display === 'block') {
+                closeKidsModal();
             }
-        }
+        });
 
-        // Kids Form Submission
+        // Form Submission
         if (kidsAppointmentForm) {
-            // Remove any existing listeners
-            const newForm = kidsAppointmentForm.cloneNode(true);
-            kidsAppointmentForm.parentNode.replaceChild(newForm, kidsAppointmentForm);
-            const freshForm = document.getElementById('kidsAppointmentForm');
-            
-            if (freshForm) {
-                freshForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    // Use FormData to get all form values
-                    const formDataObj = new FormData(freshForm);
-                    
-                    const parentName = formDataObj.get('parent_name') || '';
-                    const kidName = formDataObj.get('child_name') || '';
-                    const email = formDataObj.get('parent_email') || '';
-                    const phone = formDataObj.get('phone') || '';
-                    const service = formDataObj.get('service') || '';
-                    const date = formDataObj.get('appointment_date') || '';
-                    const time = formDataObj.get('appointment_time') || '';
-                    const message = formDataObj.get('message') || '';
-                    
-                    if (!parentName || !kidName || !email || !phone || !service || !date || !time) {
-                        alert('Please fill in all required fields.');
-                        return;
-                    }
-
-                    if (!parentName || !kidName || !email || !phone || !service || !date || !time) {
-                        alert('Please fill in all required fields.');
-                        return;
-                    }
-
-                    // Format date for display
-                    let formattedDate = date;
-                    try {
-                        formattedDate = new Date(date).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        });
-                    } catch (e) {
-                        formattedDate = date;
-                    }
-
-                    // Create appointment data object
-                    const appointmentData = {
-                        parentName: parentName,
-                        kidName: kidName,
-                        email: email,
-                        phone: phone,
-                        service: service,
-                        date: date,
-                        formattedDate: formattedDate,
-                        time: time,
-                        message: message,
-                        timestamp: new Date().toISOString()
-                    };
-
-                    // Save to localStorage as backup
-                    try {
-                        let savedAppointments = JSON.parse(localStorage.getItem('dnaKidsAppointments') || '[]');
-                        savedAppointments.push(appointmentData);
-                        localStorage.setItem('dnaKidsAppointments', JSON.stringify(savedAppointments));
-                    } catch (error) {
-                        // localStorage not available or quota exceeded
-                    }
-
-                    // Prepare form data for unified submission - ensure all EmailJS fields are included
-                    const formData = {
-                        parentName: parentName,
-                        parent_name: parentName,
-                        parentEmail: email,
-                        parent_email: email,
-                        kidName: kidName,
-                        child_name: kidName,
-                        kid_name: kidName,
-                        email: email,
-                        phone: phone,
-                        service: service,
-                        date: date,
-                        appointment_date: date, // Use original date format, not formatted
-                        appointment_time: time,
-                        time: time,
-                        message: message
-                    };
-
-                    // Use unified submitAppointment function
-                    submitAppointment(formData)
-                        .then(function(response) {
-                            // Email sent successfully
-                        }, function(error) {
-                            // Email sending failed
-                            alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
-                        });
-
-                    // Success message
-                    const successMessage = `🎉 Thank you, ${parentName}!\n\nWe're excited to meet ${kidName}!\n\nAppointment Details:\n📅 Date: ${formattedDate}\n⏰ Time: ${time}\n🦷 Service: ${service}\n\nWe'll contact you at ${phone} to confirm the appointment. See you soon! 😊`;
-                    
-                    alert(successMessage);
-                    
-                    // Reset form
-                    this.reset();
-                    
-                    // Close modal
-                    if (kidsAppointmentModal) {
-                        kidsAppointmentModal.classList.remove('show');
-                        setTimeout(function() {
-                            kidsAppointmentModal.style.display = 'none';
-                        document.body.style.overflow = 'auto';
-                        }, 300);
-                    }
+            kidsAppointmentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const formData = new FormData(kidsAppointmentForm);
+                const appointmentData = {
+                    parent_name: formData.get('parent_name') || '',
+                    parent_email: formData.get('parent_email') || '',
+                    child_name: formData.get('child_name') || '',
+                    phone: formData.get('phone') || '',
+                    service: formData.get('service') || '',
+                    appointment_date: formData.get('appointment_date') || '',
+                    appointment_time: formData.get('appointment_time') || '',
+                    message: formData.get('kidMessage') || ''
+                };
+                
+                submitAppointment(appointmentData).then(() => {
+                    closeKidsModal();
+                }).catch(() => {
+                    // Keep modal open on error
                 });
-            }
+            });
         }
     }
     initKidsModal();

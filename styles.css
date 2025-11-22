@@ -3042,56 +3042,79 @@ section {
     flex-wrap: wrap;
 }
 
-/* Kids Appointment Modal Styles */
-.kids-modal {
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    pointer-events: auto;
-    display: none; /* Hidden by default */
-    z-index: 99999;
+/* ============================================
+   KIDS APPOINTMENT MODAL - CLEAN REBUILD
+   ============================================ */
+
+/* Prevent body scroll when modal is open */
+body.no-scroll {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
 }
 
-/* Prevent clicks on modal background from closing it */
-.kids-modal.show {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
+/* Modal Backdrop */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.modal-backdrop.show {
+    opacity: 1;
+}
+
+/* Modal Container */
+.modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    width: 100%;
+    max-width: 550px;
     padding: 20px;
-    pointer-events: auto;
-    overflow-y: auto;
-    z-index: 99999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
-.kids-modal.show .kids-modal-content {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: relative;
-    z-index: 100001;
-}
-
-.kids-modal.show > * {
+.modal-container.show {
+    opacity: 1;
     pointer-events: auto;
 }
 
+/* Modal Content */
 .kids-modal-content {
-    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 50%, #f3e8ff 100%);
+    background: #ffffff;
     border-radius: 20px;
     padding: 0;
     max-width: 550px;
-    width: 95%;
+    width: 100%;
     max-height: 85vh;
     overflow-y: auto;
-    overflow-x: visible;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     text-align: left;
     position: relative;
-    margin: auto;
+    margin: 0 auto;
     box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
     border: 3px solid var(--primary-color);
-    animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    z-index: 100001;
-    pointer-events: auto;
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Custom scrollbar for modal */
@@ -3132,7 +3155,8 @@ section {
     }
 }
 
-.kids-close-modal {
+/* Close Button */
+.kids-close-btn {
     position: absolute;
     top: 15px;
     right: 15px;
@@ -3143,8 +3167,8 @@ section {
     z-index: 10000;
     width: 45px;
     height: 45px;
-    min-width: 50px;
-    min-height: 50px;
+    min-width: 45px;
+    min-height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3156,9 +3180,12 @@ section {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     user-select: none;
+    line-height: 1;
+    padding: 0;
+    margin: 0;
 }
 
-.kids-close-modal:hover {
+.kids-close-btn:hover {
     color: #ffffff;
     background: var(--primary-color);
     transform: rotate(90deg) scale(1.1);
@@ -3400,44 +3427,19 @@ section {
 
 /* Responsive for Kids Modal */
 @media (max-width: 768px) {
-    .kids-modal {
+    .modal-container {
         padding: 10px;
-        align-items: flex-start;
-        padding-top: 20px;
+        max-width: 95%;
     }
 
     .kids-modal-content {
-        width: 90%;
+        width: 100%;
         max-width: 100%;
         border-radius: 18px;
-        margin: auto;
         max-height: 90vh;
-        overflow-y: auto;
-        overflow-x: visible;
-        -webkit-overflow-scrolling: touch;
-        position: relative;
-    }
-    
-    .kids-modal.show {
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .modal-content {
-        position: relative;
-        width: 95%;
-        max-width: 95%;
-        padding: 2rem 1.5rem;
-        overflow-x: visible;
-        margin: auto;
-    }
-    
-    .kids-modal.show {
-        align-items: flex-start;
-        padding-top: 20px;
     }
 
-    .kids-close-modal {
+    .kids-close-btn {
         top: 10px;
         right: 10px;
         width: 48px;
@@ -3445,8 +3447,6 @@ section {
         min-width: 48px;
         min-height: 48px;
         font-size: 2.5rem;
-        z-index: 10001;
-        position: absolute;
     }
 
     .kids-modal-header {
@@ -3481,16 +3481,18 @@ section {
 }
 
 @media (max-width: 480px) {
-    .kids-modal-content {
-        width: 92%;
-        border-radius: 15px;
-        max-height: 92vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
+    .modal-container {
+        max-width: 92%;
+        padding: 8px;
     }
 
-    .kids-close-modal {
+    .kids-modal-content {
+        width: 100%;
+        border-radius: 15px;
+        max-height: 92vh;
+    }
+
+    .kids-close-btn {
         top: 8px;
         right: 8px;
         width: 46px;

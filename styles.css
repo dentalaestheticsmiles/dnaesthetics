@@ -2925,7 +2925,7 @@ section {
 .modal {
     display: none;
     position: fixed;
-    z-index: 99999;
+    z-index: 90000; /* Adult appointment modal */
     left: 0;
     top: 0;
     width: 100%;
@@ -2965,7 +2965,7 @@ section {
     max-height: 90vh;
     overflow-y: auto;
     overflow-x: visible;
-    z-index: 100000;
+    z-index: 90001; /* Above adult appointment modal backdrop */
 }
 
 .modal-content .form-group {
@@ -3043,46 +3043,26 @@ section {
 }
 
 /* ============================================
-   KIDS APPOINTMENT MODAL - CLEAN REBUILD
+   KIDS APPOINTMENT MODAL - FIXED
    ============================================ */
 
-/* Prevent body scroll when modal is open */
-body.no-scroll {
-    overflow: hidden !important;
-    position: fixed;
-    width: 100%;
-}
-
-/* Modal Backdrop */
-.modal-backdrop {
+/* Kids Modal - Fixed Structure */
+.kids-modal {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.65);
-    z-index: 9998;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.modal-backdrop.show {
-    opacity: 1;
-}
-
-/* Modal Container */
-.modal-container {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    width: 100%;
-    max-width: 550px;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.25s ease;
     padding: 20px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
 }
 
-.modal-container.show {
+.kids-modal.show {
+    display: flex;
     opacity: 1;
     pointer-events: auto;
 }
@@ -3103,18 +3083,14 @@ body.no-scroll {
     margin: 0 auto;
     box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
     border: 3px solid var(--primary-color);
-    animation: modalFadeIn 0.3s ease-out;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-@keyframes modalFadeIn {
-    0% {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
+.kids-modal.show .kids-modal-content {
+    transform: scale(1);
+    opacity: 1;
 }
 
 /* Custom scrollbar for modal */
@@ -3156,7 +3132,7 @@ body.no-scroll {
 }
 
 /* Close Button */
-.kids-close-btn {
+.kids-close-modal {
     position: absolute;
     top: 15px;
     right: 15px;
@@ -3427,9 +3403,8 @@ body.no-scroll {
 
 /* Responsive for Kids Modal */
 @media (max-width: 768px) {
-    .modal-container {
+    .kids-modal {
         padding: 10px;
-        max-width: 95%;
     }
 
     .kids-modal-content {
@@ -3439,7 +3414,7 @@ body.no-scroll {
         max-height: 90vh;
     }
 
-    .kids-close-btn {
+    .kids-close-modal {
         top: 10px;
         right: 10px;
         width: 48px;
@@ -3492,7 +3467,7 @@ body.no-scroll {
         max-height: 92vh;
     }
 
-    .kids-close-btn {
+    .kids-close-modal {
         top: 8px;
         right: 8px;
         width: 46px;
@@ -5422,7 +5397,7 @@ video:-ms-fullscreen {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 100000;
+    z-index: 90001; /* Above adult appointment modal backdrop */
 }
 
 @keyframes appointmentPop {

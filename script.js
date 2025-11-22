@@ -1745,13 +1745,12 @@ Important guidelines:
     // KIDS APPOINTMENT MODAL
     // ============================================
     // ============================================
-    // KIDS APPOINTMENT MODAL - CLEAN REBUILD
+    // KIDS APPOINTMENT MODAL - FIXED (NO CLONENODE)
     // ============================================
     function initKidsModal() {
         const kidsAppointmentBtn = document.getElementById('kidsAppointmentBtn');
-        const kidsModalBackdrop = document.getElementById('kidsModalBackdrop');
-        const kidsModalContainer = document.getElementById('kidsModalContainer');
-        const kidsCloseBtn = document.querySelector('.kids-close-btn');
+        const kidsAppointmentModal = document.getElementById('kidsAppointmentModal');
+        const kidsCloseModal = document.querySelector('.kids-close-modal');
         const kidsAppointmentForm = document.getElementById('kidsAppointmentForm');
 
         // Set minimum date to today
@@ -1763,38 +1762,38 @@ Important guidelines:
 
         // Open Modal Function
         function openKidsModal() {
-            if (!kidsModalBackdrop || !kidsModalContainer) return;
+            if (!kidsAppointmentModal) return;
             
-            // Show backdrop and container
-            kidsModalBackdrop.style.display = 'block';
-            kidsModalContainer.style.display = 'block';
+            // Set display and show
+            kidsAppointmentModal.style.display = 'flex';
+            kidsAppointmentModal.style.opacity = '1';
+            kidsAppointmentModal.style.pointerEvents = 'auto';
             
-            // Trigger animation
+            // Add show class for CSS transitions
             setTimeout(() => {
-                kidsModalBackdrop.classList.add('show');
-                kidsModalContainer.classList.add('show');
+                kidsAppointmentModal.classList.add('show');
             }, 10);
             
-            // Prevent body scroll
-            document.body.classList.add('no-scroll');
+            // Lock body scroll
+            document.body.style.overflow = 'hidden';
         }
 
         // Close Modal Function
         function closeKidsModal() {
-            if (!kidsModalBackdrop || !kidsModalContainer) return;
+            if (!kidsAppointmentModal) return;
             
-            // Remove show classes
-            kidsModalBackdrop.classList.remove('show');
-            kidsModalContainer.classList.remove('show');
+            // Remove show class and fade out
+            kidsAppointmentModal.classList.remove('show');
+            kidsAppointmentModal.style.opacity = '0';
             
-            // Hide after animation
+            // Hide after transition
             setTimeout(() => {
-                kidsModalBackdrop.style.display = 'none';
-                kidsModalContainer.style.display = 'none';
-            }, 200);
+                kidsAppointmentModal.style.display = 'none';
+                kidsAppointmentModal.style.pointerEvents = 'none';
+            }, 250);
             
             // Restore body scroll
-            document.body.classList.remove('no-scroll');
+            document.body.style.overflow = '';
         }
 
         // Open on button click
@@ -1807,18 +1806,18 @@ Important guidelines:
         }
 
         // Close on X button click
-        if (kidsCloseBtn) {
-            kidsCloseBtn.addEventListener('click', function(e) {
+        if (kidsCloseModal) {
+            kidsCloseModal.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 closeKidsModal();
             });
         }
 
-        // Close on backdrop click
-        if (kidsModalBackdrop) {
-            kidsModalBackdrop.addEventListener('click', function(e) {
-                if (e.target === kidsModalBackdrop) {
+        // Close on backdrop click (click outside modal content)
+        if (kidsAppointmentModal) {
+            kidsAppointmentModal.addEventListener('click', function(e) {
+                if (e.target === kidsAppointmentModal) {
                     closeKidsModal();
                 }
             });
@@ -1826,12 +1825,12 @@ Important guidelines:
 
         // Close on ESC key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && kidsModalContainer && kidsModalContainer.style.display === 'block') {
+            if (e.key === 'Escape' && kidsAppointmentModal && kidsAppointmentModal.classList.contains('show')) {
                 closeKidsModal();
             }
         });
 
-        // Form Submission
+        // Form Submission - NO CLONENODE
         if (kidsAppointmentForm) {
             kidsAppointmentForm.addEventListener('submit', function(e) {
                 e.preventDefault();

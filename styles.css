@@ -46,6 +46,9 @@ html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Remove any default margin/padding */
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -62,6 +65,9 @@ body {
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     will-change: scroll-position;
+    /* Remove any default margin/padding that causes top spacing */
+    margin: 0;
+    padding: 0;
 }
 
 /* Text Selection Styles - Prevent image from appearing during selection */
@@ -390,7 +396,8 @@ title::-moz-selection {
     text-align: center;
     color: var(--white);
     position: relative;
-    margin-top: 80px;
+    margin-top: 0; /* Removed extra spacing - navbar is fixed */
+    padding-top: 80px; /* Space for fixed navbar */
     overflow: hidden;
 }
 

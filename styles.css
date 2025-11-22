@@ -2956,16 +2956,13 @@ section {
     max-width: 500px;
     width: 90%;
     text-align: center;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
+    margin: 0 auto;
     animation: slideUp 0.3s ease;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     max-height: 90vh;
     overflow-y: auto;
     overflow-x: visible;
-    z-index: 90001; /* Above adult appointment modal backdrop */
 }
 
 .modal-content .form-group {
@@ -3043,54 +3040,69 @@ section {
 }
 
 /* ============================================
-   KIDS APPOINTMENT MODAL - FIXED
+   UNIVERSAL MODAL FIX - ALL POPUPS
    ============================================ */
 
-/* Kids Modal - Fixed Structure */
-.kids-modal {
-    display: none;
-    opacity: 0;
-    pointer-events: none;
+/* Universal Modal Overlay Container */
+#kidsAppointmentModal,
+#appointmentPopup,
+#appointmentConfirmationModal {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 99999;
+    display: none;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.25s ease;
-    padding: 20px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 99999;
 }
 
-.kids-modal.show {
+#kidsAppointmentModal.show,
+#appointmentPopup.show,
+#appointmentConfirmationModal.show {
     display: flex;
-    opacity: 1;
-    pointer-events: auto;
 }
 
-/* Modal Content */
-.kids-modal-content {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 0;
-    max-width: 550px;
+/* Modal Content Box - Fixed Height, Layout, Scrolling */
+.kids-modal-content,
+.appointment-popup-content,
+.appointment-confirmation-content {
     width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Kids Modal Specific - Keep existing header styling */
+.kids-modal-content {
+    padding: 0;
+    border: 3px solid var(--primary-color);
+}
+
+/* Appointment Popup Content */
+.appointment-popup-content {
+    text-align: center;
+}
+
+/* Confirmation Modal - Force Centering and Visibility */
+#appointmentConfirmationModal.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.appointment-confirmation-content {
+    margin: 0 auto;
+    max-width: 460px;
     max-height: 85vh;
     overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    text-align: left;
-    position: relative;
-    margin: 0 auto;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
-    border: 3px solid var(--primary-color);
-    transform: scale(0.95);
-    opacity: 0;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.kids-modal.show .kids-modal-content {
-    transform: scale(1);
-    opacity: 1;
+    text-align: center;
 }
 
 /* Custom scrollbar for modal */
@@ -3401,17 +3413,25 @@ section {
     font-size: 1.2rem;
 }
 
-/* Responsive for Kids Modal */
+/* Mobile Optimization for All Popups */
 @media (max-width: 768px) {
-    .kids-modal {
-        padding: 10px;
+    #kidsAppointmentModal,
+    #appointmentPopup,
+    #appointmentConfirmationModal {
+        padding: 12px;
     }
 
-    .kids-modal-content {
-        width: 100%;
+    .kids-modal-content,
+    .appointment-popup-content,
+    .appointment-confirmation-content {
         max-width: 100%;
-        border-radius: 18px;
-        max-height: 90vh;
+        max-height: 92vh;
+        border-radius: 16px;
+        padding: 20px;
+    }
+    
+    .kids-modal-content {
+        padding: 0;
     }
 
     .kids-close-modal {
@@ -5393,11 +5413,8 @@ video:-ms-fullscreen {
 /* Appointment Popup Animation */
 .appointment-anim {
     animation: appointmentPop 0.35s ease-out;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 90001; /* Above adult appointment modal backdrop */
+    position: relative;
+    margin: 0 auto;
 }
 
 @keyframes appointmentPop {
@@ -5414,11 +5431,8 @@ video:-ms-fullscreen {
 /* Confirmation Modal Animation */
 .confirm-content {
     animation: confirmPop 0.35s ease-out;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100000;
+    position: relative;
+    margin: 0 auto;
 }
 
 @keyframes confirmPop {

@@ -3046,7 +3046,8 @@ section {
 /* Universal Modal Overlay Container */
 #kidsAppointmentModal,
 #appointmentPopup,
-#appointmentConfirmationModal {
+#appointmentConfirmationModal,
+#kidsAppointmentConfirmationModal {
     position: fixed;
     inset: 0;
     display: none;
@@ -3059,7 +3060,8 @@ section {
 
 #kidsAppointmentModal.show,
 #appointmentPopup.show,
-#appointmentConfirmationModal.show {
+#appointmentConfirmationModal.show,
+#kidsAppointmentConfirmationModal.show {
     display: flex;
 }
 
@@ -5491,6 +5493,294 @@ video:-ms-fullscreen {
     100% {
         opacity: 1;
         transform: rotate(45deg) scale(1);
+    }
+}
+
+/* ============================================
+   KIDS APPOINTMENT CONFIRMATION MODAL
+   ============================================ */
+
+.kids-confirmation-content {
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 50%, #f3e8ff 100%);
+    border-radius: 24px;
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: 0 25px 70px rgba(124, 58, 237, 0.25);
+    border: 3px solid var(--primary-color);
+    animation: kidsConfirmPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    margin: 0 auto;
+}
+
+@keyframes kidsConfirmPop {
+    0% {
+        transform: scale(0.3) rotate(-10deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05) rotate(5deg);
+    }
+    70% {
+        transform: scale(0.95) rotate(-2deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+/* Kids Success Checkmark */
+.kids-success-check {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px auto;
+    border-radius: 50%;
+    border: 5px solid #10b981;
+    position: relative;
+    display: block;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(52, 211, 153, 0.1) 100%);
+    animation: kidsCheckPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+}
+
+.kids-success-check::after {
+    content: "";
+    position: absolute;
+    left: 22px;
+    top: 20px;
+    width: 16px;
+    height: 32px;
+    border-right: 5px solid #10b981;
+    border-bottom: 5px solid #10b981;
+    transform: rotate(45deg);
+    animation: kidsDrawCheck 0.6s ease-out 0.2s both;
+}
+
+@keyframes kidsCheckPop {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.15) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes kidsDrawCheck {
+    0% {
+        opacity: 0;
+        transform: rotate(45deg) scale(0);
+    }
+    50% {
+        transform: rotate(45deg) scale(1.2);
+    }
+    100% {
+        opacity: 1;
+        transform: rotate(45deg) scale(1);
+    }
+}
+
+/* Kids Confirmation Icon */
+.kids-confirmation-icon {
+    font-size: 3.5rem;
+    margin: -10px auto 15px auto;
+    animation: kidsIconFloat 2s ease-in-out infinite;
+    display: block;
+}
+
+@keyframes kidsIconFloat {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-10px) scale(1.1);
+    }
+}
+
+/* Kids Confirmation Title */
+.kids-confirmation-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: kidsTitleFadeIn 0.6s ease-out 0.3s both;
+}
+
+@keyframes kidsTitleFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Kids Confirmation Details */
+.kids-confirmation-details {
+    margin: 1.5rem 0;
+    animation: kidsDetailsFadeIn 0.6s ease-out 0.4s both;
+}
+
+@keyframes kidsDetailsFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.kids-confirmation-message {
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.kids-confirmation-info {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border: 2px solid rgba(124, 58, 237, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.kids-confirmation-info-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+.kids-confirmation-info-item:last-child {
+    margin-bottom: 0;
+}
+
+.kids-confirmation-info-item i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    width: 24px;
+    text-align: center;
+}
+
+.kids-confirmation-info-item strong {
+    color: var(--primary-color);
+    font-weight: 600;
+    min-width: 80px;
+}
+
+/* Kids Confirmation Button */
+.kids-confirmation-btn {
+    margin-top: 1.5rem;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+    animation: kidsButtonFadeIn 0.6s ease-out 0.5s both;
+    position: relative;
+    overflow: hidden;
+}
+
+.kids-confirmation-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.kids-confirmation-btn:hover::before {
+    left: 100%;
+}
+
+.kids-confirmation-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(124, 58, 237, 0.6);
+}
+
+.kids-confirmation-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+@keyframes kidsButtonFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .kids-confirmation-content {
+        padding: 2rem 1.5rem;
+        max-width: 95%;
+    }
+
+    .kids-success-check {
+        width: 70px;
+        height: 70px;
+    }
+
+    .kids-success-check::after {
+        left: 18px;
+        top: 16px;
+        width: 14px;
+        height: 28px;
+    }
+
+    .kids-confirmation-icon {
+        font-size: 3rem;
+    }
+
+    .kids-confirmation-title {
+        font-size: 1.6rem;
+    }
+
+    .kids-confirmation-message {
+        font-size: 1rem;
+    }
+
+    .kids-confirmation-info {
+        padding: 1.2rem;
+    }
+
+    .kids-confirmation-btn {
+        padding: 0.9rem 2rem;
+        font-size: 1rem;
     }
 }
 

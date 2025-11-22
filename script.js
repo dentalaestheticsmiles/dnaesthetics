@@ -2419,10 +2419,11 @@ Important guidelines:
     // ============================================
     function initBlogModals() {
         const blogLinks = document.querySelectorAll('.blog-link[data-blog]');
+        const suggestedLinks = document.querySelectorAll('.suggested-readmore[data-blog]');
         const blogModals = document.querySelectorAll('.blog-modal');
         const blogCloseButtons = document.querySelectorAll('.blog-close-modal');
         
-        console.log('Blog modals init - Found links:', blogLinks.length, 'Found modals:', blogModals.length);
+        console.log('Blog modals init - Found links:', blogLinks.length, 'Found suggested:', suggestedLinks.length, 'Found modals:', blogModals.length);
         
         // Open blog modal when "Read More" is clicked
         blogLinks.forEach(function(link) {
@@ -2442,6 +2443,32 @@ Important guidelines:
                     console.error('Modal not found for blogId:', blogId);
                 }
             }, true); // Use capture phase to ensure it fires
+        });
+        
+        // Handle suggested article clicks
+        suggestedLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const blogId = this.getAttribute('data-blog');
+                const targetModal = document.getElementById('blogModal' + blogId);
+                const currentModal = this.closest('.blog-modal');
+                
+                if (targetModal) {
+                    // Close current modal first
+                    if (currentModal) {
+                        currentModal.classList.remove('show');
+                        setTimeout(function() {
+                            targetModal.classList.add('show');
+                            document.body.style.overflow = 'hidden';
+                            targetModal.scrollTop = 0;
+                        }, 150);
+                    } else {
+                        targetModal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+            }, true);
         });
         
         // Close blog modal when close button is clicked
@@ -2488,15 +2515,36 @@ Important guidelines:
 // Fallback: Use event delegation for blog links (more reliable)
 document.addEventListener('click', function(e) {
     const blogLink = e.target.closest('.blog-link[data-blog]');
-    if (blogLink) {
+    const suggestedLink = e.target.closest('.suggested-readmore[data-blog]');
+    const link = blogLink || suggestedLink;
+    
+    if (link) {
         e.preventDefault();
         e.stopPropagation();
-        const blogId = blogLink.getAttribute('data-blog');
-        const modal = document.getElementById('blogModal' + blogId);
+        const blogId = link.getAttribute('data-blog');
+        const targetModal = document.getElementById('blogModal' + blogId);
         
-        if (modal) {
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
+        if (targetModal) {
+            // If clicking from a suggested article, close current modal first
+            if (suggestedLink) {
+                const currentModal = suggestedLink.closest('.blog-modal');
+                if (currentModal) {
+                    currentModal.classList.remove('show');
+                    // Small delay for smooth transition
+                    setTimeout(function() {
+                        targetModal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+                        // Scroll to top of new modal
+                        targetModal.scrollTop = 0;
+                    }, 150);
+                } else {
+                    targetModal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                }
+            } else {
+                targetModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
         }
     }
 }, true);

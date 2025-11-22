@@ -740,6 +740,11 @@ section {
     position: relative;
     overflow: hidden;
     border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%);
 }
 
 .about-image img,
@@ -759,6 +764,83 @@ section {
 .about-banner-image:hover {
     transform: translateY(-5px);
     filter: brightness(1.05) contrast(1.05) saturate(1.08) sepia(0.03);
+}
+
+/* About Icon Design - Replacement for image */
+.about-icon-design {
+    width: 100%;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.about-icon-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+    animation: iconPulse 3s ease-in-out infinite;
+}
+
+.about-icon-circle i {
+    font-size: 4rem;
+    color: var(--white);
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+    }
+    50% {
+    transform: scale(1.05);
+        box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
+    }
+}
+
+.about-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.about-icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.about-icon-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.15);
+}
+
+.about-icon-item i {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.about-icon-item span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    text-align: center;
 }
 
 .about-text h3 {
@@ -1345,10 +1427,22 @@ section {
     font-size: 1.2rem;
 }
 
-.referral-image img {
+.referral-image img,
+.referral-image-standardized {
     width: 100%;
-    border-radius: 20px;
-    box-shadow: var(--shadow);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    display: block;
+    /* Image Quality Filters */
+    filter: brightness(1.03) contrast(1.03) saturate(1.05) sepia(0.02);
+}
+
+.referral-image img:hover,
+.referral-image-standardized:hover {
+    transform: translateY(-5px);
+    filter: brightness(1.05) contrast(1.05) saturate(1.08) sepia(0.03);
 }
 
 /* Kids Treatment Section */
@@ -1513,15 +1607,21 @@ section {
     overflow: hidden;
 }
 
-.kids-service-image img {
+.kids-service-image img,
+.kids-service-image-standardized {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    border-radius: 12px;
+    transition: transform 0.5s ease, filter 0.3s ease;
+    /* Image Quality Filters */
+    filter: brightness(1.03) contrast(1.03) saturate(1.05) sepia(0.02);
 }
 
-.kids-service-card:hover .kids-service-image img {
-    transform: scale(1.1);
+.kids-service-card:hover .kids-service-image img,
+.kids-service-image-standardized:hover {
+    transform: scale(1.05);
+    filter: brightness(1.05) contrast(1.05) saturate(1.08) sepia(0.03);
 }
 
 .kids-service-icon {
@@ -5042,10 +5142,30 @@ video:-ms-fullscreen {
         width: 100%;
     }
     
-    .about-banner-image {
-        width: 100%;
-        height: auto;
-        max-height: 400px;
+    .about-icon-design {
+        padding: 2rem 1.5rem;
+        min-height: 300px;
+    }
+    
+    .about-icon-circle {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .about-icon-circle i {
+        font-size: 3rem;
+    }
+    
+    .about-icon-grid {
+        gap: 1rem;
+    }
+    
+    .about-icon-item {
+        padding: 1rem;
+    }
+    
+    .about-icon-item i {
+        font-size: 1.5rem;
     }
     
     .service-card {

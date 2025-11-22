@@ -1748,15 +1748,9 @@ Important guidelines:
     };
 
     // ============================================
-    // KIDS APPOINTMENT MODAL
-    // ============================================
-    // ============================================
-    // KIDS APPOINTMENT MODAL - FIXED (NO CLONENODE)
+    // KIDS APPOINTMENT MODAL - FINAL FIX
     // ============================================
     function initKidsModal() {
-        const kidsAppointmentBtn = document.getElementById('kidsAppointmentBtn');
-        const kidsAppointmentModal = document.getElementById('kidsAppointmentModal');
-        const kidsCloseModal = document.querySelector('.kids-close-modal');
         const kidsAppointmentForm = document.getElementById('kidsAppointmentForm');
 
         // Set minimum date to today
@@ -1766,75 +1760,33 @@ Important guidelines:
             kidDateInput.setAttribute('min', today);
         }
 
-        // Open Modal Function
-        function openKidsModal() {
-            if (!kidsAppointmentModal) return;
-            
-            // Set display and show
-            kidsAppointmentModal.style.display = 'flex';
-            kidsAppointmentModal.style.opacity = '1';
-            kidsAppointmentModal.style.pointerEvents = 'auto';
-            kidsAppointmentModal.style.alignItems = 'center';
-            kidsAppointmentModal.style.justifyContent = 'center';
-            
-            // Reset scroll position to top
-            const modalContent = kidsAppointmentModal.querySelector('.kids-modal-content');
-            if (modalContent) {
-                modalContent.scrollTop = 0;
+        // Open Kids Appointment Modal
+        document.getElementById("kidsAppointmentBtn")?.addEventListener("click", () => {
+            const modal = document.getElementById("kidsAppointmentModal");
+            if (modal) {
+                modal.classList.add("show");
+                document.body.style.overflow = 'hidden';
+
+                // Always scroll to top to avoid hidden header
+                const content = modal.querySelector(".kids-modal-content");
+                if (content) content.scrollTop = 0;
             }
-            
-            // Add show class for CSS transitions
-            setTimeout(() => {
-                kidsAppointmentModal.classList.add('show');
-            }, 10);
-            
-            // Lock body scroll
-            document.body.style.overflow = 'hidden';
-        }
+        });
 
-        // Close Modal Function
-        function closeKidsModal() {
-            if (!kidsAppointmentModal) return;
-            
-            // Remove show class and fade out
-            kidsAppointmentModal.classList.remove('show');
-            kidsAppointmentModal.style.opacity = '0';
-            
-            // Hide after transition
-            setTimeout(() => {
-                kidsAppointmentModal.style.display = 'none';
-                kidsAppointmentModal.style.pointerEvents = 'none';
-            }, 250);
-            
-            // Restore body scroll
-            document.body.style.overflow = '';
-        }
+        // Close Kids Appointment Modal
+        document.querySelector(".kids-close-modal")?.addEventListener("click", () => {
+            const modal = document.getElementById("kidsAppointmentModal");
+            if (modal) {
+                modal.classList.remove("show");
+                document.body.style.overflow = '';
+            }
+        });
 
-        // Open on button click
-        if (kidsAppointmentBtn) {
-            kidsAppointmentBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                openKidsModal();
-            });
-        }
-
-        // Close on X button click
-        if (kidsCloseModal) {
-            kidsCloseModal.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                closeKidsModal();
-            });
-        }
-
-        // Backdrop click disabled - user must use X button to close
-        // This prevents accidental closure while filling the form
-
-        // Close on ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && kidsAppointmentModal && kidsAppointmentModal.classList.contains('show')) {
-                closeKidsModal();
+        // Close when clicking outside modal content
+        document.getElementById("kidsAppointmentModal")?.addEventListener("click", (e) => {
+            if (e.target === e.currentTarget) {
+                e.currentTarget.classList.remove("show");
+                document.body.style.overflow = '';
             }
         });
 
@@ -1899,7 +1851,11 @@ Important guidelines:
                     kidsAppointmentForm.reset();
                     
                     // Close appointment modal
-                    closeKidsModal();
+                    const modal = document.getElementById("kidsAppointmentModal");
+                    if (modal) {
+                        modal.classList.remove("show");
+                        document.body.style.overflow = '';
+                    }
                 }).catch(() => {
                     // Error message
                     alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');

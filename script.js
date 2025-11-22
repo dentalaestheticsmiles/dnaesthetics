@@ -1408,16 +1408,16 @@ Important guidelines:
         // formData should be an object with all appointment fields
         // This function normalizes field names and sends via EmailJS
         
-        const EMAILJS_CONFIG = {
-            PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
-            SERVICE_ID: 'service_13xdgm3',
-            TEMPLATE_ID: 'template_lpjsx54'
-        };
+            const EMAILJS_CONFIG = {
+                PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
+                SERVICE_ID: 'service_13xdgm3',
+                TEMPLATE_ID: 'template_lpjsx54'
+            };
 
         // Normalize and map all fields to EmailJS template variables
         // Always include all fields so EmailJS template receives them
-        const emailData = {
-            to_email: 'dentalaestheticsmiles@gmail.com',
+            const emailData = {
+                to_email: 'dentalaestheticsmiles@gmail.com',
             // Standard fields (for regular appointments)
             name: formData.name || formData.parentName || formData.parent_name || '',
             email: formData.email || formData.parentEmail || formData.parent_email || '',
@@ -1432,15 +1432,15 @@ Important guidelines:
             child_name: formData.child_name || formData.kidName || formData.childName || formData.kid_name || '',
             appointment_date: formData.appointment_date || formData.date || '',
             appointment_time: formData.appointment_time || formData.time || ''
-        };
+            };
 
-        // Send email via EmailJS
-        if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
+            // Send email via EmailJS
+            if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
             return emailjs.send(
-                EMAILJS_CONFIG.SERVICE_ID,
-                EMAILJS_CONFIG.TEMPLATE_ID,
-                emailData,
-                EMAILJS_CONFIG.PUBLIC_KEY
+                    EMAILJS_CONFIG.SERVICE_ID,
+                    EMAILJS_CONFIG.TEMPLATE_ID,
+                    emailData,
+                    EMAILJS_CONFIG.PUBLIC_KEY
             );
         } else {
             // Return a rejected promise if EmailJS is not available
@@ -1707,8 +1707,8 @@ Important guidelines:
                         time: time,
                         message: message
                     });
-                    
-                    // Reset form
+            
+            // Reset form
                     appointmentPopupForm.reset();
                 }, function(error) {
                     // Fallback if EmailJS fails
@@ -1757,46 +1757,39 @@ Important guidelines:
             kidDateInput.setAttribute('min', today);
         }
 
-        // Open Kids Modal - with proper event handling
+        // Open Kids Modal - simplified and reliable approach
         if (kidsAppointmentBtn && kidsAppointmentModal) {
-            // Remove any existing listeners by cloning
-            const newBtn = kidsAppointmentBtn.cloneNode(true);
-            kidsAppointmentBtn.parentNode.replaceChild(newBtn, kidsAppointmentBtn);
-            const freshBtn = document.getElementById('kidsAppointmentBtn');
-            
-            if (freshBtn) {
-                // Remove href to prevent navigation
-                freshBtn.setAttribute('href', 'javascript:void(0);');
+            // Direct event handler - ensure it works
+            kidsAppointmentBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
                 
-                // Single click handler with proper event handling
-                freshBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
+                console.log('Kids appointment button clicked - opening modal');
+                
+                if (kidsAppointmentModal) {
+                    // Show modal immediately
+                    kidsAppointmentModal.style.display = 'flex';
+                    kidsAppointmentModal.style.visibility = 'visible';
+                    kidsAppointmentModal.style.opacity = '1';
+                    kidsAppointmentModal.style.zIndex = '99999';
                     
-                    if (kidsAppointmentModal) {
-                        // Ensure modal is visible
-                        kidsAppointmentModal.style.display = 'flex';
-                        kidsAppointmentModal.style.visibility = 'visible';
-                        kidsAppointmentModal.style.opacity = '1';
-                        
-                        // Add show class for styling
-                        setTimeout(function() {
-                            kidsAppointmentModal.classList.add('show');
-                            document.body.style.overflow = 'hidden';
-                            
-                            // Ensure content is visible
-                            const modalContent = kidsAppointmentModal.querySelector('.kids-modal-content');
-                            if (modalContent) {
-                                modalContent.style.display = 'block';
-                                modalContent.style.visibility = 'visible';
-                                modalContent.style.opacity = '1';
-                            }
-                        }, 10);
+                    // Ensure content is visible
+                    const modalContent = kidsAppointmentModal.querySelector('.kids-modal-content');
+                    if (modalContent) {
+                        modalContent.style.display = 'block';
+                        modalContent.style.visibility = 'visible';
+                        modalContent.style.opacity = '1';
                     }
-                    return false;
-                }, true); // Use capture phase
-            }
+                    
+                    // Add show class for styling
+                    setTimeout(function() {
+                        kidsAppointmentModal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+                    }, 10);
+                }
+                return false;
+            }, false); // Use bubble phase for better compatibility
         }
 
         // Close Kids Modal
@@ -1806,20 +1799,20 @@ Important guidelines:
             kidsCloseModal.parentNode.replaceChild(newCloseBtn, kidsCloseModal);
             const freshCloseBtn = document.querySelector('.kids-close-modal');
             
-                    if (freshCloseBtn) {
-                        freshCloseBtn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            
-                            if (kidsAppointmentModal) {
-                                kidsAppointmentModal.classList.remove('show');
+            if (freshCloseBtn) {
+                freshCloseBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (kidsAppointmentModal) {
+                        kidsAppointmentModal.classList.remove('show');
                                 setTimeout(function() {
                                     kidsAppointmentModal.style.display = 'none';
-                                    document.body.style.overflow = 'auto';
+                        document.body.style.overflow = 'auto';
                                 }, 300);
-                            }
-                        });
                     }
+                });
+            }
         }
 
         // Kids Form Submission
@@ -1932,7 +1925,7 @@ Important guidelines:
                         kidsAppointmentModal.classList.remove('show');
                         setTimeout(function() {
                             kidsAppointmentModal.style.display = 'none';
-                            document.body.style.overflow = 'auto';
+                        document.body.style.overflow = 'auto';
                         }, 300);
                     }
                 });
@@ -2302,7 +2295,7 @@ Important guidelines:
         }
 
         // PREVENT BROKEN AUTOPLAY
-        video.autoplay = false;
+            video.autoplay = false;
 
         // FIX POSTER IF MISSING
         video.addEventListener("loadeddata", function() {
@@ -2369,7 +2362,7 @@ Important guidelines:
                 // iOS Safari fallback
                 try {
                     video.webkitEnterFullscreen();
-                } catch (e) {
+                                        } catch (e) {
                     console.warn("iOS fullscreen failed:", e);
                 }
             } else if (video.msRequestFullscreen) {
@@ -2447,31 +2440,36 @@ Important guidelines:
         
         console.log('Blog modals init - Found links:', blogLinks.length, 'Found suggested:', suggestedLinks.length, 'Found modals:', blogModals.length);
         
-        // Open blog modal when "Read More" is clicked
+        // Open blog modal when "Read More" is clicked (ONLY for links with data-blog attribute)
+        // Regular blog links without data-blog should navigate normally to blog pages
         blogLinks.forEach(function(link) {
             link.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation(); // Prevent event bubbling
-                const blogId = this.getAttribute('data-blog');
-                console.log('Blog link clicked, blogId:', blogId);
-                const modal = document.getElementById('blogModal' + blogId);
-                console.log('Modal found:', modal ? 'Yes' : 'No');
-                
-                if (modal) {
-                    modal.classList.add('show');
-                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
-                    console.log('Modal should be visible now');
-                } else {
-                    console.error('Modal not found for blogId:', blogId);
+                // Only prevent default if this link has data-blog attribute (for modal system)
+                if (this.hasAttribute('data-blog')) {
+                    e.preventDefault();
+                    e.stopPropagation(); // Prevent event bubbling
+                    const blogId = this.getAttribute('data-blog');
+                    console.log('Blog modal link clicked, blogId:', blogId);
+                    const modal = document.getElementById('blogModal' + blogId);
+                    console.log('Modal found:', modal ? 'Yes' : 'No');
+                    
+                    if (modal) {
+                        modal.classList.add('show');
+                        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                        console.log('Modal should be visible now');
+                    } else {
+                        console.error('Modal not found for blogId:', blogId);
+                    }
                 }
+                // If no data-blog attribute, allow normal link navigation (do nothing - let browser handle it)
             }, true); // Use capture phase to ensure it fires
         });
         
         // Handle suggested article clicks
         suggestedLinks.forEach(function(link) {
             link.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+                    e.preventDefault();
+                    e.stopPropagation();
                 const blogId = this.getAttribute('data-blog');
                 const targetModal = document.getElementById('blogModal' + blogId);
                 const currentModal = this.closest('.blog-modal');
@@ -2513,8 +2511,8 @@ Important guidelines:
                     modal.classList.remove('show');
                     document.body.style.overflow = ''; // Restore scrolling
                 }
-            });
-        });
+                            });
+                        });
         
         // Close blog modal with ESC key
         document.addEventListener('keydown', function(e) {
@@ -2529,20 +2527,40 @@ Important guidelines:
         });
     }
     
-    // Initialize blog modals
+    // Initialize blog modals (only for links with data-blog attribute)
+    // Regular blog links without data-blog will navigate normally to blog pages
     initBlogModals();
+    
+    // Safety check: Ensure regular blog links (without data-blog) work normally
+    // This prevents any interference with normal link navigation
+    document.querySelectorAll('.blog-link:not([data-blog])').forEach(function(link) {
+        // Remove any existing click handlers that might interfere
+        link.style.pointerEvents = 'auto';
+        link.style.cursor = 'pointer';
+        
+        // Ensure link is clickable
+        if (link.href && !link.hasAttribute('data-blog')) {
+            link.addEventListener('click', function(e) {
+                // Allow normal navigation - don't prevent default
+                console.log('Regular blog link clicked - navigating to:', this.href);
+                // Browser will handle navigation normally
+            }, false); // Use bubble phase, not capture
+        }
+    });
 
 }); // End of DOMContentLoaded
 
-// Fallback: Use event delegation for blog links (more reliable)
+// Event delegation for blog links - ONLY for links with data-blog attribute (modal system)
+// Regular blog links without data-blog should navigate normally
 document.addEventListener('click', function(e) {
     const blogLink = e.target.closest('.blog-link[data-blog]');
     const suggestedLink = e.target.closest('.suggested-readmore[data-blog]');
     const link = blogLink || suggestedLink;
     
-    if (link) {
-        e.preventDefault();
-        e.stopPropagation();
+    // Only intercept if link has data-blog attribute (for modal system)
+    if (link && link.hasAttribute('data-blog')) {
+                e.preventDefault();
+                e.stopPropagation();
         const blogId = link.getAttribute('data-blog');
         const targetModal = document.getElementById('blogModal' + blogId);
         
@@ -2562,11 +2580,12 @@ document.addEventListener('click', function(e) {
                 } else {
                     targetModal.classList.add('show');
                     document.body.style.overflow = 'hidden';
-                }
-            } else {
+                        }
+                    } else {
                 targetModal.classList.add('show');
                 document.body.style.overflow = 'hidden';
             }
         }
     }
+    // If no data-blog attribute, allow normal link navigation (do nothing)
 }, true);

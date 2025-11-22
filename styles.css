@@ -3053,16 +3053,20 @@ section {
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 20px;
     background: rgba(0, 0, 0, 0.45);
     z-index: 99999;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 #kidsAppointmentModal.show,
 #appointmentPopup.show,
 #appointmentConfirmationModal.show,
 #kidsAppointmentConfirmationModal.show {
-    display: flex;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 /* Modal Content Box - Fixed Height, Layout, Scrolling */
@@ -3073,6 +3077,7 @@ section {
     max-width: 480px;
     max-height: 90vh;
     overflow-y: auto;
+    overflow-x: hidden;
     background: #fff;
     border-radius: 18px;
     padding: 24px;
@@ -3085,6 +3090,31 @@ section {
 .kids-modal-content {
     padding: 0;
     border: 3px solid var(--primary-color);
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* Ensure header is always visible at top */
+    scroll-behavior: smooth;
+    /* Ensure content starts from top */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure kids modal header is always visible and at top */
+.kids-modal-header {
+    position: relative;
+    z-index: 10;
+    /* Prevent header from being cut off */
+    flex-shrink: 0;
+    width: 100%;
+}
+
+/* Ensure close button is always visible and positioned correctly */
+.kids-close-modal {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    z-index: 10001 !important;
+    /* Ensure it's above everything */
 }
 
 /* Appointment Popup Content */

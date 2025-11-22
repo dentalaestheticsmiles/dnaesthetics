@@ -2414,4 +2414,63 @@ Important guidelines:
         attachVideoPauseTriggers();
     }
 
+    // ============================================
+    // BLOG MODAL FUNCTIONALITY
+    // ============================================
+    function initBlogModals() {
+        const blogLinks = document.querySelectorAll('.blog-link[data-blog]');
+        const blogModals = document.querySelectorAll('.blog-modal');
+        const blogCloseButtons = document.querySelectorAll('.blog-close-modal');
+        
+        // Open blog modal when "Read More" is clicked
+        blogLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const blogId = this.getAttribute('data-blog');
+                const modal = document.getElementById('blogModal' + blogId);
+                
+                if (modal) {
+                    modal.classList.add('show');
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                }
+            });
+        });
+        
+        // Close blog modal when close button is clicked
+        blogCloseButtons.forEach(function(closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                const modal = this.closest('.blog-modal');
+                if (modal) {
+                    modal.classList.remove('show');
+                    document.body.style.overflow = ''; // Restore scrolling
+                }
+            });
+        });
+        
+        // Close blog modal when clicking outside the modal content
+        blogModals.forEach(function(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                    document.body.style.overflow = ''; // Restore scrolling
+                }
+            });
+        });
+        
+        // Close blog modal with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                blogModals.forEach(function(modal) {
+                    if (modal.classList.contains('show')) {
+                        modal.classList.remove('show');
+                        document.body.style.overflow = ''; // Restore scrolling
+                    }
+                });
+            }
+        });
+    }
+    
+    // Initialize blog modals
+    initBlogModals();
+
 }); // End of DOMContentLoaded

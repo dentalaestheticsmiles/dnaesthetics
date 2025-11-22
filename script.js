@@ -1272,38 +1272,23 @@ Important guidelines:
                 // localStorage not available or quota exceeded
             }
 
-            // Send email using EmailJS
-            const EMAILJS_CONFIG = {
-                PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
-                SERVICE_ID: 'service_13xdgm3',
-                TEMPLATE_ID: 'template_lpjsx54'
-            };
-
-            // Prepare email data
-            const emailData = {
-                to_email: 'dentalaestheticsmiles@gmail.com',
+            // Prepare form data for unified submission
+            const formData = {
                 name: name,
                 email: email,
                 phone: phone,
                 service: service,
-                message: message || 'No additional message'
+                message: message
             };
 
-            // Send email via EmailJS
-            if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
-                emailjs.send(
-                    EMAILJS_CONFIG.SERVICE_ID,
-                    EMAILJS_CONFIG.TEMPLATE_ID,
-                    emailData,
-                    EMAILJS_CONFIG.PUBLIC_KEY
-                )
+            // Use unified submitAppointment function
+            submitAppointment(formData)
                 .then(function(response) {
                     // Email sent successfully
                 }, function(error) {
                     // Email sending failed
                     alert('⚠️ There was an issue sending your contact request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your contact details have been saved.');
                 });
-            }
 
             // Success message
             const successMessage = `🎉 Thank you, ${name}!\n\nYour appointment request for ${service} has been received.\n\nWe will contact you at ${phone} or ${email} shortly.\n\nWe look forward to serving you! 😊`;
@@ -1415,6 +1400,55 @@ Important guidelines:
 
     // Store appointment data for calendar
     let lastAppointmentData = null;
+
+    // ============================================
+    // UNIFIED APPOINTMENT SUBMISSION FUNCTION
+    // ============================================
+    function submitAppointment(formData) {
+        // formData should be an object with all appointment fields
+        // This function normalizes field names and sends via EmailJS
+        
+        const EMAILJS_CONFIG = {
+            PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
+            SERVICE_ID: 'service_13xdgm3',
+            TEMPLATE_ID: 'template_lpjsx54'
+        };
+
+        // Normalize and map all fields to EmailJS template variables
+        const emailData = {
+            to_email: 'dentalaestheticsmiles@gmail.com',
+            // Standard fields (for regular appointments)
+            name: formData.name || formData.parentName || '',
+            email: formData.email || formData.parentEmail || formData.parent_email || '',
+            phone: formData.phone || '',
+            service: formData.service || '',
+            message: formData.message || 'No additional message',
+            date: formData.date || formData.appointment_date || '',
+            time: formData.time || formData.appointment_time || '',
+            // Kids appointment specific fields
+            parent_name: formData.parentName || formData.name || formData.parent_name || '',
+            parent_email: formData.parentEmail || formData.email || formData.parent_email || '',
+            child_name: formData.kidName || formData.childName || formData.kid_name || '',
+            appointment_date: formData.appointment_date || formData.date || '',
+            appointment_time: formData.appointment_time || formData.time || ''
+        };
+
+        // Send email via EmailJS
+        if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
+            return emailjs.send(
+                EMAILJS_CONFIG.SERVICE_ID,
+                EMAILJS_CONFIG.TEMPLATE_ID,
+                emailData,
+                EMAILJS_CONFIG.PUBLIC_KEY
+            );
+        } else {
+            // Return a rejected promise if EmailJS is not available
+            return Promise.reject(new Error('EmailJS not loaded'));
+        }
+    }
+
+    // Make submitAppointment globally accessible
+    window.submitAppointment = submitAppointment;
 
     // Open appointment popup
     function openAppointmentPopup() {
@@ -1628,52 +1662,36 @@ Important guidelines:
                 return;
             }
 
-            const nameInput = document.getElementById('popupName');
-            const emailInput = document.getElementById('popupEmail');
-            const phoneInput = document.getElementById('popupPhone');
-            const serviceInput = document.getElementById('popupService');
-            const dateInput = document.getElementById('popupDate');
-            const timeInput = document.getElementById('popupTime');
-            const messageInput = document.getElementById('popupMessage');
+            // Use FormData to get all form values
+            const formDataObj = new FormData(appointmentPopupForm);
+            
+            const name = formDataObj.get('name') || '';
+            const email = formDataObj.get('email') || '';
+            const phone = formDataObj.get('phone') || '';
+            const service = formDataObj.get('service') || '';
+            const date = formDataObj.get('appointment_date') || '';
+            const time = formDataObj.get('appointment_time') || '';
+            const message = formDataObj.get('message') || '';
 
-            if (!nameInput || !emailInput || !phoneInput || !serviceInput) {
+            if (!name || !email || !phone || !service) {
                 return;
             }
 
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            const phone = phoneInput.value.trim();
-            const service = serviceInput.value;
-            const date = dateInput ? dateInput.value : '';
-            const time = timeInput ? timeInput.value : '';
-            const message = messageInput ? messageInput.value.trim() : '';
-
-            // Prepare email data
-            const EMAILJS_CONFIG = {
-                PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
-                SERVICE_ID: 'service_13xdgm3',
-                TEMPLATE_ID: 'template_lpjsx54'
-            };
-
-            const emailData = {
-                to_email: 'dentalaestheticsmiles@gmail.com',
-                name: name,
-                email: email,
-                phone: phone,
+            // Prepare form data for unified submission
+            const formData = {
+                name: name.trim(),
+                email: email.trim(),
+                phone: phone.trim(),
                 service: service,
-                message: message || 'No additional message',
-                date: date || 'Not specified',
-                time: time || 'Not specified'
+                date: date,
+                time: time,
+                message: message.trim(),
+                appointment_date: date,
+                appointment_time: time
             };
 
-            // Send email via EmailJS
-            if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
-                emailjs.send(
-                    EMAILJS_CONFIG.SERVICE_ID,
-                    EMAILJS_CONFIG.TEMPLATE_ID,
-                    emailData,
-                    EMAILJS_CONFIG.PUBLIC_KEY
-                )
+            // Use unified submitAppointment function
+            submitAppointment(formData)
                 .then(function(response) {
                     // Close popup
                     closeAppointmentPopup();
@@ -1692,22 +1710,19 @@ Important guidelines:
                     // Reset form
                     appointmentPopupForm.reset();
                 }, function(error) {
-                    alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us.');
+                    // Fallback if EmailJS fails
+                    closeAppointmentPopup();
+                    showAppointmentConfirmation({
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        service: service,
+                        date: date,
+                        time: time,
+                        message: message
+                    });
+                    appointmentPopupForm.reset();
                 });
-            } else {
-                // Fallback if EmailJS not loaded
-                closeAppointmentPopup();
-                showAppointmentConfirmation({
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    service: service,
-                    date: date,
-                    time: time,
-                    message: message
-                });
-                appointmentPopupForm.reset();
-            }
         });
     }
 
@@ -1798,30 +1813,22 @@ Important guidelines:
                 freshForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     
-                    // Get form data with null checks
-                    const parentNameInput = document.getElementById('parentName');
-                    const kidNameInput = document.getElementById('kidName');
-                    const emailInput = document.getElementById('kidEmail');
-                    const phoneInput = document.getElementById('kidPhone');
-                    const serviceInput = document.getElementById('kidService');
-                    const dateInput = document.getElementById('kidDate');
-                    const timeInput = document.getElementById('kidTime');
-                    const messageInput = document.getElementById('kidMessage');
+                    // Use FormData to get all form values
+                    const formDataObj = new FormData(freshForm);
                     
-                    if (!parentNameInput || !kidNameInput || !emailInput || !phoneInput || 
-                        !serviceInput || !dateInput || !timeInput) {
+                    const parentName = formDataObj.get('parent_name') || '';
+                    const kidName = formDataObj.get('child_name') || '';
+                    const email = formDataObj.get('parent_email') || '';
+                    const phone = formDataObj.get('phone') || '';
+                    const service = formDataObj.get('service') || '';
+                    const date = formDataObj.get('appointment_date') || '';
+                    const time = formDataObj.get('appointment_time') || '';
+                    const message = formDataObj.get('message') || '';
+                    
+                    if (!parentName || !kidName || !email || !phone || !service || !date || !time) {
                         alert('Please fill in all required fields.');
                         return;
                     }
-                    
-                    const parentName = parentNameInput.value.trim();
-                    const kidName = kidNameInput.value.trim();
-                    const email = emailInput.value.trim();
-                    const phone = phoneInput.value.trim();
-                    const service = serviceInput.value;
-                    const date = dateInput.value;
-                    const time = timeInput.value;
-                    const message = messageInput ? messageInput.value.trim() : '';
 
                     if (!parentName || !kidName || !email || !phone || !service || !date || !time) {
                         alert('Please fill in all required fields.');
@@ -1864,41 +1871,33 @@ Important guidelines:
                         // localStorage not available or quota exceeded
                     }
 
-                    // Send email using EmailJS
-                    const EMAILJS_CONFIG = {
-                        PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
-                        SERVICE_ID: 'service_13xdgm3',
-                        TEMPLATE_ID: 'template_lpjsx54'
-                    };
-
-                    // Prepare email data
-                    const emailData = {
-                        to_email: 'dentalaestheticsmiles@gmail.com',
+                    // Prepare form data for unified submission
+                    const formData = {
+                        parentName: parentName,
                         parent_name: parentName,
-                        kid_name: kidName,
+                        parentEmail: email,
                         parent_email: email,
+                        kidName: kidName,
+                        child_name: kidName,
+                        kid_name: kidName,
+                        email: email,
                         phone: phone,
                         service: service,
+                        date: date,
                         appointment_date: formattedDate,
+                        time: time,
                         appointment_time: time,
-                        message: message || 'No additional message'
+                        message: message
                     };
 
-                    // Send email via EmailJS
-                    if (EMAILJS_CONFIG.PUBLIC_KEY && typeof emailjs !== 'undefined') {
-                        emailjs.send(
-                            EMAILJS_CONFIG.SERVICE_ID,
-                            EMAILJS_CONFIG.TEMPLATE_ID,
-                            emailData,
-                            EMAILJS_CONFIG.PUBLIC_KEY
-                        )
+                    // Use unified submitAppointment function
+                    submitAppointment(formData)
                         .then(function(response) {
                             // Email sent successfully
                         }, function(error) {
                             // Email sending failed
                             alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
                         });
-                    }
 
                     // Success message
                     const successMessage = `🎉 Thank you, ${parentName}!\n\nWe're excited to meet ${kidName}!\n\nAppointment Details:\n📅 Date: ${formattedDate}\n⏰ Time: ${time}\n🦷 Service: ${service}\n\nWe'll contact you at ${phone} to confirm the appointment. See you soon! 😊`;

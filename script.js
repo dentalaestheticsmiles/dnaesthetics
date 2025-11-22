@@ -1429,7 +1429,9 @@ Important guidelines:
             // Kids appointment specific fields - ALWAYS include these
             parent_name: formData.parent_name || formData.parentName || formData.name || '',
             parent_email: formData.parent_email || formData.parentEmail || formData.email || '',
-            child_name: formData.child_name || formData.kidName || formData.childName || formData.kid_name || '',
+            child_name: (formData.child_name || formData.kidName || formData.childName || formData.kid_name || ''),
+            kidName: (formData.child_name || formData.kidName || formData.childName || formData.kid_name || ''),
+            kid_name: (formData.child_name || formData.kidName || formData.childName || formData.kid_name || ''),
             appointment_date: formData.appointment_date || formData.date || '',
             appointment_time: formData.appointment_time || formData.time || ''
             };
@@ -1468,6 +1470,7 @@ Important guidelines:
             appointmentPopup.style.display = 'flex';
             setTimeout(function() {
                 appointmentPopup.classList.add('show');
+                document.body.style.overflow = 'hidden';
                 const nameInput = document.getElementById('popupName');
                 if (nameInput) {
                     setTimeout(function() {
@@ -1484,6 +1487,7 @@ Important guidelines:
             appointmentPopup.classList.remove('show');
             setTimeout(function() {
                 appointmentPopup.style.display = 'none';
+                document.body.style.overflow = '';
             }, 300);
         }
     }
@@ -1496,6 +1500,7 @@ Important guidelines:
             appointmentConfirmationModal.style.display = 'flex';
             setTimeout(function() {
                 appointmentConfirmationModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
             }, 10);
 
             // Set up calendar links
@@ -1557,6 +1562,7 @@ Important guidelines:
             appointmentConfirmationModal.classList.remove('show');
             setTimeout(function() {
                 appointmentConfirmationModal.style.display = 'none';
+                document.body.style.overflow = '';
             }, 300);
         }
     }

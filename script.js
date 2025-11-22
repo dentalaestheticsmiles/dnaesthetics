@@ -1820,14 +1820,8 @@ Important guidelines:
             });
         }
 
-        // Close on backdrop click (click outside modal content)
-        if (kidsAppointmentModal) {
-            kidsAppointmentModal.addEventListener('click', function(e) {
-                if (e.target === kidsAppointmentModal) {
-                    closeKidsModal();
-                }
-            });
-        }
+        // Backdrop click disabled - user must use X button to close
+        // This prevents accidental closure while filling the form
 
         // Close on ESC key
         document.addEventListener('keydown', function(e) {
@@ -1843,25 +1837,145 @@ Important guidelines:
                 e.stopPropagation();
                 
                 const formData = new FormData(kidsAppointmentForm);
+                const parentName = formData.get('parent_name') || '';
+                const childName = formData.get('child_name') || '';
+                const email = formData.get('parent_email') || '';
+                const phone = formData.get('phone') || '';
+                const service = formData.get('service') || '';
+                const date = formData.get('appointment_date') || '';
+                const time = formData.get('appointment_time') || '';
+                const message = formData.get('kidMessage') || '';
+                
+                // Validate required fields
+                if (!parentName || !childName || !email || !phone || !service || !date || !time) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+                
+                // Format date for display
+                let formattedDate = date;
+                try {
+                    formattedDate = new Date(date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                } catch (e) {
+                    formattedDate = date;
+                }
+                
                 const appointmentData = {
-                    parent_name: formData.get('parent_name') || '',
-                    parent_email: formData.get('parent_email') || '',
-                    child_name: formData.get('child_name') || '',
-                    phone: formData.get('phone') || '',
-                    service: formData.get('service') || '',
-                    appointment_date: formData.get('appointment_date') || '',
-                    appointment_time: formData.get('appointment_time') || '',
-                    message: formData.get('kidMessage') || ''
+                    parent_name: parentName,
+                    parent_email: email,
+                    child_name: childName,
+                    phone: phone,
+                    service: service,
+                    appointment_date: date,
+                    appointment_time: time,
+                    message: message
                 };
                 
                 submitAppointment(appointmentData).then(() => {
+                    // Show confirmation modal
+                    showKidsConfirmation({
+                        parentName: parentName,
+                        childName: childName,
+                        formattedDate: formattedDate,
+                        time: time,
+                        service: service,
+                        phone: phone
+                    });
+                    
+                    // Reset form
+                    kidsAppointmentForm.reset();
+                    
+                    // Close appointment modal
                     closeKidsModal();
                 }).catch(() => {
-                    // Keep modal open on error
+                    // Error message
+                    alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
+                    // Keep modal open on error so user can try again
                 });
             });
         }
     }
+    
+    // Show Kids Confirmation Modal
+    function showKidsConfirmation(data) {
+        const kidsConfirmationModal = document.getElementById('kidsAppointmentConfirmationModal');
+        const kidsConfirmationMessage = document.getElementById('kidsConfirmationMessage');
+        const kidsConfirmationInfo = document.getElementById('kidsConfirmationInfo');
+        const kidsConfirmationClose = document.getElementById('kidsConfirmationClose');
+        
+        if (!kidsConfirmationModal) return;
+        
+        // Set message
+        if (kidsConfirmationMessage) {
+            kidsConfirmationMessage.textContent = `Thank you, ${data.parentName}! We're excited to meet ${data.childName}!`;
+        }
+        
+        // Set appointment details
+        if (kidsConfirmationInfo) {
+            kidsConfirmationInfo.innerHTML = `
+                <div class="kids-confirmation-info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <strong>Date:</strong>
+                    <span>${data.formattedDate}</span>
+                </div>
+                <div class="kids-confirmation-info-item">
+                    <i class="fas fa-clock"></i>
+                    <strong>Time:</strong>
+                    <span>${data.time}</span>
+                </div>
+                <div class="kids-confirmation-info-item">
+                    <i class="fas fa-tooth"></i>
+                    <strong>Service:</strong>
+                    <span>${data.service}</span>
+                </div>
+                <div class="kids-confirmation-info-item">
+                    <i class="fas fa-phone"></i>
+                    <strong>Contact:</strong>
+                    <span>We'll call you at ${data.phone}</span>
+                </div>
+            `;
+        }
+        
+        // Show modal
+        kidsConfirmationModal.style.display = 'flex';
+        setTimeout(() => {
+            kidsConfirmationModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }, 10);
+        
+        // Close handler
+        if (kidsConfirmationClose) {
+            kidsConfirmationClose.onclick = function() {
+                kidsConfirmationModal.classList.remove('show');
+                setTimeout(() => {
+                    kidsConfirmationModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }, 300);
+            };
+        }
+        
+        // Close on backdrop click
+        kidsConfirmationModal.addEventListener('click', function(e) {
+            if (e.target === kidsConfirmationModal) {
+                kidsConfirmationClose.click();
+            }
+        });
+        
+        // Close on ESC key
+        const escHandler = function(e) {
+            if (e.key === 'Escape' && kidsConfirmationModal.classList.contains('show')) {
+                kidsConfirmationClose.click();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+    }
+    
     initKidsModal();
 
     // ============================================

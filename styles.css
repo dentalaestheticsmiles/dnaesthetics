@@ -1511,7 +1511,7 @@ section {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
-    align-items: center;
+    align-items: start; /* Changed from center to start for better alignment */
     margin-bottom: 4rem;
 }
 
@@ -1574,11 +1574,14 @@ section {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--shadow);
+    align-self: stretch; /* Make image container match content height */
+    display: flex;
 }
 
 .kids-intro-image img {
     width: 100%;
-    height: 500px;
+    height: 100%;
+    min-height: 600px; /* Increased from 500px to align with content */
     object-fit: cover;
     transition: transform 0.5s ease;
 }
@@ -2123,8 +2126,17 @@ section {
 }
 
 .blog-modal.show {
-    display: flex; /* Show when .show class is added */
-    animation: fadeIn 0.3s ease;
+    display: flex !important; /* Show when .show class is added */
+    animation: fadeInBlog 0.3s ease;
+}
+
+@keyframes fadeInBlog {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .blog-modal-content {
@@ -2140,6 +2152,8 @@ section {
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
     animation: slideUpBlog 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
+    z-index: 3001; /* Above modal backdrop */
+    margin: auto; /* Center the modal */
 }
 
 @keyframes slideUpBlog {

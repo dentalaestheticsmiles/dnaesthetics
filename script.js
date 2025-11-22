@@ -2422,23 +2422,33 @@ Important guidelines:
         const blogModals = document.querySelectorAll('.blog-modal');
         const blogCloseButtons = document.querySelectorAll('.blog-close-modal');
         
+        console.log('Blog modals init - Found links:', blogLinks.length, 'Found modals:', blogModals.length);
+        
         // Open blog modal when "Read More" is clicked
         blogLinks.forEach(function(link) {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation(); // Prevent event bubbling
                 const blogId = this.getAttribute('data-blog');
+                console.log('Blog link clicked, blogId:', blogId);
                 const modal = document.getElementById('blogModal' + blogId);
+                console.log('Modal found:', modal ? 'Yes' : 'No');
                 
                 if (modal) {
                     modal.classList.add('show');
                     document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                    console.log('Modal should be visible now');
+                } else {
+                    console.error('Modal not found for blogId:', blogId);
                 }
-            });
+            }, true); // Use capture phase to ensure it fires
         });
         
         // Close blog modal when close button is clicked
         blogCloseButtons.forEach(function(closeBtn) {
-            closeBtn.addEventListener('click', function() {
+            closeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 const modal = this.closest('.blog-modal');
                 if (modal) {
                     modal.classList.remove('show');
@@ -2474,3 +2484,19 @@ Important guidelines:
     initBlogModals();
 
 }); // End of DOMContentLoaded
+
+// Fallback: Use event delegation for blog links (more reliable)
+document.addEventListener('click', function(e) {
+    const blogLink = e.target.closest('.blog-link[data-blog]');
+    if (blogLink) {
+        e.preventDefault();
+        e.stopPropagation();
+        const blogId = blogLink.getAttribute('data-blog');
+        const modal = document.getElementById('blogModal' + blogId);
+        
+        if (modal) {
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+}, true);

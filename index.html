@@ -1620,17 +1620,17 @@
             <h2>Book Appointment</h2>
             <form id="appointmentPopupForm" autocomplete="off">
                 <div class="form-group">
-                    <input id="popupName" name="popupName" type="text" placeholder="Your Name" required>
+                    <input id="popupName" name="name" type="text" placeholder="Your Name" required>
                 </div>
                 <div class="form-group">
-                    <input id="popupEmail" name="popupEmail" type="email" placeholder="Your Email" required>
+                    <input id="popupEmail" name="email" type="email" placeholder="Your Email" required>
                 </div>
                 <div class="form-group">
-                    <input id="popupPhone" name="popupPhone" type="tel" placeholder="Phone Number" required>
+                    <input id="popupPhone" name="phone" type="tel" placeholder="Phone Number" required>
                 </div>
                 <div class="form-group">
                     <label for="popupService" class="sr-only">Select Service</label>
-                    <select id="popupService" name="popupService" required aria-label="Select a service">
+                    <select id="popupService" name="service" required aria-label="Select a service">
                         <option value="">Select Service</option>
                         <option>Teeth Whitening</option>
                         <option>Dental Implants</option>
@@ -1644,11 +1644,11 @@
                 </div>
                 <div class="form-group">
                     <label for="popupDate" class="sr-only">Preferred Date</label>
-                    <input id="popupDate" name="popupDate" type="date" placeholder="Preferred Date">
+                    <input id="popupDate" name="appointment_date" type="date" placeholder="Preferred Date">
                 </div>
                 <div class="form-group">
                     <label for="popupTime" class="sr-only">Preferred Time</label>
-                    <select id="popupTime" name="popupTime">
+                    <select id="popupTime" name="appointment_time">
                         <option value="">Select Preferred Time</option>
                         <option value="09:00">9:00 AM</option>
                         <option value="09:30">9:30 AM</option>
@@ -1672,7 +1672,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <textarea id="popupMessage" name="popupMessage" placeholder="" rows="4"></textarea>
+                    <textarea id="popupMessage" name="message" placeholder="" rows="4"></textarea>
                     <small class="form-helper-text">Message (Optional)</small>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Book Appointment</button>
@@ -1722,26 +1722,26 @@
                 <div class="kids-form-row">
                     <div class="kids-form-group">
                         <label for="parentName"><i class="fas fa-user"></i> Your Name</label>
-                        <input type="text" id="parentName" name="parentName" placeholder="Enter your name" required>
+                        <input type="text" id="parentName" name="parent_name" placeholder="Enter your name" required>
                     </div>
                     <div class="kids-form-group">
                         <label for="kidName"><i class="fas fa-child"></i> Kid's Name</label>
-                        <input type="text" id="kidName" name="kidName" placeholder="Enter your child's name" required>
+                        <input type="text" id="kidName" name="child_name" placeholder="Enter your child's name" required>
                     </div>
                 </div>
                 <div class="kids-form-row">
                     <div class="kids-form-group">
                         <label for="kidEmail"><i class="fas fa-envelope"></i> E-Mail</label>
-                        <input type="email" id="kidEmail" name="kidEmail" placeholder="your.email@example.com" required>
+                        <input type="email" id="kidEmail" name="parent_email" placeholder="your.email@example.com" required>
                     </div>
                     <div class="kids-form-group">
                         <label for="kidPhone"><i class="fas fa-phone"></i> Phone No</label>
-                        <input type="tel" id="kidPhone" name="kidPhone" placeholder="+1 (234) 567-8900" required>
+                        <input type="tel" id="kidPhone" name="phone" placeholder="+1 (234) 567-8900" required>
                     </div>
                 </div>
                 <div class="kids-form-group">
                     <label for="kidService"><i class="fas fa-tooth"></i> Select Service</label>
-                    <select id="kidService" name="kidService" required>
+                    <select id="kidService" name="service" required>
                         <option value="">Choose a service for your child</option>
                         <option value="First Dental Visit">First Dental Visit (Age 1-3)</option>
                         <option value="Teeth Cleaning & Fluoride">Teeth Cleaning & Fluoride</option>
@@ -1760,11 +1760,11 @@
                 <div class="kids-form-row">
                     <div class="kids-form-group">
                         <label for="kidDate"><i class="fas fa-calendar-alt"></i> Date</label>
-                        <input type="date" id="kidDate" name="kidDate" required>
+                        <input type="date" id="kidDate" name="appointment_date" required>
                     </div>
                     <div class="kids-form-group">
                         <label for="kidTime"><i class="fas fa-clock" aria-hidden="true"></i> Time</label>
-                        <select id="kidTime" name="kidTime" required aria-label="Select appointment time">
+                        <select id="kidTime" name="appointment_time" required aria-label="Select appointment time">
                             <option value="">Select time</option>
                             <option value="09:00 AM">09:00 AM</option>
                             <option value="09:30 AM">09:30 AM</option>

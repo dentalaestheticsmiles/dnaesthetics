@@ -1415,20 +1415,21 @@ Important guidelines:
         };
 
         // Normalize and map all fields to EmailJS template variables
+        // Always include all fields so EmailJS template receives them
         const emailData = {
             to_email: 'dentalaestheticsmiles@gmail.com',
             // Standard fields (for regular appointments)
-            name: formData.name || formData.parentName || '',
+            name: formData.name || formData.parentName || formData.parent_name || '',
             email: formData.email || formData.parentEmail || formData.parent_email || '',
             phone: formData.phone || '',
             service: formData.service || '',
             message: formData.message || 'No additional message',
             date: formData.date || formData.appointment_date || '',
             time: formData.time || formData.appointment_time || '',
-            // Kids appointment specific fields
-            parent_name: formData.parentName || formData.name || formData.parent_name || '',
-            parent_email: formData.parentEmail || formData.email || formData.parent_email || '',
-            child_name: formData.kidName || formData.childName || formData.kid_name || '',
+            // Kids appointment specific fields - ALWAYS include these
+            parent_name: formData.parent_name || formData.parentName || formData.name || '',
+            parent_email: formData.parent_email || formData.parentEmail || formData.email || '',
+            child_name: formData.child_name || formData.kidName || formData.childName || formData.kid_name || '',
             appointment_date: formData.appointment_date || formData.date || '',
             appointment_time: formData.appointment_time || formData.time || ''
         };
@@ -1774,8 +1775,24 @@ Important guidelines:
                     e.stopImmediatePropagation();
                     
                     if (kidsAppointmentModal) {
-                        kidsAppointmentModal.classList.add('show');
-                        document.body.style.overflow = 'hidden';
+                        // Ensure modal is visible
+                        kidsAppointmentModal.style.display = 'flex';
+                        kidsAppointmentModal.style.visibility = 'visible';
+                        kidsAppointmentModal.style.opacity = '1';
+                        
+                        // Add show class for styling
+                        setTimeout(function() {
+                            kidsAppointmentModal.classList.add('show');
+                            document.body.style.overflow = 'hidden';
+                            
+                            // Ensure content is visible
+                            const modalContent = kidsAppointmentModal.querySelector('.kids-modal-content');
+                            if (modalContent) {
+                                modalContent.style.display = 'block';
+                                modalContent.style.visibility = 'visible';
+                                modalContent.style.opacity = '1';
+                            }
+                        }, 10);
                     }
                     return false;
                 }, true); // Use capture phase
@@ -1789,17 +1806,20 @@ Important guidelines:
             kidsCloseModal.parentNode.replaceChild(newCloseBtn, kidsCloseModal);
             const freshCloseBtn = document.querySelector('.kids-close-modal');
             
-            if (freshCloseBtn) {
-                freshCloseBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    if (kidsAppointmentModal) {
-                        kidsAppointmentModal.classList.remove('show');
-                        document.body.style.overflow = 'auto';
+                    if (freshCloseBtn) {
+                        freshCloseBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            if (kidsAppointmentModal) {
+                                kidsAppointmentModal.classList.remove('show');
+                                setTimeout(function() {
+                                    kidsAppointmentModal.style.display = 'none';
+                                    document.body.style.overflow = 'auto';
+                                }, 300);
+                            }
+                        });
                     }
-                });
-            }
         }
 
         // Kids Form Submission
@@ -1871,7 +1891,7 @@ Important guidelines:
                         // localStorage not available or quota exceeded
                     }
 
-                    // Prepare form data for unified submission
+                    // Prepare form data for unified submission - ensure all EmailJS fields are included
                     const formData = {
                         parentName: parentName,
                         parent_name: parentName,
@@ -1884,9 +1904,9 @@ Important guidelines:
                         phone: phone,
                         service: service,
                         date: date,
-                        appointment_date: formattedDate,
-                        time: time,
+                        appointment_date: date, // Use original date format, not formatted
                         appointment_time: time,
+                        time: time,
                         message: message
                     };
 
@@ -1910,7 +1930,10 @@ Important guidelines:
                     // Close modal
                     if (kidsAppointmentModal) {
                         kidsAppointmentModal.classList.remove('show');
-                        document.body.style.overflow = 'auto';
+                        setTimeout(function() {
+                            kidsAppointmentModal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                        }, 300);
                     }
                 });
             }

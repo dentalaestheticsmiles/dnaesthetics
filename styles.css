@@ -3025,9 +3025,10 @@ section {
 
 /* Kids Appointment Modal Styles */
 .kids-modal {
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
     pointer-events: auto;
+    display: none; /* Hidden by default */
 }
 
 /* Prevent clicks on modal background from closing it */
@@ -3037,6 +3038,13 @@ section {
     justify-content: center;
     padding: 20px;
     pointer-events: auto;
+    overflow-y: auto;
+}
+
+.kids-modal.show .kids-modal-content {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .kids-modal.show > * {
@@ -3051,21 +3059,19 @@ section {
     width: 95%;
     max-height: 85vh;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: visible;
     -webkit-overflow-scrolling: touch;
     text-align: left;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100000;
-    margin: 0;
-    box-shadow: 0 25px 70px rgba(124, 58, 237, 0.4);
-    border: 3px solid var(--primary-color);
     position: relative;
+    margin: auto;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+    border: 3px solid var(--primary-color);
     animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     z-index: 2001;
     pointer-events: auto;
+    display: block;
+    visibility: visible;
+    opacity: 1;
 }
 
 /* Custom scrollbar for modal */
@@ -3087,17 +3093,7 @@ section {
     background: var(--secondary-color);
 }
 
-.kids-modal-content::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
-    animation: rotate 15s linear infinite;
-    z-index: 0;
-}
+/* Removed purple background gradient */
 
 @keyframes bounceIn {
     0% {
@@ -3399,21 +3395,22 @@ section {
         overflow-y: auto;
         overflow-x: visible;
         -webkit-overflow-scrolling: touch;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        position: relative;
+        margin: auto;
     }
     
     .modal-content {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        position: relative;
         width: 95%;
         max-width: 95%;
         padding: 2rem 1.5rem;
         overflow-x: visible;
+        margin: auto;
+    }
+    
+    .kids-modal.show {
+        align-items: flex-start;
+        padding-top: 20px;
     }
 
     .kids-close-modal {

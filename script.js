@@ -1774,6 +1774,14 @@ Important guidelines:
             kidsAppointmentModal.style.display = 'flex';
             kidsAppointmentModal.style.opacity = '1';
             kidsAppointmentModal.style.pointerEvents = 'auto';
+            kidsAppointmentModal.style.alignItems = 'center';
+            kidsAppointmentModal.style.justifyContent = 'center';
+            
+            // Reset scroll position to top
+            const modalContent = kidsAppointmentModal.querySelector('.kids-modal-content');
+            if (modalContent) {
+                modalContent.scrollTop = 0;
+            }
             
             // Add show class for CSS transitions
             setTimeout(() => {

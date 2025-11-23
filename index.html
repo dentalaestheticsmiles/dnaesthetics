@@ -1620,14 +1620,17 @@
             <button id="appointmentPopupClose" class="close-modal" aria-label="Close appointment modal">×</button>
             <h2>Book Appointment</h2>
             <form id="appointmentPopupForm" autocomplete="off">
+                <!-- Honeypot field for spam protection (hidden from users) -->
+                <input type="text" name="website" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none; tabindex: -1;" aria-hidden="true" autocomplete="off">
+                
                 <div class="form-group">
-                    <input id="popupName" name="name" type="text" placeholder="Your Name" required>
+                    <input id="popupName" name="name" type="text" placeholder="Your Name" required maxlength="100">
                 </div>
                 <div class="form-group">
-                    <input id="popupEmail" name="email" type="email" placeholder="Your Email" required>
+                    <input id="popupEmail" name="email" type="email" placeholder="Your Email" required maxlength="100">
                 </div>
                 <div class="form-group">
-                    <input id="popupPhone" name="phone" type="tel" placeholder="Phone Number" required>
+                    <input id="popupPhone" name="phone" type="tel" placeholder="Phone Number" required maxlength="20" pattern="[\d\s\-\+\(\)]{10,}">
                 </div>
                 <div class="form-group">
                     <label for="popupService" class="sr-only">Select Service</label>
@@ -1839,6 +1842,10 @@
         </div>
     </div>
 
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTop" class="scroll-to-top" aria-label="Scroll to top" style="display: none;">
+        <i class="fas fa-chevron-up" aria-hidden="true"></i>
+    </button>
 
     <script src="script.js" defer></script>
 </body>

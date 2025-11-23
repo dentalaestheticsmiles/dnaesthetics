@@ -17,6 +17,97 @@ document.addEventListener("DOMContentLoaded", function() {
     'use strict';
 
     // ============================================
+    // SECURITY UTILITIES
+    // ============================================
+    
+    // Enhanced HTML escaping for XSS protection
+    function escapeHtml(text) {
+        if (typeof text !== 'string') return '';
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Sanitize user input (remove potentially dangerous characters)
+    function sanitizeInput(input) {
+        if (typeof input !== 'string') return '';
+        return input.trim()
+            .replace(/[<>]/g, '') // Remove angle brackets
+            .replace(/javascript:/gi, '') // Remove javascript: protocol
+            .replace(/on\w+=/gi, ''); // Remove event handlers
+    }
+    
+    // Validate email format
+    function isValidEmail(email) {
+        if (!email || typeof email !== 'string') return false;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email.trim());
+    }
+    
+    // Validate phone number (flexible format)
+    function isValidPhone(phone) {
+        if (!phone || typeof phone !== 'string') return false;
+        const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
+        return phoneRegex.test(phone.trim().replace(/\s/g, ''));
+    }
+    
+    // Time-based spam protection (non-intrusive)
+    let formSubmissionTimes = {};
+    function isSubmissionTooFast(formId) {
+        const now = Date.now();
+        const lastSubmission = formSubmissionTimes[formId] || 0;
+        const timeDiff = now - lastSubmission;
+        // Allow submission if at least 2 seconds have passed (prevents rapid-fire spam)
+        if (timeDiff < 2000) {
+            return true;
+        }
+        formSubmissionTimes[formId] = now;
+        return false;
+    }
+    
+    // Validate form data before submission
+    function validateFormData(formData, formId) {
+        const errors = [];
+        
+        // Check for honeypot field (if exists)
+        if (formData.website || formData.url || formData.honeypot) {
+            errors.push('Spam detected');
+            return { valid: false, errors };
+        }
+        
+        // Check submission speed
+        if (isSubmissionTooFast(formId)) {
+            errors.push('Please wait a moment before submitting again');
+            return { valid: false, errors };
+        }
+        
+        // Validate required fields
+        if (formData.name && !sanitizeInput(formData.name)) {
+            errors.push('Please enter a valid name');
+        }
+        
+        if (formData.email && !isValidEmail(formData.email)) {
+            errors.push('Please enter a valid email address');
+        }
+        
+        if (formData.phone && !isValidPhone(formData.phone)) {
+            errors.push('Please enter a valid phone number');
+        }
+        
+        // Sanitize all string fields
+        Object.keys(formData).forEach(key => {
+            if (typeof formData[key] === 'string') {
+                formData[key] = sanitizeInput(formData[key]);
+            }
+        });
+        
+        return {
+            valid: errors.length === 0,
+            errors: errors
+        };
+    }
+
+    // ============================================
     // NAVIGATION SCROLL EFFECT
     // ============================================
     let navScrollTicking = false;
@@ -757,41 +848,89 @@ Important guidelines:
         
         // After 3+ questions, strongly suggest talking to doctor/specialist
         if (convCount >= 3) {
-            quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="whatsapp">👨‍⚕️ Talk to Doctor/Specialist</button>
-                <button class="qp-chip" data-action="book-appointment">📅 Book Consultation</button>
-            `;
+            quickRepliesDiv.innerHTML = '';
+            const btn1 = document.createElement('button');
+            btn1.className = 'qp-chip';
+            btn1.setAttribute('data-action', 'whatsapp');
+            btn1.textContent = '👨‍⚕️ Talk to Doctor/Specialist';
+            quickRepliesDiv.appendChild(btn1);
+            
+            const btn2 = document.createElement('button');
+            btn2.className = 'qp-chip';
+            btn2.setAttribute('data-action', 'book-appointment');
+            btn2.textContent = '📅 Book Consultation';
+            quickRepliesDiv.appendChild(btn2);
         } else if (lowerMsg.includes("appointment") || lowerMsg.includes("book") || lowerMsg.includes("schedule")) {
             // User is already interested in booking
-            quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="book-appointment">📅 Book Now</button>
-                <button class="qp-chip" data-action="whatsapp">💬 Confirm on WhatsApp</button>
-            `;
+            quickRepliesDiv.innerHTML = '';
+            const btn3 = document.createElement('button');
+            btn3.className = 'qp-chip';
+            btn3.setAttribute('data-action', 'book-appointment');
+            btn3.textContent = '📅 Book Now';
+            quickRepliesDiv.appendChild(btn3);
+            
+            const btn4 = document.createElement('button');
+            btn4.className = 'qp-chip';
+            btn4.setAttribute('data-action', 'whatsapp');
+            btn4.textContent = '💬 Confirm on WhatsApp';
+            quickRepliesDiv.appendChild(btn4);
         } else if (lowerMsg.includes("price") || lowerMsg.includes("cost") || lowerMsg.includes("fee")) {
-            quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="book-appointment">📅 Book Consultation</button>
-                <button class="qp-chip" data-action="whatsapp">💬 Get Exact Pricing</button>
-            `;
+            quickRepliesDiv.innerHTML = '';
+            const btn5 = document.createElement('button');
+            btn5.className = 'qp-chip';
+            btn5.setAttribute('data-action', 'book-appointment');
+            btn5.textContent = '📅 Book Consultation';
+            quickRepliesDiv.appendChild(btn5);
+            
+            const btn6 = document.createElement('button');
+            btn6.className = 'qp-chip';
+            btn6.setAttribute('data-action', 'whatsapp');
+            btn6.textContent = '💬 Get Exact Pricing';
+            quickRepliesDiv.appendChild(btn6);
         } else if (lowerMsg.includes("emergency") || lowerMsg.includes("pain") || lowerMsg.includes("urgent")) {
-            quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="whatsapp">🚨 Contact Now</button>
-                <button class="qp-chip" data-action="contact-info">📞 Call Us</button>
-            `;
+            quickRepliesDiv.innerHTML = '';
+            const btn7 = document.createElement('button');
+            btn7.className = 'qp-chip';
+            btn7.setAttribute('data-action', 'whatsapp');
+            btn7.textContent = '🚨 Contact Now';
+            quickRepliesDiv.appendChild(btn7);
+            
+            const btn8 = document.createElement('button');
+            btn8.className = 'qp-chip';
+            btn8.setAttribute('data-action', 'contact-info');
+            btn8.textContent = '📞 Call Us';
+            quickRepliesDiv.appendChild(btn8);
         } else if (lowerMsg.includes("need") || lowerMsg.includes("want") || lowerMsg.includes("interested") || 
                    lowerMsg.includes("help") || lowerMsg.includes("problem") || lowerMsg.includes("treatment")) {
             // User is looking for a solution - show booking options
-            quickRepliesDiv.innerHTML = `
-                <button class="qp-chip" data-action="book-appointment">📅 Book Appointment</button>
-                <button class="qp-chip" data-action="whatsapp">💬 Talk to Specialist</button>
-            `;
+            quickRepliesDiv.innerHTML = '';
+            const btn9 = document.createElement('button');
+            btn9.className = 'qp-chip';
+            btn9.setAttribute('data-action', 'book-appointment');
+            btn9.textContent = '📅 Book Appointment';
+            quickRepliesDiv.appendChild(btn9);
+            
+            const btn10 = document.createElement('button');
+            btn10.className = 'qp-chip';
+            btn10.setAttribute('data-action', 'whatsapp');
+            btn10.textContent = '💬 Talk to Specialist';
+            quickRepliesDiv.appendChild(btn10);
         } else {
             // For general questions, show subtle CTAs (don't push too hard)
             // Only show CTAs after first question
             if (convCount > 1) {
-                quickRepliesDiv.innerHTML = `
-                    <button class="qp-chip" data-action="book-appointment">📅 Book Appointment</button>
-                    <button class="qp-chip" data-action="whatsapp">💬 Need More Help?</button>
-                `;
+                quickRepliesDiv.innerHTML = '';
+                const btn11 = document.createElement('button');
+                btn11.className = 'qp-chip';
+                btn11.setAttribute('data-action', 'book-appointment');
+                btn11.textContent = '📅 Book Appointment';
+                quickRepliesDiv.appendChild(btn11);
+                
+                const btn12 = document.createElement('button');
+                btn12.className = 'qp-chip';
+                btn12.setAttribute('data-action', 'whatsapp');
+                btn12.textContent = '💬 Need More Help?';
+                quickRepliesDiv.appendChild(btn12);
             }
             // If first question, don't show CTAs - let AI answer first
         }
@@ -1408,6 +1547,17 @@ Important guidelines:
         // formData should be an object with all appointment fields
         // This function normalizes field names and sends via EmailJS
         
+        // Security check: Reject if honeypot field is filled (spam)
+        if (formData.website || formData.url || formData.honeypot) {
+            return Promise.reject(new Error('Invalid submission'));
+        }
+        
+        // Additional security validation
+        const validation = validateFormData(formData, 'appointmentForm');
+        if (!validation.valid) {
+            return Promise.reject(new Error('Validation failed'));
+        }
+        
             const EMAILJS_CONFIG = {
                 PUBLIC_KEY: '2fdaHy-1vPUqWh23A',
                 SERVICE_ID: 'service_13xdgm3',
@@ -1416,24 +1566,25 @@ Important guidelines:
 
         // Normalize and map all fields to EmailJS template variables
         // Always include all fields so EmailJS template receives them
+        // Sanitize all string values before sending
             const emailData = {
                 to_email: 'dentalaestheticsmiles@gmail.com',
             // Standard fields (for regular appointments)
-            name: formData.name || formData.parentName || formData.parent_name || '',
-            email: formData.email || formData.parentEmail || formData.parent_email || '',
-            phone: formData.phone || '',
-            service: formData.service || '',
-            message: formData.message || 'No additional message',
-            date: formData.date || formData.appointment_date || '',
-            time: formData.time || formData.appointment_time || '',
+            name: sanitizeInput(formData.name || formData.parentName || formData.parent_name || ''),
+            email: sanitizeInput(formData.email || formData.parentEmail || formData.parent_email || ''),
+            phone: sanitizeInput(formData.phone || ''),
+            service: sanitizeInput(formData.service || ''),
+            message: sanitizeInput(formData.message || 'No additional message'),
+            date: sanitizeInput(formData.date || formData.appointment_date || ''),
+            time: sanitizeInput(formData.time || formData.appointment_time || ''),
             // Kids appointment specific fields - ALWAYS include these
-            parent_name: formData.parent_name || formData.parentName || formData.name || '',
-            parent_email: formData.parent_email || formData.parentEmail || formData.email || '',
-            child_name: (formData.child_name || formData.kidName || formData.childName || formData.kid_name || ''),
-            kidName: (formData.child_name || formData.kidName || formData.childName || formData.kid_name || ''),
-            kid_name: (formData.child_name || formData.kidName || formData.childName || formData.kid_name || ''),
-            appointment_date: formData.appointment_date || formData.date || '',
-            appointment_time: formData.appointment_time || formData.time || ''
+            parent_name: sanitizeInput(formData.parent_name || formData.parentName || formData.name || ''),
+            parent_email: sanitizeInput(formData.parent_email || formData.parentEmail || formData.email || ''),
+            child_name: sanitizeInput(formData.child_name || formData.kidName || formData.childName || formData.kid_name || ''),
+            kidName: sanitizeInput(formData.child_name || formData.kidName || formData.childName || formData.kid_name || ''),
+            kid_name: sanitizeInput(formData.child_name || formData.kidName || formData.childName || formData.kid_name || ''),
+            appointment_date: sanitizeInput(formData.appointment_date || formData.date || ''),
+            appointment_time: sanitizeInput(formData.appointment_time || formData.time || '')
             };
 
             // Send email via EmailJS
@@ -1453,7 +1604,7 @@ Important guidelines:
     // Make submitAppointment globally accessible
     window.submitAppointment = submitAppointment;
 
-    // Open appointment popup - Fixed centering and scroll
+    // Open appointment popup - FIXED: Mobile/Desktop visibility and scrolling
     function openAppointmentPopup() {
         if (appointmentPopup) {
             // Set minimum date to today (prevent past dates)
@@ -1468,32 +1619,46 @@ Important guidelines:
             }
             
             // Lock body scroll and save scroll position (like kids modal)
+            const scrollY = window.scrollY;
             document.body.style.overflow = 'hidden';
             document.body.style.position = 'fixed';
             document.body.style.width = '100%';
-            const scrollY = window.scrollY;
             document.body.style.top = `-${scrollY}px`;
             
-            // Show modal
+            // Show modal with explicit positioning
             appointmentPopup.style.display = 'flex';
+            appointmentPopup.style.visibility = 'visible';
+            appointmentPopup.style.opacity = '1';
+            appointmentPopup.style.zIndex = '99999';
+            
+            // Get content element
+            const content = appointmentPopup.querySelector(".appointment-popup-content");
+            
             setTimeout(function() {
                 appointmentPopup.classList.add('show');
                 
                 // Always scroll modal content to top
-                const content = appointmentPopup.querySelector(".appointment-popup-content");
                 if (content) {
                     content.scrollTop = 0;
+                    // Ensure content is visible and scrollable
+                    content.style.maxHeight = '90vh';
+                    if (window.innerWidth <= 768) {
+                        content.style.maxHeight = '92vh';
+                    }
                 }
                 
-                // Ensure modal is centered in viewport
+                // Ensure modal backdrop is centered
                 appointmentPopup.scrollTop = 0;
                 
-                // Focus name input
+                // Focus name input (with delay for mobile keyboard)
                 const nameInput = document.getElementById('popupName');
                 if (nameInput) {
                     setTimeout(function() {
-                        nameInput.focus();
-                    }, 100);
+                        // Only focus on desktop to avoid mobile keyboard issues
+                        if (window.innerWidth > 768) {
+                            nameInput.focus();
+                        }
+                    }, 150);
                 }
             }, 10);
         }
@@ -1667,7 +1832,6 @@ Important guidelines:
             // Check if form has data
             if (hasAppointmentFormData()) {
                 // Show exit confirmation instead of closing
-                console.log('Showing appointment exit confirmation');
                 showAppointmentExitConfirmation();
             } else {
                 // No data, close directly
@@ -1956,9 +2120,23 @@ Important guidelines:
                 date: date,
                 time: time,
                 message: message.trim(),
-                appointment_date: date,
-                appointment_time: time
+                // Include honeypot field for spam detection
+                website: formDataObj.get('website') || ''
             };
+            
+            // Security validation before submission
+            const validation = validateFormData(formData, 'appointmentPopupForm');
+            if (!validation.valid) {
+                // Show user-friendly error message (non-intrusive)
+                if (validation.errors.length > 0 && !validation.errors[0].includes('Spam')) {
+                    alert('Please check your information: ' + validation.errors.join(', '));
+                }
+                return;
+            }
+            
+            // Add additional fields for EmailJS
+            formData.appointment_date = date;
+            formData.appointment_time = time;
 
             // Use unified submitAppointment function
             submitAppointment(formData)
@@ -3108,6 +3286,36 @@ Important guidelines:
             }, false); // Use bubble phase, not capture
         }
     });
+
+    // ============================================
+    // SCROLL TO TOP BUTTON
+    // ============================================
+    const scrollToTopBtn = document.getElementById('scrollToTop');
+    
+    if (scrollToTopBtn) {
+        // Show/hide button based on scroll position
+        function toggleScrollToTop() {
+            if (window.scrollY > 300) {
+                scrollToTopBtn.classList.add('show');
+            } else {
+                scrollToTopBtn.classList.remove('show');
+            }
+        }
+        
+        // Initial check
+        toggleScrollToTop();
+        
+        // Listen to scroll events
+        window.addEventListener('scroll', toggleScrollToTop, { passive: true });
+        
+        // Smooth scroll to top on click
+        scrollToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
 
 }); // End of DOMContentLoaded
 

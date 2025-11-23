@@ -3145,6 +3145,59 @@ section {
     text-align: center;
 }
 
+/* --- FIX 2: Popup should always be fully visible --- */
+.appointment-modal,
+.appointment-popup-content,
+.appointment-anim,
+.modal-content.appointment-anim {
+    position: relative !important;
+    max-height: 90vh !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    margin: 0 auto;
+}
+
+/* Ensure modal container centers properly and content is always visible */
+#appointmentPopup.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+}
+
+#appointmentPopup.show .modal-content.appointment-anim {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+}
+
+/* Ensure title + close button are always shown */
+.appointment-modal-header,
+.modal-content h2:first-child,
+#appointmentPopup .modal-content h2 {
+    position: relative;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Force the X close button to show */
+.modal-close-btn,
+.close-modal,
+#appointmentPopupClose {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 9999999 !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
 /* Confirmation Modal - Force Centering and Visibility */
 #appointmentConfirmationModal.show {
     display: flex !important;
@@ -3462,10 +3515,17 @@ section {
     position: relative;
 }
 
-.kids-form-group input[type="date"]::-webkit-calendar-picker-indicator {
+/* --- FIX 1: Make datepicker calendar icon velvet/violet --- */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: hue-rotate(270deg) saturate(200%);
+    opacity: 1 !important;
     cursor: pointer;
-    filter: invert(0.5) sepia(1) saturate(3) hue-rotate(250deg);
     font-size: 1.2rem;
+}
+
+/* Firefox icon fix */
+input[type="date"] {
+    color-scheme: light;
 }
 
 /* Mobile Optimization for All Popups */

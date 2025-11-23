@@ -3121,13 +3121,15 @@ section {
 }
 
 /* Universal Modal Overlay Container - Other Modals */
-#appointmentPopup,
-#appointmentConfirmationModal,
-#kidsAppointmentConfirmationModal,
-#kidsExitConfirmationModal,
-#appointmentExitConfirmationModal {
-    position: fixed;
-    inset: 0;
+/* Base modal styles - FIXED: Proper z-index layering */
+#appointmentPopup {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
     display: none;
     align-items: center;
     justify-content: center;
@@ -3136,8 +3138,57 @@ section {
     z-index: 99999;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    /* Ensure backdrop is clickable */
     cursor: default;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#appointmentConfirmationModal,
+#kidsAppointmentConfirmationModal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 100000;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    cursor: default;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#kidsExitConfirmationModal,
+#appointmentExitConfirmationModal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(8px);
+    z-index: 100001 !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    cursor: default;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 #appointmentPopup.show,
@@ -3148,6 +3199,26 @@ section {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Z-index layering - FIXED: Proper stacking order */
+#appointmentPopup.show {
+    z-index: 99999 !important;
+}
+
+#appointmentConfirmationModal.show {
+    z-index: 100000 !important;
+}
+
+#kidsAppointmentConfirmationModal.show {
+    z-index: 100000 !important;
+}
+
+#kidsExitConfirmationModal.show,
+#appointmentExitConfirmationModal.show {
+    z-index: 100001 !important;
 }
 
 /* Modal Content Box - Fixed Height, Layout, Scrolling */
@@ -5946,6 +6017,18 @@ video:-ms-fullscreen {
 #kidsExitConfirmationModal.show,
 #appointmentExitConfirmationModal.show {
     z-index: 100001 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Ensure exit confirmation content is always visible */
+#kidsExitConfirmationModal .exit-confirmation-content,
+#appointmentExitConfirmationModal .exit-confirmation-content {
+    position: relative !important;
+    z-index: 100002 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .exit-confirmation-content {

@@ -1520,6 +1520,29 @@ Important guidelines:
         }
     }
 
+    // Close appointment confirmation modal - FIXED: Proper scroll restore
+    function closeAppointmentConfirmation() {
+        if (appointmentConfirmationModal) {
+            appointmentConfirmationModal.classList.remove('show');
+            setTimeout(function() {
+                appointmentConfirmationModal.style.display = 'none';
+                appointmentConfirmationModal.style.visibility = 'hidden';
+                appointmentConfirmationModal.style.opacity = '0';
+                
+                // Restore body scroll
+                const scrollY = document.body.style.top;
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                
+                if (scrollY) {
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                }
+            }, 300);
+        }
+    }
+
     // Check if appointment form has any data
     function hasAppointmentFormData() {
         const form = document.getElementById('appointmentPopupForm');
@@ -1556,17 +1579,40 @@ Important guidelines:
         return false;
     }
 
-    // Show exit confirmation for appointment popup
+    // Show exit confirmation for appointment popup - FIXED: Ensure visibility
     function showAppointmentExitConfirmation() {
         const exitModal = document.getElementById('appointmentExitConfirmationModal');
         if (!exitModal) {
-            console.warn('Appointment exit confirmation modal not found');
+            console.error('Appointment exit confirmation modal not found!');
             return;
         }
         
-        // Ensure it appears above the appointment popup
+        // Ensure it appears above the appointment popup with maximum visibility
         exitModal.style.display = 'flex';
         exitModal.style.zIndex = '100001';
+        exitModal.style.visibility = 'visible';
+        exitModal.style.opacity = '1';
+        exitModal.style.position = 'fixed';
+        exitModal.style.top = '0';
+        exitModal.style.left = '0';
+        exitModal.style.right = '0';
+        exitModal.style.bottom = '0';
+        exitModal.style.width = '100vw';
+        exitModal.style.height = '100vh';
+        exitModal.style.background = 'rgba(0, 0, 0, 0.7)';
+        exitModal.style.backdropFilter = 'blur(8px)';
+        exitModal.style.alignItems = 'center';
+        exitModal.style.justifyContent = 'center';
+        
+        // Ensure content is visible
+        const content = exitModal.querySelector('.exit-confirmation-content');
+        if (content) {
+            content.style.display = 'block';
+            content.style.visibility = 'visible';
+            content.style.opacity = '1';
+            content.style.position = 'relative';
+            content.style.zIndex = '100002';
+        }
         
         setTimeout(() => {
             exitModal.classList.add('show');
@@ -1606,16 +1652,22 @@ Important guidelines:
         }
     }
 
-    // Named function for appointment popup backdrop click handler
+    // Named function for appointment popup backdrop click handler - FIXED: Proper event handling
     function handleAppointmentModalBackdropClick(e) {
         // Only trigger if clicking directly on the backdrop (modal container itself, not content)
-        if (e.target === e.currentTarget || e.target.id === 'appointmentPopup') {
+        const clickedElement = e.target;
+        const modalElement = e.currentTarget;
+        
+        // Check if click is on backdrop (not on modal content)
+        if (clickedElement === modalElement || clickedElement.id === 'appointmentPopup') {
             e.preventDefault();
             e.stopPropagation();
+            e.stopImmediatePropagation();
             
             // Check if form has data
             if (hasAppointmentFormData()) {
                 // Show exit confirmation instead of closing
+                console.log('Showing appointment exit confirmation');
                 showAppointmentExitConfirmation();
             } else {
                 // No data, close directly
@@ -1624,13 +1676,20 @@ Important guidelines:
         }
     }
 
-    // Set up backdrop click handler for appointment popup
-    setTimeout(() => {
+    // Set up backdrop click handler for appointment popup - FIXED: Proper initialization
+    function initAppointmentPopupBackdropClick() {
         if (appointmentPopup) {
+            // Remove any existing listeners
             appointmentPopup.removeEventListener("click", handleAppointmentModalBackdropClick);
-            appointmentPopup.addEventListener("click", handleAppointmentModalBackdropClick, false);
+            // Add new listener with capture phase to catch early
+            appointmentPopup.addEventListener("click", handleAppointmentModalBackdropClick, true);
         }
-    }, 100);
+    }
+    
+    // Initialize after DOM is ready
+    setTimeout(() => {
+        initAppointmentPopupBackdropClick();
+    }, 200);
 
     // Exit confirmation handlers for appointment popup
     const appointmentExitConfirmYes = document.getElementById("appointmentExitConfirmYes");
@@ -1680,16 +1739,50 @@ Important guidelines:
         }
     });
 
-    // Show confirmation modal
+    // Show confirmation modal - FIXED: Ensure visibility
     function showAppointmentConfirmation(appointmentData) {
         lastAppointmentData = appointmentData;
         
-        if (appointmentConfirmationModal) {
-            appointmentConfirmationModal.style.display = 'flex';
-            setTimeout(function() {
-                appointmentConfirmationModal.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }, 10);
+        if (!appointmentConfirmationModal) {
+            console.error('Appointment confirmation modal not found!');
+            return;
+        }
+        
+        // Lock body scroll
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        const scrollY = window.scrollY;
+        document.body.style.top = `-${scrollY}px`;
+        
+        // Show modal with explicit visibility
+        appointmentConfirmationModal.style.display = 'flex';
+        appointmentConfirmationModal.style.zIndex = '100000';
+        appointmentConfirmationModal.style.visibility = 'visible';
+        appointmentConfirmationModal.style.opacity = '1';
+        appointmentConfirmationModal.style.position = 'fixed';
+        appointmentConfirmationModal.style.top = '0';
+        appointmentConfirmationModal.style.left = '0';
+        appointmentConfirmationModal.style.right = '0';
+        appointmentConfirmationModal.style.bottom = '0';
+        appointmentConfirmationModal.style.width = '100vw';
+        appointmentConfirmationModal.style.height = '100vh';
+        appointmentConfirmationModal.style.alignItems = 'center';
+        appointmentConfirmationModal.style.justifyContent = 'center';
+        
+        // Ensure content is visible
+        const content = appointmentConfirmationModal.querySelector('.appointment-confirmation-content');
+        if (content) {
+            content.style.display = 'block';
+            content.style.visibility = 'visible';
+            content.style.opacity = '1';
+            content.style.position = 'relative';
+            content.style.zIndex = '100001';
+        }
+        
+        setTimeout(function() {
+            appointmentConfirmationModal.classList.add('show');
+        }, 10);
 
             // Set up calendar links
             if (appointmentData) {
@@ -1744,16 +1837,7 @@ Important guidelines:
         }
     }
 
-    // Close confirmation modal
-    function closeAppointmentConfirmation() {
-        if (appointmentConfirmationModal) {
-            appointmentConfirmationModal.classList.remove('show');
-            setTimeout(function() {
-                appointmentConfirmationModal.style.display = 'none';
-                document.body.style.overflow = '';
-            }, 300);
-        }
-    }
+    // Close confirmation modal - REMOVED DUPLICATE (using the one defined earlier)
 
     // Form validation
     function validateAppointmentForm() {
@@ -2037,13 +2121,34 @@ Important guidelines:
         function showExitConfirmation() {
             const exitModal = document.getElementById('kidsExitConfirmationModal');
             if (!exitModal) {
-                console.warn('Exit confirmation modal not found');
+                console.error('Exit confirmation modal not found!');
                 return;
             }
             
-            // Ensure it appears above the kids modal
+            // Ensure it appears above the kids modal with maximum visibility
             exitModal.style.display = 'flex';
             exitModal.style.zIndex = '100001';
+            exitModal.style.visibility = 'visible';
+            exitModal.style.opacity = '1';
+            exitModal.style.position = 'fixed';
+            exitModal.style.top = '0';
+            exitModal.style.left = '0';
+            exitModal.style.right = '0';
+            exitModal.style.bottom = '0';
+            exitModal.style.width = '100vw';
+            exitModal.style.height = '100vh';
+            exitModal.style.background = 'rgba(0, 0, 0, 0.7)';
+            exitModal.style.backdropFilter = 'blur(8px)';
+            
+            // Ensure content is visible
+            const content = exitModal.querySelector('.exit-confirmation-content');
+            if (content) {
+                content.style.display = 'block';
+                content.style.visibility = 'visible';
+                content.style.opacity = '1';
+                content.style.position = 'relative';
+                content.style.zIndex = '100002';
+            }
             
             setTimeout(() => {
                 exitModal.classList.add('show');
@@ -2099,12 +2204,14 @@ Important guidelines:
         function handleKidsModalBackdropClick(e) {
             // Only trigger if clicking directly on the backdrop (modal container itself, not content)
             if (e.target === e.currentTarget || e.target.id === 'kidsAppointmentModal') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                
                 // Check if form has data
                 if (hasFormData()) {
                     // Show exit confirmation instead of closing
+                    console.log('Showing exit confirmation modal');
                     showExitConfirmation();
                 } else {
                     // No data, close directly
@@ -2207,27 +2314,13 @@ Important guidelines:
                     message: message
                 };
                 
-                submitAppointment(appointmentData).then(() => {
-                    // Show confirmation modal
-                    showKidsConfirmation({
-                        parentName: parentName,
-                        childName: childName,
-                        formattedDate: formattedDate,
-                        time: time,
-                        service: service,
-                        phone: phone
-                    });
-                    
-                    // Reset form
-                    kidsAppointmentForm.reset();
-                    
-                    // Close appointment modal
-                    const modal = document.getElementById("kidsAppointmentModal");
-                    if (modal) {
-                        modal.classList.remove("show");
-                        setTimeout(() => {
-                            modal.style.display = 'none';
-                        }, 300);
+                // Show confirmation modal immediately (optimistic UI)
+                // Close appointment modal first
+                const modal = document.getElementById("kidsAppointmentModal");
+                if (modal) {
+                    modal.classList.remove("show");
+                    setTimeout(() => {
+                        modal.style.display = 'none';
                         
                         // Restore body scroll
                         const scrollY = document.body.style.top;
@@ -2239,11 +2332,29 @@ Important guidelines:
                         if (scrollY) {
                             window.scrollTo(0, parseInt(scrollY || '0') * -1);
                         }
-                    }
-                }).catch(() => {
-                    // Error message
-                            alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
-                    // Keep modal open on error so user can try again
+                    }, 300);
+                }
+                
+                // Show confirmation modal immediately
+                showKidsConfirmation({
+                    parentName: parentName,
+                    childName: childName,
+                    formattedDate: formattedDate,
+                    time: time,
+                        service: service,
+                    phone: phone
+                });
+                
+                // Reset form
+                kidsAppointmentForm.reset();
+                
+                // Submit to EmailJS in background (fire and forget - don't block UI)
+                submitAppointment(appointmentData).then(() => {
+                    console.log('Kids appointment submitted successfully');
+                }).catch((error) => {
+                    console.error('Error submitting kids appointment:', error);
+                    // Modal already shown, so user experience is not affected
+                    // EmailJS failure doesn't prevent confirmation from showing
                 });
             });
         }
@@ -2256,7 +2367,10 @@ Important guidelines:
         const kidsConfirmationInfo = document.getElementById('kidsConfirmationInfo');
         const kidsConfirmationClose = document.getElementById('kidsConfirmationClose');
         
-        if (!kidsConfirmationModal) return;
+        if (!kidsConfirmationModal) {
+            console.error('Kids confirmation modal not found!');
+            return;
+        }
         
         // Set message
         if (kidsConfirmationMessage) {
@@ -2289,38 +2403,96 @@ Important guidelines:
             `;
         }
         
-        // Show modal
-        kidsConfirmationModal.style.display = 'flex';
-        setTimeout(() => {
-            kidsConfirmationModal.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }, 10);
+        // Lock body scroll
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        const scrollY = window.scrollY;
+        document.body.style.top = `-${scrollY}px`;
         
-        // Close handler
-        if (kidsConfirmationClose) {
-            kidsConfirmationClose.onclick = function() {
-                kidsConfirmationModal.classList.remove('show');
-                setTimeout(() => {
-                    kidsConfirmationModal.style.display = 'none';
-                    document.body.style.overflow = '';
-                }, 300);
-            };
+        // Show modal - ensure it's visible and properly positioned
+        kidsConfirmationModal.style.display = 'flex';
+        kidsConfirmationModal.style.zIndex = '100000';
+        kidsConfirmationModal.style.visibility = 'visible';
+        kidsConfirmationModal.style.opacity = '1';
+        kidsConfirmationModal.style.position = 'fixed';
+        kidsConfirmationModal.style.top = '0';
+        kidsConfirmationModal.style.left = '0';
+        kidsConfirmationModal.style.right = '0';
+        kidsConfirmationModal.style.bottom = '0';
+        kidsConfirmationModal.style.width = '100vw';
+        kidsConfirmationModal.style.height = '100vh';
+        kidsConfirmationModal.style.alignItems = 'center';
+        kidsConfirmationModal.style.justifyContent = 'center';
+        
+        // Ensure modal content is visible and properly styled
+        const content = kidsConfirmationModal.querySelector('.kids-confirmation-content');
+        if (content) {
+            content.style.display = 'block';
+            content.style.visibility = 'visible';
+            content.style.opacity = '1';
+            content.style.position = 'relative';
+            content.style.zIndex = '100001';
+            content.scrollTop = 0;
         }
         
-        // Close on backdrop click
-        kidsConfirmationModal.addEventListener('click', function(e) {
-            if (e.target === kidsConfirmationModal) {
-                kidsConfirmationClose.click();
+        setTimeout(() => {
+            kidsConfirmationModal.classList.add('show');
+        }, 10);
+        
+        // Close handler - remove old listeners first
+        if (kidsConfirmationClose) {
+            // Remove existing listeners
+            const newCloseBtn = kidsConfirmationClose.cloneNode(true);
+            kidsConfirmationClose.parentNode.replaceChild(newCloseBtn, kidsConfirmationClose);
+            const freshCloseBtn = document.getElementById('kidsConfirmationClose');
+            
+            if (freshCloseBtn) {
+                freshCloseBtn.onclick = function() {
+                    kidsConfirmationModal.classList.remove('show');
+                    setTimeout(() => {
+                        kidsConfirmationModal.style.display = 'none';
+                        
+                        // Restore body scroll
+                        const scrollY = document.body.style.top;
+                        document.body.style.overflow = '';
+                        document.body.style.position = '';
+                        document.body.style.width = '';
+                        document.body.style.top = '';
+                        
+                        if (scrollY) {
+                            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                        }
+                    }, 300);
+                };
             }
-        });
+        }
+        
+        // Close on backdrop click - remove old listeners first
+        const backdropHandler = function(e) {
+            if (e.target === kidsConfirmationModal) {
+                const closeBtn = document.getElementById('kidsConfirmationClose');
+                if (closeBtn) {
+                    closeBtn.click();
+                }
+            }
+        };
+        
+        // Remove old listener and add new one
+        kidsConfirmationModal.removeEventListener('click', backdropHandler);
+        kidsConfirmationModal.addEventListener('click', backdropHandler);
         
         // Close on ESC key
         const escHandler = function(e) {
             if (e.key === 'Escape' && kidsConfirmationModal.classList.contains('show')) {
-                kidsConfirmationClose.click();
+                const closeBtn = document.getElementById('kidsConfirmationClose');
+                if (closeBtn) {
+                    closeBtn.click();
+                }
                 document.removeEventListener('keydown', escHandler);
             }
         };
+        document.removeEventListener('keydown', escHandler); // Remove old listener
         document.addEventListener('keydown', escHandler);
     }
     

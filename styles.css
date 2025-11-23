@@ -19,6 +19,7 @@
 }
 
 :root {
+    /* Premium Color Palette */
     --primary-color: #7C3AED;
     --secondary-color: #6B46C1;
     --accent-color: #F59E0B;
@@ -28,13 +29,35 @@
     --text-dark: #1a1a1a;
     --text-light: #666;
     --white: #ffffff;
+    
+    /* Premium Gradients */
     --gradient: linear-gradient(135deg, #7C3AED 0%, #6B46C1 50%, #F59E0B 100%);
     --gradient-elegant: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 25%, #A78BFA 50%, #F59E0B 75%, #FCD34D 100%);
     --gradient-rainbow: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 25%, #A78BFA 50%, #F59E0B 75%, #FCD34D 100%);
+    --gradient-royal: linear-gradient(135deg, #4C1D95 0%, #7C3AED 30%, #8B5CF6 60%, #A78BFA 100%);
+    --gradient-soft: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+    
+    /* Premium Shadows */
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     --shadow-hover: 0 15px 40px rgba(124, 58, 237, 0.3);
     --shadow-glow: 0 0 30px rgba(124, 58, 237, 0.5);
     --gold-glow: 0 0 30px rgba(245, 158, 11, 0.4);
+    --shadow-premium: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(124, 58, 237, 0.1);
+    --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-button: 0 4px 12px rgba(124, 58, 237, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 3rem;
+    --spacing-xl: 4rem;
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
 }
 
 html {
@@ -574,17 +597,19 @@ title::-moz-selection {
 }
 
 .hero-title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-    line-height: 1.2;
-    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(135deg, #ffffff 0%, #FCD34D 50%, #ffffff 100%);
+    font-size: 3.75rem;
+    font-weight: 900;
+    margin-bottom: 1.25rem;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.4), 0 0 30px rgba(124, 58, 237, 0.3);
+    background: linear-gradient(135deg, #ffffff 0%, #FCD34D 40%, #ffffff 80%, #FCD34D 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: shimmer 3s linear infinite;
+    animation: shimmer 4s linear infinite;
+    position: relative;
 }
 
 @keyframes shimmer {
@@ -594,10 +619,15 @@ title::-moz-selection {
 }
 
 .hero-subtitle {
-    font-size: 1.3rem;
-    margin-bottom: 2rem;
-    font-weight: 300;
-    opacity: 0.95;
+    font-size: 1.4rem;
+    margin-bottom: 2.5rem;
+    font-weight: 400;
+    opacity: 0.98;
+    line-height: 1.6;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.3);
 }
 
 .hero-buttons {
@@ -623,9 +653,12 @@ title::-moz-selection {
 .btn-hero-primary {
     background: var(--white);
     color: var(--primary-color);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-button);
     position: relative;
     overflow: hidden;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-hero-primary::before {
@@ -635,8 +668,8 @@ title::-moz-selection {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: left 0.5s;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    transition: left 0.6s ease;
 }
 
 .btn-hero-primary:hover::before {
@@ -644,30 +677,72 @@ title::-moz-selection {
 }
 
 .btn-hero-primary:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.3);
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 0 30px rgba(255, 255, 255, 0.4);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f5ff 100%);
+}
+
+.btn-hero-primary:active {
+    transform: translateY(-2px) scale(1.01);
 }
 
 .btn-hero-secondary {
     background: transparent;
     color: var(--white);
     border: 2px solid var(--white);
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-hero-secondary:hover {
     background: var(--white);
     color: var(--primary-color);
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 12px 40px rgba(255, 255, 255, 0.3);
+    border-color: var(--white);
+}
+
+.btn-hero-secondary:active {
+    transform: translateY(-2px) scale(1.01);
 }
 
 .btn-primary {
     background: var(--gradient);
     color: var(--white);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-button);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+    left: 100%;
 }
 
 .btn-primary:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-hover);
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #F59E0B 100%);
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -711,12 +786,14 @@ section {
 }
 
 .section-title {
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 2.75rem;
+    font-weight: 800;
     color: var(--dark-color);
     margin-bottom: 0.5rem;
     position: relative;
     display: inline-block;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
 .section-title::after {
@@ -742,9 +819,12 @@ section {
 }
 
 .section-subtitle {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     color: var(--text-light);
     font-weight: 400;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto;
 }
 
 /* About Section - CLS Prevention: Min-height prevents layout shifts */
@@ -980,10 +1060,12 @@ section {
 
 .service-card {
     background: var(--white);
-    border-radius: 20px;
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-card);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    border: 1px solid rgba(124, 58, 237, 0.08);
     position: relative;
     border: 2px solid transparent;
 }
@@ -1006,9 +1088,9 @@ section {
 }
 
 .service-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: var(--shadow-hover), var(--shadow-glow);
-    border-color: var(--primary-color);
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: var(--shadow-premium), 0 0 30px rgba(124, 58, 237, 0.2);
+    border-color: rgba(124, 58, 237, 0.3);
 }
 
 /* Standardized service card image styling - matches Root Canal section */
@@ -1032,13 +1114,7 @@ section {
     filter: brightness(1.05) contrast(1.05) saturate(1.08) sepia(0.03);
 }
 
-/* Service Card Stagger Animation on Scroll */
-.services-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
+/* Service Card Stagger Animation on Scroll - Enhanced */
 .service-card {
     opacity: 0;
     animation: serviceCardFadeIn 0.8s ease-out forwards;
@@ -1050,6 +1126,8 @@ section {
 .service-card:nth-child(4) { animation-delay: 0.55s; }
 .service-card:nth-child(5) { animation-delay: 0.7s; }
 .service-card:nth-child(6) { animation-delay: 0.85s; }
+.service-card:nth-child(7) { animation-delay: 1s; }
+.service-card:nth-child(8) { animation-delay: 1.15s; }
 
 @keyframes serviceCardFadeIn {
     0% {
@@ -2799,9 +2877,21 @@ section {
 
 /* Footer */
 .footer {
-    background: var(--dark-color);
+    background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
     color: var(--white);
-    padding: 3rem 0 1rem;
+    padding: 4rem 0 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.5), transparent);
 }
 
 .footer-content {
@@ -3134,7 +3224,8 @@ section {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
     z-index: 99999;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -3142,6 +3233,20 @@ section {
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Mobile-specific modal container adjustments */
+@media (max-width: 768px) {
+    #appointmentPopup {
+        padding: 10px;
+        align-items: flex-start;
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    
+    #appointmentPopup.show {
+        align-items: center;
+    }
 }
 
 #appointmentConfirmationModal,
@@ -3212,6 +3317,42 @@ section {
     z-index: 100000 !important;
 }
 
+/* Enhanced confirmation modal visibility */
+#appointmentConfirmationModal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 100000;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    cursor: default;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    #appointmentConfirmationModal {
+        padding: 10px;
+    }
+    
+    .appointment-confirmation-content {
+        max-width: 95vw;
+        max-height: 92vh !important;
+        padding: 24px 20px;
+    }
+}
+
 #kidsAppointmentConfirmationModal.show {
     z-index: 100000 !important;
 }
@@ -3225,14 +3366,14 @@ section {
 .appointment-popup-content,
 .appointment-confirmation-content {
     width: 100%;
-    max-width: 480px;
-    max-height: calc(100vh - 40px) !important;
+    max-width: 500px;
+    max-height: 90vh !important;
     overflow-y: auto;
     overflow-x: hidden;
     background: #fff;
-    border-radius: 18px;
-    padding: 24px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(124, 58, 237, 0.1);
     position: relative;
     margin: 0 auto;
     -webkit-overflow-scrolling: touch;
@@ -3240,6 +3381,46 @@ section {
     flex-shrink: 0;
     /* Prevent clicks on content from bubbling to modal */
     pointer-events: auto;
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
+    /* Mobile optimization */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* Mobile-specific adjustments for appointment popup */
+@media (max-width: 768px) {
+    .appointment-popup-content {
+        max-width: 95vw;
+        max-height: 92vh !important;
+        padding: 20px;
+        border-radius: 16px;
+        /* Ensure content is scrollable on mobile */
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        /* Prevent content from being cut off */
+        box-sizing: border-box;
+    }
+    
+    /* Prevent keyboard from hiding inputs */
+    .appointment-popup-content input,
+    .appointment-popup-content select,
+    .appointment-popup-content textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Ensure form groups have proper spacing on mobile */
+    .appointment-popup-content .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    /* Better button sizing on mobile */
+    .appointment-popup-content .btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+    }
 }
 
 /* Appointment Popup Content */
@@ -6744,4 +6925,105 @@ video:-ms-fullscreen {
     html {
         scroll-behavior: smooth;
     }
+}
+
+/* ============================================
+   SCROLL TO TOP BUTTON - PREMIUM STYLING
+   ============================================ */
+.scroll-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--gradient);
+    color: var(--white);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: var(--shadow-button);
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-to-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.scroll-to-top:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: var(--shadow-hover);
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #F59E0B 100%);
+}
+
+.scroll-to-top:active {
+    transform: translateY(-2px) scale(1.05);
+}
+
+.scroll-to-top i {
+    animation: scrollToTopBounce 2s ease-in-out infinite;
+}
+
+@keyframes scrollToTopBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+@media (max-width: 768px) {
+    .scroll-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
+    }
+}
+
+/* ============================================
+   SCROLL REVEAL ANIMATIONS - PREMIUM
+   ============================================ */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-in-left {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.fade-in-right {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in-right.visible {
+    opacity: 1;
+    transform: translateX(0);
 }

@@ -1761,15 +1761,35 @@ Important guidelines:
         }
 
         // Open Kids Appointment Modal
-        document.getElementById("kidsAppointmentBtn")?.addEventListener("click", () => {
+        document.getElementById("kidsAppointmentBtn")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
             const modal = document.getElementById("kidsAppointmentModal");
             if (modal) {
-                modal.classList.add("show");
+                // Lock body scroll immediately
                 document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                
+                // Save current scroll position
+                const scrollY = window.scrollY;
+                document.body.style.top = `-${scrollY}px`;
+                
+                // Show modal
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add("show");
+                }, 10);
 
-                // Always scroll to top to avoid hidden header
+                // Always scroll modal content to top to avoid hidden header
                 const content = modal.querySelector(".kids-modal-content");
-                if (content) content.scrollTop = 0;
+                if (content) {
+                    content.scrollTop = 0;
+                }
+                
+                // Ensure modal is centered in viewport
+                modal.scrollTop = 0;
             }
         });
 
@@ -1778,15 +1798,120 @@ Important guidelines:
             const modal = document.getElementById("kidsAppointmentModal");
             if (modal) {
                 modal.classList.remove("show");
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+                
+                // Restore body scroll
+                const scrollY = document.body.style.top;
                 document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                
+                if (scrollY) {
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                }
             }
         });
 
-        // Close when clicking outside modal content
+        // Check if form has any data
+        function hasFormData() {
+            const form = document.getElementById('kidsAppointmentForm');
+            if (!form) return false;
+            
+            const inputs = form.querySelectorAll('input, select, textarea');
+            for (let input of inputs) {
+                if (input.value && input.value.trim() !== '') {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Show exit confirmation modal
+        function showExitConfirmation() {
+            const exitModal = document.getElementById('kidsExitConfirmationModal');
+            if (!exitModal) return;
+            
+            exitModal.style.display = 'flex';
+            setTimeout(() => {
+                exitModal.classList.add('show');
+            }, 10);
+        }
+
+        // Close exit confirmation modal
+        function closeExitConfirmation() {
+            const exitModal = document.getElementById('kidsExitConfirmationModal');
+            if (!exitModal) return;
+            
+            exitModal.classList.remove('show');
+            setTimeout(() => {
+                exitModal.style.display = 'none';
+            }, 300);
+        }
+
+        // Close kids modal and restore scroll
+        function closeKidsModalAndRestore() {
+            const modal = document.getElementById("kidsAppointmentModal");
+            if (modal) {
+                modal.classList.remove("show");
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+                
+                // Restore body scroll
+                const scrollY = document.body.style.top;
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                
+                if (scrollY) {
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                }
+            }
+        }
+
+        // Close when clicking outside modal content - with confirmation
         document.getElementById("kidsAppointmentModal")?.addEventListener("click", (e) => {
             if (e.target === e.currentTarget) {
-                e.currentTarget.classList.remove("show");
-                document.body.style.overflow = '';
+                // Check if form has data
+                if (hasFormData()) {
+                    // Show exit confirmation
+                    showExitConfirmation();
+                } else {
+                    // No data, close directly
+                    closeKidsModalAndRestore();
+                }
+            }
+        });
+
+        // Exit confirmation handlers
+        document.getElementById("exitConfirmYes")?.addEventListener("click", () => {
+            closeExitConfirmation();
+            closeKidsModalAndRestore();
+        });
+
+        document.getElementById("exitConfirmNo")?.addEventListener("click", () => {
+            closeExitConfirmation();
+            // Keep the main modal open - user continues editing
+        });
+
+        // Close exit confirmation when clicking outside
+        document.getElementById("kidsExitConfirmationModal")?.addEventListener("click", (e) => {
+            if (e.target === e.currentTarget) {
+                closeExitConfirmation();
+            }
+        });
+
+        // Close exit confirmation on ESC
+        document.addEventListener("keydown", (e) => {
+            if (e.key === 'Escape') {
+                const exitModal = document.getElementById('kidsExitConfirmationModal');
+                if (exitModal && exitModal.classList.contains('show')) {
+                    closeExitConfirmation();
+                }
             }
         });
 
@@ -1854,7 +1979,20 @@ Important guidelines:
                     const modal = document.getElementById("kidsAppointmentModal");
                     if (modal) {
                         modal.classList.remove("show");
+                        setTimeout(() => {
+                            modal.style.display = 'none';
+                        }, 300);
+                        
+                        // Restore body scroll
+                        const scrollY = document.body.style.top;
                         document.body.style.overflow = '';
+                        document.body.style.position = '';
+                        document.body.style.width = '';
+                        document.body.style.top = '';
+                        
+                        if (scrollY) {
+                            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                        }
                     }
                 }).catch(() => {
                     // Error message

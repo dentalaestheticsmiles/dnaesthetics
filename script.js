@@ -1834,10 +1834,7 @@ Important guidelines:
                     });
                 }
             }
-        }
     }
-
-    // Close confirmation modal - REMOVED DUPLICATE (using the one defined earlier)
 
     // Form validation
     function validateAppointmentForm() {

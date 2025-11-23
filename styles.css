@@ -420,7 +420,7 @@ title::-moz-selection {
     color: var(--white);
     position: relative;
     margin-top: 0; /* Removed extra spacing - navbar is fixed */
-    padding-top: 80px; /* Space for fixed navbar */
+    padding-top: 70px; /* Space for fixed navbar - reduced from 80px */
     overflow: hidden;
 }
 

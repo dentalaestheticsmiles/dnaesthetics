@@ -755,8 +755,9 @@ Important guidelines:
                     message = "Tell me about kids dentistry";
                     break;
                 case "book-appointment":
-                    // Open appointment popup directly
-                    if (typeof openAppointmentPopup === "function") {
+                    // Open appointment popup directly - FIXED: Use window.openAppointmentPopup
+                    const openPopupFunc = window.openAppointmentPopup || openAppointmentPopup;
+                    if (typeof openPopupFunc === "function") {
                         const chatPopup = document.getElementById('question-popup');
                         if (chatPopup && !chatPopup.classList.contains('hidden')) {
                             if (typeof hidePopup === "function") {
@@ -769,7 +770,7 @@ Important guidelines:
                             }
                         }
                         setTimeout(function() {
-                            openAppointmentPopup();
+                            openPopupFunc();
                         }, 200);
                         return; // Don't send message, just open popup
                     }
@@ -946,8 +947,9 @@ Important guidelines:
                         addMessageToChat("I've opened WhatsApp for you. Our team will respond quickly to help with your questions!", "bot");
                     }, 500);
                 } else if (action === "book-appointment") {
-                    // Open appointment popup directly
-                    if (typeof openAppointmentPopup === "function") {
+                    // Open appointment popup directly - FIXED: Use window.openAppointmentPopup
+                    const openPopup = window.openAppointmentPopup || openAppointmentPopup;
+                    if (typeof openPopup === "function") {
                         const chatPopup = document.getElementById('question-popup');
                         if (chatPopup && !chatPopup.classList.contains('hidden')) {
                             if (typeof hidePopup === "function") {
@@ -960,7 +962,7 @@ Important guidelines:
                             }
                         }
                         setTimeout(function() {
-                            openAppointmentPopup();
+                            openPopup();
                         }, 200);
                     } else {
                         handleUserMessage("I want to book an appointment");
@@ -1663,6 +1665,9 @@ Important guidelines:
             }, 10);
         }
     }
+    
+    // Make openAppointmentPopup globally available immediately for chatbot access
+    window.openAppointmentPopup = openAppointmentPopup;
 
     // Close appointment popup - Fixed scroll restore
     function closeAppointmentPopup() {

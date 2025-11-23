@@ -1818,7 +1818,7 @@ Important guidelines:
                             location: location,
                             startDate: startDate,
                             endDate: endDate,
-                            filename: 'DNA-Clinic-Appointment.ics'
+                            filename: 'DNA-Clinic-Appointment.ics',
                         });
                     };
                 }

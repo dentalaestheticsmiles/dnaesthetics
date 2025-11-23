@@ -1453,7 +1453,7 @@ Important guidelines:
     // Make submitAppointment globally accessible
     window.submitAppointment = submitAppointment;
 
-    // Open appointment popup
+    // Open appointment popup - Fixed centering and scroll
     function openAppointmentPopup() {
         if (appointmentPopup) {
             // Set minimum date to today (prevent past dates)
@@ -1467,10 +1467,28 @@ Important guidelines:
                 dateInput.setAttribute('min', minDate);
             }
             
+            // Lock body scroll and save scroll position (like kids modal)
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            const scrollY = window.scrollY;
+            document.body.style.top = `-${scrollY}px`;
+            
+            // Show modal
             appointmentPopup.style.display = 'flex';
             setTimeout(function() {
                 appointmentPopup.classList.add('show');
-                document.body.style.overflow = 'hidden';
+                
+                // Always scroll modal content to top
+                const content = appointmentPopup.querySelector(".appointment-popup-content");
+                if (content) {
+                    content.scrollTop = 0;
+                }
+                
+                // Ensure modal is centered in viewport
+                appointmentPopup.scrollTop = 0;
+                
+                // Focus name input
                 const nameInput = document.getElementById('popupName');
                 if (nameInput) {
                     setTimeout(function() {
@@ -1481,16 +1499,186 @@ Important guidelines:
         }
     }
 
-    // Close appointment popup
+    // Close appointment popup - Fixed scroll restore
     function closeAppointmentPopup() {
         if (appointmentPopup) {
             appointmentPopup.classList.remove('show');
             setTimeout(function() {
                 appointmentPopup.style.display = 'none';
+                
+                // Restore body scroll (like kids modal)
+                const scrollY = document.body.style.top;
                 document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                
+                if (scrollY) {
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                }
             }, 300);
         }
     }
+
+    // Check if appointment form has any data
+    function hasAppointmentFormData() {
+        const form = document.getElementById('appointmentPopupForm');
+        if (!form) return false;
+        
+        // Check all input fields
+        const textInputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"]');
+        for (let input of textInputs) {
+            if (input.value && input.value.trim() !== '') {
+                return true;
+            }
+        }
+        
+        // Check select fields
+        const selects = form.querySelectorAll('select');
+        for (let select of selects) {
+            if (select.value && select.value.trim() !== '' && select.value !== 'Select Preferred Time') {
+                return true;
+            }
+        }
+        
+        // Check date input
+        const dateInput = form.querySelector('input[type="date"]');
+        if (dateInput && dateInput.value) {
+            return true;
+        }
+        
+        // Check textarea
+        const textarea = form.querySelector('textarea');
+        if (textarea && textarea.value && textarea.value.trim() !== '') {
+            return true;
+        }
+        
+        return false;
+    }
+
+    // Show exit confirmation for appointment popup
+    function showAppointmentExitConfirmation() {
+        const exitModal = document.getElementById('appointmentExitConfirmationModal');
+        if (!exitModal) {
+            console.warn('Appointment exit confirmation modal not found');
+            return;
+        }
+        
+        // Ensure it appears above the appointment popup
+        exitModal.style.display = 'flex';
+        exitModal.style.zIndex = '100001';
+        
+        setTimeout(() => {
+            exitModal.classList.add('show');
+        }, 10);
+    }
+
+    // Close exit confirmation for appointment popup
+    function closeAppointmentExitConfirmation() {
+        const exitModal = document.getElementById('appointmentExitConfirmationModal');
+        if (!exitModal) return;
+        
+        exitModal.classList.remove('show');
+        setTimeout(() => {
+            exitModal.style.display = 'none';
+            exitModal.style.zIndex = '';
+        }, 300);
+    }
+
+    // Close appointment modal and restore scroll
+    function closeAppointmentModalAndRestore() {
+        if (appointmentPopup) {
+            appointmentPopup.classList.remove('show');
+            setTimeout(() => {
+                appointmentPopup.style.display = 'none';
+                
+                // Restore body scroll
+                const scrollY = document.body.style.top;
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                
+                if (scrollY) {
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                }
+            }, 300);
+        }
+    }
+
+    // Named function for appointment popup backdrop click handler
+    function handleAppointmentModalBackdropClick(e) {
+        // Only trigger if clicking directly on the backdrop (modal container itself, not content)
+        if (e.target === e.currentTarget || e.target.id === 'appointmentPopup') {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Check if form has data
+            if (hasAppointmentFormData()) {
+                // Show exit confirmation instead of closing
+                showAppointmentExitConfirmation();
+            } else {
+                // No data, close directly
+                closeAppointmentModalAndRestore();
+            }
+        }
+    }
+
+    // Set up backdrop click handler for appointment popup
+    setTimeout(() => {
+        if (appointmentPopup) {
+            appointmentPopup.removeEventListener("click", handleAppointmentModalBackdropClick);
+            appointmentPopup.addEventListener("click", handleAppointmentModalBackdropClick, false);
+        }
+    }, 100);
+
+    // Exit confirmation handlers for appointment popup
+    const appointmentExitConfirmYes = document.getElementById("appointmentExitConfirmYes");
+    const appointmentExitConfirmNo = document.getElementById("appointmentExitConfirmNo");
+    
+    if (appointmentExitConfirmYes) {
+        appointmentExitConfirmYes.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeAppointmentExitConfirmation();
+            setTimeout(() => {
+                closeAppointmentModalAndRestore();
+            }, 300);
+        });
+    }
+
+    if (appointmentExitConfirmNo) {
+        appointmentExitConfirmNo.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeAppointmentExitConfirmation();
+            // Keep the main modal open - user continues editing
+        });
+    }
+
+    // Close exit confirmation when clicking outside
+    const appointmentExitModal = document.getElementById("appointmentExitConfirmationModal");
+    if (appointmentExitModal) {
+        appointmentExitModal.addEventListener("click", function(e) {
+            if (e.target === appointmentExitModal) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeAppointmentExitConfirmation();
+            }
+        });
+    }
+
+    // Close exit confirmation on ESC - only if exit modal is open
+    document.addEventListener("keydown", function(e) {
+        if (e.key === 'Escape') {
+            const exitModal = document.getElementById('appointmentExitConfirmationModal');
+            if (exitModal && exitModal.classList.contains('show')) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeAppointmentExitConfirmation();
+            }
+        }
+    });
 
     // Show confirmation modal
     function showAppointmentConfirmation(appointmentData) {
@@ -1624,13 +1812,7 @@ Important guidelines:
         appointmentPopupClose.addEventListener('click', closeAppointmentPopup);
     }
 
-    if (appointmentPopup) {
-        appointmentPopup.addEventListener('click', function(e) {
-            if (e.target === appointmentPopup) {
-                closeAppointmentPopup();
-            }
-        });
-    }
+    // Old backdrop click handler removed - now using handleAppointmentModalBackdropClick with exit confirmation
 
     if (appointmentConfirmClose) {
         appointmentConfirmClose.addEventListener('click', closeAppointmentConfirmation);
@@ -1762,13 +1944,13 @@ Important guidelines:
 
         // Open Kids Appointment Modal
         document.getElementById("kidsAppointmentBtn")?.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
             const modal = document.getElementById("kidsAppointmentModal");
             if (modal) {
                 // Lock body scroll immediately
-                document.body.style.overflow = 'hidden';
+                        document.body.style.overflow = 'hidden';
                 document.body.style.position = 'fixed';
                 document.body.style.width = '100%';
                 
@@ -1815,26 +1997,54 @@ Important guidelines:
             }
         });
 
-        // Check if form has any data
+        // Check if form has any data - robust detection
         function hasFormData() {
             const form = document.getElementById('kidsAppointmentForm');
             if (!form) return false;
             
-            const inputs = form.querySelectorAll('input, select, textarea');
-            for (let input of inputs) {
+            // Check all input fields
+            const textInputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"]');
+            for (let input of textInputs) {
                 if (input.value && input.value.trim() !== '') {
                     return true;
                 }
             }
-            return false;
+            
+            // Check select fields
+            const selects = form.querySelectorAll('select');
+            for (let select of selects) {
+                if (select.value && select.value.trim() !== '' && select.value !== 'Select time') {
+                    return true;
+                }
+            }
+            
+            // Check date input
+            const dateInput = form.querySelector('input[type="date"]');
+            if (dateInput && dateInput.value) {
+                return true;
+            }
+            
+            // Check textarea
+            const textarea = form.querySelector('textarea');
+            if (textarea && textarea.value && textarea.value.trim() !== '') {
+                return true;
+            }
+            
+                    return false;
         }
 
         // Show exit confirmation modal
         function showExitConfirmation() {
             const exitModal = document.getElementById('kidsExitConfirmationModal');
-            if (!exitModal) return;
+            if (!exitModal) {
+                console.warn('Exit confirmation modal not found');
+                return;
+            }
             
+            // Ensure it appears above the kids modal
             exitModal.style.display = 'flex';
+            exitModal.style.zIndex = '100001';
+            
             setTimeout(() => {
                 exitModal.classList.add('show');
             }, 10);
@@ -1848,6 +2058,7 @@ Important guidelines:
             exitModal.classList.remove('show');
             setTimeout(() => {
                 exitModal.style.display = 'none';
+                exitModal.style.zIndex = '';
             }, 300);
         }
 
@@ -1874,42 +2085,77 @@ Important guidelines:
         }
 
         // Close when clicking outside modal content - with confirmation
-        document.getElementById("kidsAppointmentModal")?.addEventListener("click", (e) => {
-            if (e.target === e.currentTarget) {
+        // Use event delegation to ensure it works
+        setTimeout(() => {
+            const kidsModal = document.getElementById("kidsAppointmentModal");
+            if (kidsModal) {
+                // Remove any existing listener by using a named function
+                kidsModal.removeEventListener("click", handleKidsModalBackdropClick);
+                kidsModal.addEventListener("click", handleKidsModalBackdropClick, false);
+            }
+        }, 100);
+
+        // Named function for backdrop click handler
+        function handleKidsModalBackdropClick(e) {
+            // Only trigger if clicking directly on the backdrop (modal container itself, not content)
+            if (e.target === e.currentTarget || e.target.id === 'kidsAppointmentModal') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                 // Check if form has data
                 if (hasFormData()) {
-                    // Show exit confirmation
+                    // Show exit confirmation instead of closing
                     showExitConfirmation();
                 } else {
                     // No data, close directly
                     closeKidsModalAndRestore();
                 }
             }
-        });
+        }
 
-        // Exit confirmation handlers
-        document.getElementById("exitConfirmYes")?.addEventListener("click", () => {
-            closeExitConfirmation();
-            closeKidsModalAndRestore();
-        });
+        // Exit confirmation handlers - ensure they're set up properly
+        const exitConfirmYes = document.getElementById("exitConfirmYes");
+        const exitConfirmNo = document.getElementById("exitConfirmNo");
+        
+        if (exitConfirmYes) {
+            exitConfirmYes.addEventListener("click", function(e) {
+                    e.preventDefault();
+                e.stopPropagation();
+                closeExitConfirmation();
+                setTimeout(() => {
+                    closeKidsModalAndRestore();
+                }, 300);
+            });
+        }
 
-        document.getElementById("exitConfirmNo")?.addEventListener("click", () => {
-            closeExitConfirmation();
-            // Keep the main modal open - user continues editing
-        });
+        if (exitConfirmNo) {
+            exitConfirmNo.addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeExitConfirmation();
+                // Keep the main modal open - user continues editing
+            });
+        }
 
         // Close exit confirmation when clicking outside
-        document.getElementById("kidsExitConfirmationModal")?.addEventListener("click", (e) => {
-            if (e.target === e.currentTarget) {
-                closeExitConfirmation();
-            }
-        });
+        const exitModal = document.getElementById("kidsExitConfirmationModal");
+        if (exitModal) {
+            exitModal.addEventListener("click", function(e) {
+                if (e.target === exitModal) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeExitConfirmation();
+                }
+            });
+        }
 
-        // Close exit confirmation on ESC
-        document.addEventListener("keydown", (e) => {
+        // Close exit confirmation on ESC - only if exit modal is open
+        document.addEventListener("keydown", function(e) {
             if (e.key === 'Escape') {
                 const exitModal = document.getElementById('kidsExitConfirmationModal');
                 if (exitModal && exitModal.classList.contains('show')) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     closeExitConfirmation();
                 }
             }
@@ -1933,29 +2179,29 @@ Important guidelines:
                 
                 // Validate required fields
                 if (!parentName || !childName || !email || !phone || !service || !date || !time) {
-                    alert('Please fill in all required fields.');
-                    return;
-                }
-                
-                // Format date for display
-                let formattedDate = date;
-                try {
-                    formattedDate = new Date(date).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-                } catch (e) {
-                    formattedDate = date;
-                }
-                
-                const appointmentData = {
+                        alert('Please fill in all required fields.');
+                        return;
+                    }
+
+                    // Format date for display
+                    let formattedDate = date;
+                    try {
+                        formattedDate = new Date(date).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                    } catch (e) {
+                        formattedDate = date;
+                    }
+
+                    const appointmentData = {
                     parent_name: parentName,
                     parent_email: email,
                     child_name: childName,
-                    phone: phone,
-                    service: service,
+                        phone: phone,
+                        service: service,
                     appointment_date: date,
                     appointment_time: time,
                     message: message
@@ -1996,7 +2242,7 @@ Important guidelines:
                     }
                 }).catch(() => {
                     // Error message
-                    alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
+                            alert('⚠️ There was an issue sending your appointment request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your appointment details have been saved.');
                     // Keep modal open on error so user can try again
                 });
             });

@@ -1866,6 +1866,111 @@
         </div>
     </div>
 
+    <!-- ============================================
+         NEW PREMIUM LUXURY CHATBOT APPOINTMENT MODAL
+         (Completely independent from adult/kids popups)
+         ============================================ -->
+    <div id="chatbotAppointmentModal" class="chatbot-modal">
+        <div class="chatbot-appointment-content">
+            <button class="chatbot-close-btn" aria-label="Close appointment modal" id="chatbotAppointmentClose">×</button>
+            <h2 class="chatbot-modal-title">Book Your Appointment</h2>
+            <p class="chatbot-modal-subtitle">Schedule your visit with our expert team</p>
+            <form id="chatbotAppointmentForm" autocomplete="off">
+                <div class="chatbot-form-grid">
+                    <div class="chatbot-form-group">
+                        <label for="chatbotName">Full Name <span class="required">*</span></label>
+                        <input type="text" id="chatbotName" name="name" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="chatbot-form-group">
+                        <label for="chatbotEmail">Email Address</label>
+                        <input type="email" id="chatbotEmail" name="email" placeholder="your.email@example.com">
+                    </div>
+                    <div class="chatbot-form-group">
+                        <label for="chatbotPhone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="chatbotPhone" name="phone" placeholder="+1 (555) 123-4567" required>
+                    </div>
+                    <div class="chatbot-form-group">
+                        <label for="chatbotService">Service <span class="required">*</span></label>
+                        <select id="chatbotService" name="service" required>
+                            <option value="">Select a service</option>
+                            <option value="Teeth Whitening">Teeth Whitening</option>
+                            <option value="Dental Implants">Dental Implants</option>
+                            <option value="Orthodontics">Orthodontics</option>
+                            <option value="Cosmetic Dentistry">Cosmetic Dentistry</option>
+                            <option value="Botox & Fillers">Botox & Fillers</option>
+                            <option value="Laser Treatments">Laser Treatments</option>
+                            <option value="Pediatric Dental Care">Pediatric Dental Care</option>
+                            <option value="General Consultation">General Consultation</option>
+                        </select>
+                    </div>
+                    <div class="chatbot-form-group">
+                        <label for="chatbotDate">Preferred Date <span class="required">*</span></label>
+                        <input type="date" id="chatbotDate" name="appointment_date" required>
+                    </div>
+                    <div class="chatbot-form-group">
+                        <label for="chatbotTime">Preferred Time <span class="required">*</span></label>
+                        <select id="chatbotTime" name="appointment_time" required>
+                            <option value="">Select time</option>
+                            <option value="09:00">9:00 AM</option>
+                            <option value="09:30">9:30 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="10:30">10:30 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="11:30">11:30 AM</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="12:30">12:30 PM</option>
+                            <option value="13:00">1:00 PM</option>
+                            <option value="13:30">1:30 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="14:30">2:30 PM</option>
+                            <option value="15:00">3:00 PM</option>
+                            <option value="15:30">3:30 PM</option>
+                            <option value="16:00">4:00 PM</option>
+                            <option value="16:30">4:30 PM</option>
+                            <option value="17:00">5:00 PM</option>
+                            <option value="17:30">5:30 PM</option>
+                            <option value="18:00">6:00 PM</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chatbot-form-group chatbot-form-group-full">
+                    <label for="chatbotMessage">Additional Message (Optional)</label>
+                    <textarea id="chatbotMessage" name="message" placeholder="Any special requests or notes..." rows="4"></textarea>
+                </div>
+                <button type="submit" class="chatbot-submit-btn">
+                    <span class="btn-text">Confirm Appointment</span>
+                    <span class="btn-loading" style="display: none;">Booking...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================
+         NEW PREMIUM LUXURY CHATBOT CONFIRMATION MODAL
+         ============================================ -->
+    <div id="chatbotAppointmentConfirmationModal" class="chatbot-modal">
+        <div class="chatbot-confirmation-content">
+            <button class="chatbot-close-btn" aria-label="Close confirmation modal" id="chatbotConfirmationClose">×</button>
+            <div class="chatbot-success-icon">
+                <svg class="chatbot-checkmark-svg" viewBox="0 0 100 100">
+                    <circle class="chatbot-checkmark-circle" cx="50" cy="50" r="45" fill="none" stroke="#DA8C76" stroke-width="3"/>
+                    <path class="chatbot-checkmark-path" fill="none" stroke="#DA8C76" stroke-width="4" d="M30 50 L45 65 L70 35"/>
+                </svg>
+                <div class="chatbot-sparkle-container">
+                    <div class="chatbot-sparkle sparkle-1"></div>
+                    <div class="chatbot-sparkle sparkle-2"></div>
+                    <div class="chatbot-sparkle sparkle-3"></div>
+                    <div class="chatbot-sparkle sparkle-4"></div>
+                    <div class="chatbot-sparkle sparkle-5"></div>
+                    <div class="chatbot-sparkle sparkle-6"></div>
+                </div>
+            </div>
+            <h2 class="chatbot-confirmation-title">Your Appointment Has Been Successfully Booked</h2>
+            <p class="chatbot-confirmation-message">We've received your appointment request and will contact you shortly to confirm the details.</p>
+            <button class="chatbot-confirmation-btn" id="chatbotConfirmationOk">Close</button>
+        </div>
+    </div>
+
     <script src="script.js" defer></script>
 </body>
 </html>

@@ -7227,6 +7227,45 @@ video:-ms-fullscreen {
 }
 
 /* ============================================
+   CONFIRMATION POPUP TEXT OVERFLOW FIX
+   ============================================ */
+.appointment-confirmation-content,
+.kids-confirmation-content,
+.premium-success-content,
+.chatbot-confirmation-content {
+    box-sizing: border-box;
+    max-width: 480px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0 auto;
+    padding: 24px 24px 28px;
+    border-radius: 18px;
+    word-wrap: break-word;
+}
+
+#appointmentConfirmationModal,
+#kidsAppointmentConfirmationModal,
+#contactSuccessModal,
+#chatbotAppointmentConfirmationModal {
+    display: flex !important;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .3s, visibility .3s;
+    justify-content: center;
+    align-items: center;
+}
+
+#appointmentConfirmationModal.show,
+#kidsAppointmentConfirmationModal.show,
+#contactSuccessModal.show,
+#chatbotAppointmentConfirmationModal.show {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* ============================================
    PREMIUM LUXURY CHATBOT APPOINTMENT MODAL
    (Completely independent styling)
    ============================================ */

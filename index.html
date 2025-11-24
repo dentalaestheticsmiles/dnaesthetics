@@ -1620,8 +1620,8 @@
             <button id="appointmentPopupClose" class="close-modal" aria-label="Close appointment modal">×</button>
             <h2>Book Appointment</h2>
             <form id="appointmentPopupForm" autocomplete="off">
-                <!-- Honeypot field for spam protection (hidden from users) -->
-                <input type="text" name="website" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none; tabindex: -1;" aria-hidden="true" autocomplete="off">
+                <!-- Honeypot field for spam protection (hidden from users) - NO required attribute -->
+                <input type="text" name="website" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none; tabindex: -1;" aria-hidden="true" autocomplete="off" tabindex="-1">
                 
                 <div class="form-group">
                     <input id="popupName" name="name" type="text" placeholder="Your Name" required maxlength="100">

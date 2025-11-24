@@ -28,6 +28,118 @@ document.addEventListener("DOMContentLoaded", function() {
         return div.innerHTML;
     }
     
+    // ============================================
+    // SECURE LOCALSTORAGE WITH ENCRYPTION & EXPIRY
+    // ============================================
+    
+    // Simple encryption key (in production, this should be derived from user session)
+    const ENCRYPTION_KEY = 'dna-clinic-secure-key-2024';
+    
+    // Simple XOR encryption (lightweight, sufficient for localStorage obfuscation)
+    function simpleEncrypt(text, key) {
+        if (!text || typeof text !== 'string') return '';
+        let result = '';
+        for (let i = 0; i < text.length; i++) {
+            result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+        }
+        return btoa(result); // Base64 encode
+    }
+    
+    function simpleDecrypt(encrypted, key) {
+        if (!encrypted || typeof encrypted !== 'string') return null;
+        try {
+            const decoded = atob(encrypted);
+            let result = '';
+            for (let i = 0; i < decoded.length; i++) {
+                result += String.fromCharCode(decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+            return result;
+        } catch (e) {
+            return null;
+        }
+    }
+    
+    // Secure set with encryption and expiry
+    function secureSet(key, value, expiryHours = 24) {
+        try {
+            const expiresAt = Date.now() + (expiryHours * 60 * 60 * 1000);
+            const data = {
+                encrypted: simpleEncrypt(JSON.stringify(value), ENCRYPTION_KEY),
+                expiresAt: expiresAt
+            };
+            localStorage.setItem(key, JSON.stringify(data));
+            return true;
+        } catch (e) {
+            // localStorage quota exceeded or unavailable
+            return false;
+        }
+    }
+    
+    // Secure get with decryption and expiry check
+    function secureGet(key) {
+        try {
+            const stored = localStorage.getItem(key);
+            if (!stored) return null;
+            
+            const data = JSON.parse(stored);
+            
+            // Check if expired
+            if (data.expiresAt && Date.now() > data.expiresAt) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            
+            // Decrypt
+            const decrypted = simpleDecrypt(data.encrypted, ENCRYPTION_KEY);
+            if (!decrypted) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            
+            return JSON.parse(decrypted);
+        } catch (e) {
+            // Corrupted data or decryption failed
+            try {
+                localStorage.removeItem(key);
+            } catch (e2) {
+                // Ignore
+            }
+            return null;
+        }
+    }
+    
+    // Secure remove
+    function secureRemove(key) {
+        try {
+            localStorage.removeItem(key);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+    
+    // Migrate existing plaintext data to encrypted (one-time migration)
+    function migrateToSecureStorage() {
+        const keysToMigrate = ['dnaContacts', 'dnaKidsAppointments', 'dnaClinicChatHistory'];
+        keysToMigrate.forEach(key => {
+            try {
+                const plainValue = localStorage.getItem(key);
+                if (plainValue) {
+                    const parsed = JSON.parse(plainValue);
+                    const expiryHours = key === 'dnaClinicChatHistory' ? 72 : 24;
+                    if (secureSet(key, parsed, expiryHours)) {
+                        // Migration successful, old plaintext will be overwritten
+                    }
+                }
+            } catch (e) {
+                // Migration failed, keep existing data
+            }
+        });
+    }
+    
+    // Run migration on load
+    migrateToSecureStorage();
+    
     // Sanitize user input (remove potentially dangerous characters)
     function sanitizeInput(input) {
         if (typeof input !== 'string') return '';
@@ -479,10 +591,10 @@ document.addEventListener("DOMContentLoaded", function() {
     function loadChatHistory() {
         if (!chatContainer) return;
         
-        const history = localStorage.getItem(chatHistoryKey);
+        const history = secureGet(chatHistoryKey);
         if (history) {
             try {
-                const messages = JSON.parse(history);
+                const messages = history; // Already parsed by secureGet
                 // Clear container but keep initial structure
                 const existingMessages = chatContainer.querySelectorAll(".qp-message");
                 existingMessages.forEach(function(msg) {
@@ -497,7 +609,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
                 scrollChatToBottom();
             } catch (e) {
-                console.warn("Failed to load chat history:", e);
+                // Failed to load chat history (silent failure for security)
             }
         }
     }
@@ -519,7 +631,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
         if (messages.length > 0) {
-            localStorage.setItem(chatHistoryKey, JSON.stringify(messages));
+            secureSet(chatHistoryKey, messages, 72); // 72-hour expiry for chat history
         }
     }
     
@@ -532,7 +644,10 @@ document.addEventListener("DOMContentLoaded", function() {
         
         const contentDiv = document.createElement("div");
         contentDiv.className = "qp-message-content";
-        contentDiv.innerHTML = "<p>" + escapeHtml(text) + "</p>";
+        // Safe HTML insertion using textContent (XSS protection)
+        const textPara = document.createElement("p");
+        textPara.textContent = text; // textContent automatically escapes HTML
+        contentDiv.appendChild(textPara);
         
         messageDiv.appendChild(contentDiv);
         chatContainer.appendChild(messageDiv);
@@ -1404,11 +1519,11 @@ Important guidelines:
                 message: message || 'No additional message'
             };
 
-            // Save to localStorage as backup
+            // Save to localStorage as backup (encrypted with 24-hour expiry)
             try {
-                let savedContacts = JSON.parse(localStorage.getItem('dnaContacts') || '[]');
+                let savedContacts = secureGet('dnaContacts') || [];
                 savedContacts.push(contactData);
-                localStorage.setItem('dnaContacts', JSON.stringify(savedContacts));
+                secureSet('dnaContacts', savedContacts, 24);
             } catch (error) {
                 // localStorage not available or quota exceeded
             }
@@ -1422,22 +1537,18 @@ Important guidelines:
                 message: message
             };
 
-            // Use unified submitAppointment function
+            // Use unified submitAppointment function - FIXED: Show success only on actual success
             submitAppointment(formData)
                 .then(function(response) {
-                    // Email sent successfully
-                }, function(error) {
-                    // Email sending failed
+                    // Email sent successfully - Show premium success modal
+                    showContactSuccessModal();
+                    // Reset form
+                    appointmentForm.reset();
+                })
+                .catch(function(error) {
+                    // Email sending failed - Show error alert and keep form data
                     alert('⚠️ There was an issue sending your contact request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your contact details have been saved.');
                 });
-
-            // Success message
-            const successMessage = `🎉 Thank you, ${name}!\n\nYour appointment request for ${service} has been received.\n\nWe will contact you at ${phone} or ${email} shortly.\n\nWe look forward to serving you! 😊`;
-            
-            alert(successMessage);
-            
-            // Reset form
-            this.reset();
         });
     }
 
@@ -1908,12 +2019,94 @@ Important guidelines:
         }
     });
 
+    // Show premium success modal for contact form
+    function showContactSuccessModal() {
+        const successModal = document.getElementById('contactSuccessModal');
+        if (!successModal) return;
+        
+        // Lock body scroll
+        const scrollY = window.scrollY;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.top = `-${scrollY}px`;
+        
+        // Show modal with explicit visibility
+        successModal.style.display = 'flex';
+        successModal.style.zIndex = '100002';
+        successModal.style.visibility = 'visible';
+        successModal.style.opacity = '1';
+        successModal.style.position = 'fixed';
+        successModal.style.top = '0';
+        successModal.style.left = '0';
+        successModal.style.right = '0';
+        successModal.style.bottom = '0';
+        successModal.style.width = '100vw';
+        successModal.style.height = '100vh';
+        successModal.style.alignItems = 'center';
+        successModal.style.justifyContent = 'center';
+        
+        setTimeout(function() {
+            successModal.classList.add('show');
+        }, 10);
+    }
+    
+    // Close premium success modal
+    function closeContactSuccessModal() {
+        const successModal = document.getElementById('contactSuccessModal');
+        if (!successModal) return;
+        
+        successModal.classList.remove('show');
+        setTimeout(function() {
+            successModal.style.display = 'none';
+            successModal.style.visibility = 'hidden';
+            successModal.style.opacity = '0';
+            
+            // Restore body scroll
+            const scrollY = document.body.style.top;
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+            document.body.style.top = '';
+            
+            if (scrollY) {
+                window.scrollTo(0, parseInt(scrollY || '0') * -1);
+            }
+        }, 300);
+    }
+    
+    // Event listeners for success modal
+    const contactSuccessClose = document.getElementById('contactSuccessClose');
+    const contactSuccessOk = document.getElementById('contactSuccessOk');
+    const contactSuccessModal = document.getElementById('contactSuccessModal');
+    
+    if (contactSuccessClose) {
+        contactSuccessClose.addEventListener('click', closeContactSuccessModal);
+    }
+    if (contactSuccessOk) {
+        contactSuccessOk.addEventListener('click', closeContactSuccessModal);
+    }
+    if (contactSuccessModal) {
+        contactSuccessModal.addEventListener('click', function(e) {
+            if (e.target === contactSuccessModal) {
+                closeContactSuccessModal();
+            }
+        });
+    }
+    
+    // ESC key to close success modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && contactSuccessModal && contactSuccessModal.classList.contains('show')) {
+            closeContactSuccessModal();
+        }
+    });
+
     // Show confirmation modal - FIXED: Ensure visibility
     function showAppointmentConfirmation(appointmentData) {
         lastAppointmentData = appointmentData;
         
         if (!appointmentConfirmationModal) {
-            console.error('Appointment confirmation modal not found!');
+            // Appointment confirmation modal not found (silent failure)
             return;
         }
         
@@ -2301,7 +2494,7 @@ Important guidelines:
         function showExitConfirmation() {
             const exitModal = document.getElementById('kidsExitConfirmationModal');
             if (!exitModal) {
-                console.error('Exit confirmation modal not found!');
+                // Exit confirmation modal not found (silent failure)
                 return;
             }
             
@@ -2391,7 +2584,7 @@ Important guidelines:
                 // Check if form has data
                 if (hasFormData()) {
                     // Show exit confirmation instead of closing
-                    console.log('Showing exit confirmation modal');
+                    // Showing exit confirmation modal
                     showExitConfirmation();
                 } else {
                     // No data, close directly
@@ -2530,9 +2723,9 @@ Important guidelines:
                 
                 // Submit to EmailJS in background (fire and forget - don't block UI)
                 submitAppointment(appointmentData).then(() => {
-                    console.log('Kids appointment submitted successfully');
+                    // Appointment submitted successfully (no sensitive data logged)
                 }).catch((error) => {
-                    console.error('Error submitting kids appointment:', error);
+                    // Error submitting appointment (no sensitive data logged)
                     // Modal already shown, so user experience is not affected
                     // EmailJS failure doesn't prevent confirmation from showing
                 });
@@ -2548,7 +2741,7 @@ Important guidelines:
         const kidsConfirmationClose = document.getElementById('kidsConfirmationClose');
         
         if (!kidsConfirmationModal) {
-            console.error('Kids confirmation modal not found!');
+            // Kids confirmation modal not found (silent failure)
             return;
         }
         

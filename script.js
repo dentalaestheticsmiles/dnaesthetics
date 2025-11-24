@@ -17,6 +17,29 @@ document.addEventListener("DOMContentLoaded", function() {
     'use strict';
 
     // ============================================
+    // GLOBAL SCROLL LOCK / UNLOCK HELPERS
+    // ============================================
+    function lockBodyScroll() {
+        if (document.body.dataset.lockScrollY) return;
+        const scrollY = window.scrollY || 0;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.dataset.lockScrollY = String(scrollY);
+    }
+
+    function unlockBodyScroll() {
+        const storedY = document.body.dataset.lockScrollY;
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.top = '';
+        delete document.body.dataset.lockScrollY;
+        if (storedY) window.scrollTo(0, parseInt(storedY));
+    }
+
+    // ============================================
     // SECURITY UTILITIES
     // ============================================
     
@@ -582,11 +605,93 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Scroll listener
+    // ============================================
+    // SMART TRIGGER FOR "STILL HAVE QUESTIONS?" POPUP
+    // ============================================
+    function canShowChatPopup() {
+        // Not already shown this session
+        if (sessionStorage.getItem("dnaQuestionPopupDismissed") === "true") return false;
+        
+        // Check if any major modal is open
+        const majorModals = [
+            document.getElementById('appointmentPopup'),
+            document.getElementById('kidsAppointmentModal'),
+            document.getElementById('chatbotAppointmentModal'),
+            document.getElementById('appointmentConfirmationModal'),
+            document.getElementById('kidsAppointmentConfirmationModal'),
+            document.getElementById('chatbotAppointmentConfirmationModal'),
+            document.getElementById('contactSuccessModal')
+        ];
+        for (let modal of majorModals) {
+            if (modal && (modal.classList.contains('show') || modal.style.display === 'flex')) {
+                return false;
+            }
+        }
+        
+        // User spent ≥ 20s on page
+        const timeOnPage = Date.now() - pageLoadTime;
+        if (timeOnPage < 20000) return false;
+        
+        // User scrolled ≥ 35%
+        const scrollPercent = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight;
+        if (scrollPercent < 0.35) return false;
+        
+        return true;
+    }
+
+    function showQuestionPopupIfAllowed() {
+        const questionPopup = document.getElementById('question-popup');
+        if (!questionPopup || !canShowChatPopup()) return;
+        
+        if (questionPopup.classList.contains('hidden')) {
+            questionPopup.classList.remove('hidden');
+            setTimeout(() => {
+                questionPopup.classList.add('visible');
+            }, 100);
+        }
+    }
+
+    // Hide question popup when major modals open
+    function hideQuestionPopupOnModalOpen() {
+        const questionPopup = document.getElementById('question-popup');
+        if (questionPopup && !questionPopup.classList.contains('hidden')) {
+            questionPopup.classList.remove('visible');
+            setTimeout(() => {
+                questionPopup.classList.add('hidden');
+            }, 150);
+        }
+    }
+
+    // Track page load time for smart trigger
+    const pageLoadTime = Date.now();
+
+    // Scroll listener with smart trigger
+    let scrollTriggerFired = false;
     window.addEventListener("scroll", function() {
         checkScrollProgress();
         lastScrollTime = Date.now();
+        
+        // Smart trigger on scroll
+        if (!scrollTriggerFired && canShowChatPopup()) {
+            scrollTriggerFired = true;
+            showQuestionPopupIfAllowed();
+        }
     }, { passive: true });
+
+    // 30s fallback timer
+    setTimeout(function() {
+        if (!scrollTriggerFired && canShowChatPopup()) {
+            showQuestionPopupIfAllowed();
+        }
+    }, 30000);
+
+    // Track when question popup is dismissed
+    const qpCloseBtn = document.getElementById('qp-close-btn');
+    if (qpCloseBtn) {
+        qpCloseBtn.addEventListener('click', function() {
+            sessionStorage.setItem("dnaQuestionPopupDismissed", "true");
+        });
+    }
 
     // ============================================
     // AI CHATBOT FUNCTIONALITY
@@ -889,35 +994,19 @@ Important guidelines:
                     // Open NEW chatbot-specific appointment modal (NOT adult popup)
                     const chatbotModal = document.getElementById('chatbotAppointmentModal');
                     if (chatbotModal) {
-                        const chatPopup = document.getElementById('question-popup');
-                        if (chatPopup && !chatPopup.classList.contains('hidden')) {
-                            if (typeof hidePopup === "function") {
-                                hidePopup();
-                            } else {
-                                chatPopup.classList.remove("visible");
-                                setTimeout(function() {
-                                    chatPopup.classList.add("hidden");
-                                }, 150);
-                            }
-                        }
+                        hideQuestionPopupOnModalOpen();
                         setTimeout(function() {
-                            // Lock body scroll
-                            const scrollY = window.scrollY;
-                            document.body.style.overflow = 'hidden';
-                            document.body.style.position = 'fixed';
-                            document.body.style.width = '100%';
-                            document.body.style.top = `-${scrollY}px`;
-                            
+                            lockBodyScroll();
                             // Show chatbot modal
                             chatbotModal.style.display = 'flex';
                             chatbotModal.style.zIndex = '100003';
-                            setTimeout(() => {
+                            requestAnimationFrame(() => {
                                 chatbotModal.classList.add('show');
                                 const content = chatbotModal.querySelector('.chatbot-appointment-content');
                                 if (content) {
                                     content.scrollTop = 0;
                                 }
-                            }, 10);
+                            });
                         }, 200);
                         return; // Don't send message, just open popup
                     }
@@ -1858,11 +1947,8 @@ Important guidelines:
             }
             
             // Lock body scroll and save scroll position (like kids modal)
-            const scrollY = window.scrollY;
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
-            document.body.style.top = `-${scrollY}px`;
+            hideQuestionPopupOnModalOpen();
+            lockBodyScroll();
             
             // Show modal with explicit positioning
             appointmentPopup.style.display = 'flex';
@@ -1914,15 +2000,7 @@ Important guidelines:
                 appointmentPopup.style.display = 'none';
                 
                 // Restore body scroll (like kids modal)
-                const scrollY = document.body.style.top;
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.top = '';
-                
-                if (scrollY) {
-                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
-                }
+                unlockBodyScroll();
             }, 300);
         }
     }
@@ -1937,15 +2015,7 @@ Important guidelines:
                 appointmentConfirmationModal.style.opacity = '0';
                 
                 // Restore body scroll
-                const scrollY = document.body.style.top;
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.top = '';
-                
-                if (scrollY) {
-                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
-                }
+                unlockBodyScroll();
             }, 300);
         }
     }
@@ -2046,15 +2116,7 @@ Important guidelines:
                 appointmentPopup.style.display = 'none';
                 
                 // Restore body scroll
-                const scrollY = document.body.style.top;
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.top = '';
-                
-                if (scrollY) {
-                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
-                }
+                unlockBodyScroll();
             }, 300);
         }
     }
@@ -2098,6 +2160,14 @@ Important guidelines:
     }, 200);
 
     // Exit confirmation handlers for appointment popup
+    function handleAdultExitConfirmYes() {
+        const exit = document.getElementById('appointmentExitConfirmationModal');
+        const main = document.getElementById('appointmentPopup');
+        if (exit) { exit.classList.remove('show'); exit.style.display='none'; }
+        if (main) { main.classList.remove('show'); main.style.display='none'; }
+        unlockBodyScroll();
+    }
+
     const appointmentExitConfirmYes = document.getElementById("appointmentExitConfirmYes");
     const appointmentExitConfirmNo = document.getElementById("appointmentExitConfirmNo");
     
@@ -2105,10 +2175,7 @@ Important guidelines:
         appointmentExitConfirmYes.addEventListener("click", function(e) {
             e.preventDefault();
             e.stopPropagation();
-            closeAppointmentExitConfirmation();
-            setTimeout(() => {
-                closeAppointmentModalAndRestore();
-            }, 300);
+            handleAdultExitConfirmYes();
         });
     }
 
@@ -2147,58 +2214,28 @@ Important guidelines:
 
     // Show premium success modal for contact form
     function showContactSuccessModal() {
-        const successModal = document.getElementById('contactSuccessModal');
-        if (!successModal) return;
-        
-        // Lock body scroll
-        const scrollY = window.scrollY;
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.width = '100%';
-        document.body.style.top = `-${scrollY}px`;
-        
-        // Show modal with explicit visibility
-        successModal.style.display = 'flex';
-        successModal.style.zIndex = '100002';
-        successModal.style.visibility = 'visible';
-        successModal.style.opacity = '1';
-        successModal.style.position = 'fixed';
-        successModal.style.top = '0';
-        successModal.style.left = '0';
-        successModal.style.right = '0';
-        successModal.style.bottom = '0';
-        successModal.style.width = '100vw';
-        successModal.style.height = '100vh';
-        successModal.style.alignItems = 'center';
-        successModal.style.justifyContent = 'center';
-        
-        setTimeout(function() {
-            successModal.classList.add('show');
-        }, 10);
+        const modal = document.getElementById('contactSuccessModal');
+        if (!modal) return;
+        lockBodyScroll();
+        modal.style.display = 'flex';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        modal.classList.add('show');
+        const box = modal.querySelector('.premium-success-content');
+        if (box) box.scrollTop = 0;
     }
     
     // Close premium success modal
     function closeContactSuccessModal() {
-        const successModal = document.getElementById('contactSuccessModal');
-        if (!successModal) return;
-        
-        successModal.classList.remove('show');
-        setTimeout(function() {
-            successModal.style.display = 'none';
-            successModal.style.visibility = 'hidden';
-            successModal.style.opacity = '0';
-            
-            // Restore body scroll
-            const scrollY = document.body.style.top;
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
-            document.body.style.top = '';
-            
-            if (scrollY) {
-                window.scrollTo(0, parseInt(scrollY || '0') * -1);
-            }
-        }, 300);
+        const modal = document.getElementById('contactSuccessModal');
+        if (!modal) return;
+        modal.classList.remove('show');
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+        setTimeout(() => {
+            modal.style.display = 'none';
+            unlockBodyScroll();
+        }, 250);
     }
     
     // Event listeners for success modal
@@ -2622,15 +2659,7 @@ Important guidelines:
                 }, 300);
                 
                 // Restore body scroll
-                const scrollY = document.body.style.top;
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.top = '';
-                
-                if (scrollY) {
-                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
-                }
+                unlockBodyScroll();
             }
         });
 
@@ -2730,15 +2759,7 @@ Important guidelines:
                 }, 300);
                 
                 // Restore body scroll
-                const scrollY = document.body.style.top;
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.top = '';
-                
-                if (scrollY) {
-                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
-                }
+                unlockBodyScroll();
             }
         }
 
@@ -2774,6 +2795,14 @@ Important guidelines:
         }
 
         // Exit confirmation handlers - ensure they're set up properly
+        function handleKidsExitConfirmYes() {
+            const exit = document.getElementById('kidsExitConfirmationModal');
+            const main = document.getElementById('kidsAppointmentModal');
+            if (exit) { exit.classList.remove('show'); exit.style.display='none'; }
+            if (main) { main.classList.remove('show'); main.style.display='none'; }
+            unlockBodyScroll();
+        }
+
         const exitConfirmYes = document.getElementById("exitConfirmYes");
         const exitConfirmNo = document.getElementById("exitConfirmNo");
         
@@ -2781,10 +2810,7 @@ Important guidelines:
             exitConfirmYes.addEventListener("click", function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                closeExitConfirmation();
-                setTimeout(() => {
-                    closeKidsModalAndRestore();
-                }, 300);
+                handleKidsExitConfirmYes();
             });
         }
 
@@ -3871,57 +3897,27 @@ Important guidelines:
 
         // Open chatbot appointment modal
         function openChatbotAppointmentModal() {
-            if (!chatbotModal) return;
-            
-            // Hide chatbot popup if visible
-            const chatPopup = document.getElementById('question-popup');
-            if (chatPopup && !chatPopup.classList.contains('hidden')) {
-                chatPopup.classList.remove('visible');
-                setTimeout(() => {
-                    chatPopup.classList.add('hidden');
-                }, 150);
-            }
-            
-            // Lock body scroll
-            const scrollY = window.scrollY;
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
-            document.body.style.top = `-${scrollY}px`;
-            
-            // Show modal
-            chatbotModal.style.display = 'flex';
-            chatbotModal.style.zIndex = '100003';
-            setTimeout(() => {
-                chatbotModal.classList.add('show');
-                // Scroll content to top
-                const content = chatbotModal.querySelector('.chatbot-appointment-content');
-                if (content) {
-                    content.scrollTop = 0;
-                }
-            }, 10);
+            const modal = document.getElementById('chatbotAppointmentModal');
+            if (!modal) return;
+            hideQuestionPopupOnModalOpen();
+            lockBodyScroll();
+            modal.style.display='flex';
+            modal.style.zIndex='100003';
+            requestAnimationFrame(() => {
+                modal.classList.add('show');
+                const box = modal.querySelector('.chatbot-appointment-content');
+                if (box) box.scrollTop = 0;
+            });
         }
 
         // Close chatbot appointment modal
         function closeChatbotAppointmentModal() {
-            if (!chatbotModal) return;
-            
-            chatbotModal.classList.remove('show');
+            const modal = document.getElementById('chatbotAppointmentModal');
+            if (!modal) return;
+            modal.classList.remove('show');
             setTimeout(() => {
-                chatbotModal.style.display = 'none';
-                chatbotModal.style.visibility = 'hidden';
-                chatbotModal.style.opacity = '0';
-                
-                // Restore body scroll
-                const scrollY = document.body.style.top;
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.top = '';
-                
-                if (scrollY) {
-                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
-                }
+                modal.style.display='none';
+                unlockBodyScroll();
             }, 350);
         }
 
@@ -4017,44 +4013,26 @@ Important guidelines:
         }
 
         // Show chatbot confirmation modal
-        function showChatbotConfirmation() {
-            if (!chatbotConfirmationModal) return;
-            
-            // Lock body scroll
-            const scrollY = window.scrollY;
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
-            document.body.style.top = `-${scrollY}px`;
-            
-            // Show modal
-            chatbotConfirmationModal.style.display = 'flex';
-            chatbotConfirmationModal.style.zIndex = '100004';
-            setTimeout(() => {
-                chatbotConfirmationModal.classList.add('show');
-            }, 10);
+        function openChatbotConfirmation() {
+            const main = document.getElementById('chatbotAppointmentModal');
+            if (main) { main.classList.remove('show'); main.style.display='none'; }
+            const modal = document.getElementById('chatbotAppointmentConfirmationModal');
+            if (!modal) return;
+            lockBodyScroll();
+            modal.style.display='flex';
+            requestAnimationFrame(() => {
+                modal.classList.add('show');
+            });
         }
 
         // Close chatbot confirmation modal
         function closeChatbotConfirmation() {
-            if (!chatbotConfirmationModal) return;
-            
-            chatbotConfirmationModal.classList.remove('show');
+            const modal = document.getElementById('chatbotAppointmentConfirmationModal');
+            if (!modal) return;
+            modal.classList.remove('show');
             setTimeout(() => {
-                chatbotConfirmationModal.style.display = 'none';
-                chatbotConfirmationModal.style.visibility = 'hidden';
-                chatbotConfirmationModal.style.opacity = '0';
-                
-                // Restore body scroll
-                const scrollY = document.body.style.top;
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.top = '';
-                
-                if (scrollY) {
-                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
-                }
+                modal.style.display='none';
+                unlockBodyScroll();
             }, 400);
         }
 
@@ -4113,7 +4091,7 @@ Important guidelines:
                         // Success - Close appointment modal and show confirmation
                         closeChatbotAppointmentModal();
                         setTimeout(() => {
-                            showChatbotConfirmation();
+                            openChatbotConfirmation();
                             chatbotForm.reset();
                             if (submitBtn) {
                                 submitBtn.disabled = false;

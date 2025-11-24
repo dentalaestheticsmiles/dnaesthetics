@@ -144,9 +144,25 @@ document.addEventListener("DOMContentLoaded", function() {
     function sanitizeInput(input) {
         if (typeof input !== 'string') return '';
         return input.trim()
-            .replace(/[<>]/g, '') // Remove angle brackets
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
             .replace(/javascript:/gi, '') // Remove javascript: protocol
-            .replace(/on\w+=/gi, ''); // Remove event handlers
+            .replace(/data:/gi, '') // Remove data: URIs
+            .replace(/on\w+\s*=/gi, '') // Remove event handlers (onclick=, onerror=, etc.)
+            .replace(/[<>]/g, ''); // Remove remaining angle brackets
+    }
+    
+    // Sanitize HTML for safe insertion (if innerHTML must be used)
+    function sanitizeHTML(html) {
+        if (typeof html !== 'string') return '';
+        const div = document.createElement('div');
+        div.textContent = html; // Use textContent to escape everything
+        let sanitized = div.innerHTML;
+        // Additional cleanup
+        sanitized = sanitized
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+            .replace(/on\w+\s*="[^"]*"/gi, '')
+            .replace(/on\w+\s*='[^']*'/gi, '');
+        return sanitized;
     }
     
     // Validate email format
@@ -1482,10 +1498,77 @@ Important guidelines:
     // ============================================
     // CONTACT FORM SUBMISSION WITH EMAILJS
     // ============================================
+    function validateContactForm() {
+        const nameInput = document.getElementById('contactName');
+        const emailInput = document.getElementById('contactEmail');
+        const phoneInput = document.getElementById('contactPhone');
+        const serviceInput = document.getElementById('contactService');
+
+        let isValid = true;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        let firstInvalidField = null;
+
+        // Remove previous errors
+        [nameInput, emailInput, phoneInput, serviceInput].forEach(function(input) {
+            if (input) {
+                input.classList.remove('input-error');
+            }
+        });
+
+        // Validate name
+        if (!nameInput || !nameInput.value.trim()) {
+            if (nameInput) {
+                nameInput.classList.add('input-error');
+                if (!firstInvalidField) firstInvalidField = nameInput;
+            }
+            isValid = false;
+        }
+
+        // Validate email
+        if (!emailInput || !emailInput.value.trim() || !emailRegex.test(emailInput.value.trim())) {
+            if (emailInput) {
+                emailInput.classList.add('input-error');
+                if (!firstInvalidField) firstInvalidField = emailInput;
+            }
+            isValid = false;
+        }
+
+        // Validate phone (at least 10 digits)
+        if (!phoneInput || !phoneInput.value.trim() || phoneInput.value.replace(/\D/g, '').length < 10) {
+            if (phoneInput) {
+                phoneInput.classList.add('input-error');
+                if (!firstInvalidField) firstInvalidField = phoneInput;
+            }
+            isValid = false;
+        }
+
+        // Validate service
+        if (!serviceInput || !serviceInput.value) {
+            if (serviceInput) {
+                serviceInput.classList.add('input-error');
+                if (!firstInvalidField) firstInvalidField = serviceInput;
+            }
+            isValid = false;
+        }
+
+        // Scroll to first invalid field if form is invalid
+        if (!isValid && firstInvalidField) {
+            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalidField.focus();
+        }
+
+        return isValid;
+    }
+
     const appointmentForm = document.getElementById('appointmentForm');
     if (appointmentForm) {
         appointmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Validate form
+            if (!validateContactForm()) {
+                return;
+            }
             
             // Get form data with null checks
             const nameInput = document.getElementById('contactName');
@@ -1495,7 +1578,6 @@ Important guidelines:
             const messageInput = document.getElementById('contactMessage');
             
             if (!nameInput || !emailInput || !phoneInput || !serviceInput || !messageInput) {
-                alert('Please fill in all required fields.');
                 return;
             }
             
@@ -1505,9 +1587,12 @@ Important guidelines:
             const service = serviceInput.value;
             const message = messageInput.value.trim();
 
-            if (!name || !email || !phone || !service) {
-                alert('Please fill in all required fields.');
-                return;
+            // Disable submit button and show loading state
+            const submitBtn = appointmentForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.textContent : 'Book Appointment';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Sending...';
             }
 
             // Create contact data object
@@ -1536,7 +1621,7 @@ Important guidelines:
                 service: service,
                 message: message
             };
-
+            
             // Use unified submitAppointment function - FIXED: Show success only on actual success
             submitAppointment(formData)
                 .then(function(response) {
@@ -1544,10 +1629,35 @@ Important guidelines:
                     showContactSuccessModal();
                     // Reset form
                     appointmentForm.reset();
+                    // Re-enable button
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                    }
                 })
                 .catch(function(error) {
-                    // Email sending failed - Show error alert and keep form data
-                    alert('⚠️ There was an issue sending your contact request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your contact details have been saved.');
+                    // Email sending failed - Show inline error message
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                    }
+                    
+                    // Show error message in form
+                    let errorMsg = appointmentForm.querySelector('.form-error-message');
+                    if (!errorMsg) {
+                        errorMsg = document.createElement('div');
+                        errorMsg.className = 'form-error-message';
+                        errorMsg.style.cssText = 'color: #ef4444; margin-top: 1rem; padding: 0.75rem; background: #fee2e2; border-radius: 8px; text-align: center;';
+                        appointmentForm.appendChild(errorMsg);
+                    }
+                    errorMsg.textContent = '⚠️ There was an issue sending your contact request. Please contact us directly at dentalaestheticsmiles@gmail.com or call us. Your contact details have been saved.';
+                    
+                    // Remove error message after 8 seconds
+                    setTimeout(() => {
+                        if (errorMsg && errorMsg.parentNode) {
+                            errorMsg.remove();
+                        }
+                    }, 8000);
                 });
         });
     }
@@ -2198,20 +2308,33 @@ Important guidelines:
             }
     }
 
-    // Form validation
+    // Form validation - FIXED: Only validate visible required fields, prevent browser native validation
     function validateAppointmentForm() {
         const nameInput = document.getElementById('popupName');
         const emailInput = document.getElementById('popupEmail');
         const phoneInput = document.getElementById('popupPhone');
         const serviceInput = document.getElementById('popupService');
+        const honeypotInput = appointmentPopupForm ? appointmentPopupForm.querySelector('input[name="website"]') : null;
 
         let isValid = true;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        let firstInvalidField = null;
+
+        // Remove required from honeypot to prevent browser validation
+        if (honeypotInput) {
+            honeypotInput.removeAttribute('required');
+        }
 
         // Remove previous errors
         [nameInput, emailInput, phoneInput, serviceInput].forEach(function(input) {
             if (input) {
                 input.classList.remove('input-error');
+                // Ensure visible required fields keep required attribute
+                if (input.type !== 'hidden' && input.style.display !== 'none' && input.offsetParent !== null) {
+                    if (input.id === 'popupName' || input.id === 'popupEmail' || input.id === 'popupPhone' || input.id === 'popupService') {
+                        input.setAttribute('required', 'required');
+                    }
+                }
             }
         });
 
@@ -2219,6 +2342,7 @@ Important guidelines:
         if (!nameInput || !nameInput.value.trim()) {
             if (nameInput) {
                 nameInput.classList.add('input-error');
+                if (!firstInvalidField) firstInvalidField = nameInput;
             }
             isValid = false;
         }
@@ -2227,6 +2351,7 @@ Important guidelines:
         if (!emailInput || !emailInput.value.trim() || !emailRegex.test(emailInput.value.trim())) {
             if (emailInput) {
                 emailInput.classList.add('input-error');
+                if (!firstInvalidField) firstInvalidField = emailInput;
             }
             isValid = false;
         }
@@ -2235,6 +2360,7 @@ Important guidelines:
         if (!phoneInput || !phoneInput.value.trim() || phoneInput.value.replace(/\D/g, '').length < 10) {
             if (phoneInput) {
                 phoneInput.classList.add('input-error');
+                if (!firstInvalidField) firstInvalidField = phoneInput;
             }
             isValid = false;
         }
@@ -2243,8 +2369,15 @@ Important guidelines:
         if (!serviceInput || !serviceInput.value) {
             if (serviceInput) {
                 serviceInput.classList.add('input-error');
+                if (!firstInvalidField) firstInvalidField = serviceInput;
             }
             isValid = false;
+        }
+
+        // Scroll to first invalid field if form is invalid
+        if (!isValid && firstInvalidField) {
+            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalidField.focus();
         }
 
         return isValid;
@@ -2336,10 +2469,18 @@ Important guidelines:
             formData.appointment_date = date;
             formData.appointment_time = time;
 
+            // Disable submit button and show loading state
+            const submitBtn = appointmentPopupForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.textContent : 'Book Appointment';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Booking...';
+            }
+
             // Use unified submitAppointment function
             submitAppointment(formData)
                 .then(function(response) {
-                    // Close popup
+                    // Success - Close popup and show confirmation
                     closeAppointmentPopup();
                     
                     // Show confirmation modal
@@ -2355,19 +2496,42 @@ Important guidelines:
             
             // Reset form
                     appointmentPopupForm.reset();
-                }, function(error) {
-                    // Fallback if EmailJS fails
-                    closeAppointmentPopup();
-                    showAppointmentConfirmation({
-                        name: name,
-                        email: email,
-                        phone: phone,
-                        service: service,
-                        date: date,
-                        time: time,
-                        message: message
-                    });
-                    appointmentPopupForm.reset();
+                    
+                    // Re-enable button
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                    }
+                })
+                .catch(function(error) {
+                    // Error - Show inline error message
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                    }
+                    
+                    // Show error message in popup
+                    let errorMsg = appointmentPopupForm.querySelector('.form-error-message');
+                    if (!errorMsg) {
+                        errorMsg = document.createElement('div');
+                        errorMsg.className = 'form-error-message';
+                        errorMsg.style.cssText = 'color: #ef4444; margin-top: 1rem; padding: 0.75rem; background: #fee2e2; border-radius: 8px; text-align: center;';
+                        appointmentPopupForm.appendChild(errorMsg);
+                    }
+                    errorMsg.textContent = 'There was an issue sending your request. Please try again or contact us directly.';
+                    
+                    // Remove error message after 5 seconds
+                    setTimeout(() => {
+                        if (errorMsg && errorMsg.parentNode) {
+                            errorMsg.remove();
+                        }
+                    }, 5000);
+                    
+                    // Restore body scroll in case of error
+                    document.body.style.overflow = '';
+                    document.body.style.position = '';
+                    document.body.style.width = '';
+                    document.body.style.top = '';
                 });
         });
     }
@@ -2577,10 +2741,10 @@ Important guidelines:
         function handleKidsModalBackdropClick(e) {
             // Only trigger if clicking directly on the backdrop (modal container itself, not content)
             if (e.target === e.currentTarget || e.target.id === 'kidsAppointmentModal') {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
                 // Check if form has data
                 if (hasFormData()) {
                     // Show exit confirmation instead of closing
@@ -2600,7 +2764,7 @@ Important guidelines:
         if (exitConfirmYes) {
             exitConfirmYes.addEventListener("click", function(e) {
                     e.preventDefault();
-                e.stopPropagation();
+                    e.stopPropagation();
                 closeExitConfirmation();
                 setTimeout(() => {
                     closeKidsModalAndRestore();
@@ -2625,9 +2789,9 @@ Important guidelines:
                     e.preventDefault();
                     e.stopPropagation();
                     closeExitConfirmation();
-                }
-            });
-        }
+                    }
+                });
+            }
 
         // Close exit confirmation on ESC - only if exit modal is open
         document.addEventListener("keydown", function(e) {
@@ -2644,7 +2808,7 @@ Important guidelines:
         // Form Submission - NO CLONENODE
         if (kidsAppointmentForm) {
             kidsAppointmentForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+                    e.preventDefault();
                 e.stopPropagation();
                 
                 const formData = new FormData(kidsAppointmentForm);
@@ -2657,9 +2821,96 @@ Important guidelines:
                 const time = formData.get('appointment_time') || '';
                 const message = formData.get('kidMessage') || '';
                 
-                // Validate required fields
-                if (!parentName || !childName || !email || !phone || !service || !date || !time) {
-                        alert('Please fill in all required fields.');
+                // Validate required fields with proper error styling
+                let isValid = true;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                let firstInvalidField = null;
+                
+                // Get all input elements
+                const parentNameInput = kidsAppointmentForm.querySelector('input[name="parent_name"]');
+                const childNameInput = kidsAppointmentForm.querySelector('input[name="child_name"]');
+                const emailInput = kidsAppointmentForm.querySelector('input[name="parent_email"]');
+                const phoneInput = kidsAppointmentForm.querySelector('input[name="phone"]');
+                const serviceInput = kidsAppointmentForm.querySelector('select[name="service"]');
+                const dateInput = kidsAppointmentForm.querySelector('input[name="appointment_date"]');
+                const timeInput = kidsAppointmentForm.querySelector('select[name="appointment_time"]');
+                
+                // Remove previous errors
+                [parentNameInput, childNameInput, emailInput, phoneInput, serviceInput, dateInput, timeInput].forEach(function(input) {
+                    if (input) {
+                        input.classList.remove('input-error');
+                    }
+                });
+                
+                // Validate parent name
+                if (!parentName || !parentName.trim()) {
+                    if (parentNameInput) {
+                        parentNameInput.classList.add('input-error');
+                        if (!firstInvalidField) firstInvalidField = parentNameInput;
+                    }
+                    isValid = false;
+                }
+                
+                // Validate child name
+                if (!childName || !childName.trim()) {
+                    if (childNameInput) {
+                        childNameInput.classList.add('input-error');
+                        if (!firstInvalidField) firstInvalidField = childNameInput;
+                    }
+                    isValid = false;
+                }
+                
+                // Validate email
+                if (!email || !email.trim() || !emailRegex.test(email.trim())) {
+                    if (emailInput) {
+                        emailInput.classList.add('input-error');
+                        if (!firstInvalidField) firstInvalidField = emailInput;
+                    }
+                    isValid = false;
+                }
+                
+                // Validate phone (at least 10 digits)
+                if (!phone || !phone.trim() || phone.replace(/\D/g, '').length < 10) {
+                    if (phoneInput) {
+                        phoneInput.classList.add('input-error');
+                        if (!firstInvalidField) firstInvalidField = phoneInput;
+                    }
+                    isValid = false;
+                }
+                
+                // Validate service
+                if (!service || !service.trim() || service === 'Select Service') {
+                    if (serviceInput) {
+                        serviceInput.classList.add('input-error');
+                        if (!firstInvalidField) firstInvalidField = serviceInput;
+                    }
+                    isValid = false;
+                }
+                
+                // Validate date
+                if (!date || !date.trim()) {
+                    if (dateInput) {
+                        dateInput.classList.add('input-error');
+                        if (!firstInvalidField) firstInvalidField = dateInput;
+                    }
+                    isValid = false;
+                }
+                
+                // Validate time
+                if (!time || !time.trim() || time === 'Select Preferred Time') {
+                    if (timeInput) {
+                        timeInput.classList.add('input-error');
+                        if (!firstInvalidField) firstInvalidField = timeInput;
+                    }
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    // Scroll to first invalid field
+                    if (firstInvalidField) {
+                        firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstInvalidField.focus();
+                    }
                         return;
                     }
 
@@ -3495,7 +3746,7 @@ Important guidelines:
         function toggleScrollToTop() {
             if (window.scrollY > 300) {
                 scrollToTopBtn.classList.add('show');
-            } else {
+                } else {
                 scrollToTopBtn.classList.remove('show');
             }
         }
@@ -3511,9 +3762,71 @@ Important guidelines:
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
+                            });
+                        });
+                    }
+
+    // ============================================
+    // SECURITY GUARDS INITIALIZATION
+    // ============================================
+    function initSecurityGuards() {
+        // A. Input sanitization on all forms
+        const allForms = document.querySelectorAll('form');
+        allForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                // Sanitize all text inputs and textareas before submission
+                const textInputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea');
+                textInputs.forEach(input => {
+                    if (input.value) {
+                        const sanitized = sanitizeInput(input.value);
+                        if (sanitized !== input.value) {
+                            input.value = sanitized;
+                        }
+                    }
+                });
             });
         });
+
+        // B. Ensure all external links have rel="noopener noreferrer"
+        const externalLinks = document.querySelectorAll('a[target="_blank"]');
+        externalLinks.forEach(link => {
+            if (!link.getAttribute('rel')) {
+                link.setAttribute('rel', 'noopener noreferrer');
+            }
+        });
+
+        // C. Honeypot field protection
+        const honeypotFields = document.querySelectorAll('input[name="website"], input[name="url"], input[name="honeypot"]');
+        honeypotFields.forEach(field => {
+            // Ensure honeypot fields are never required
+            field.removeAttribute('required');
+            // Clear any bot-filled values before submission
+            const form = field.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    if (field.value) {
+                        // Honeypot filled - likely spam, but don't alert the bot
+                        field.value = '';
+                    }
+                });
+            }
+        });
+
+        // D. Error handling wrapper for fetch calls
+        // (Already implemented in form submission handlers)
+
+        // E. CSP Note (commented for future implementation)
+        // TODO: Add Content Security Policy header via hosting config
+        // Recommended: script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+        //             style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        //             font-src 'self' https://fonts.gstatic.com;
+        //             img-src 'self' data: https:;
+        //             connect-src 'self' https://api.emailjs.com;
+        // TODO: Enable HTTPS-only access if not already enforced
     }
+
+    // Initialize security guards
+    initSecurityGuards();
 
 }); // End of DOMContentLoaded
 

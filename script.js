@@ -886,9 +886,9 @@ Important guidelines:
                     message = "Tell me about kids dentistry";
                     break;
                 case "book-appointment":
-                    // Open appointment popup directly - FIXED: Use window.openAppointmentPopup
-                    const openPopupFunc = window.openAppointmentPopup || openAppointmentPopup;
-                    if (typeof openPopupFunc === "function") {
+                    // Open NEW chatbot-specific appointment modal (NOT adult popup)
+                    const chatbotModal = document.getElementById('chatbotAppointmentModal');
+                    if (chatbotModal) {
                         const chatPopup = document.getElementById('question-popup');
                         if (chatPopup && !chatPopup.classList.contains('hidden')) {
                             if (typeof hidePopup === "function") {
@@ -901,7 +901,23 @@ Important guidelines:
                             }
                         }
                         setTimeout(function() {
-                            openPopupFunc();
+                            // Lock body scroll
+                            const scrollY = window.scrollY;
+                            document.body.style.overflow = 'hidden';
+                            document.body.style.position = 'fixed';
+                            document.body.style.width = '100%';
+                            document.body.style.top = `-${scrollY}px`;
+                            
+                            // Show chatbot modal
+                            chatbotModal.style.display = 'flex';
+                            chatbotModal.style.zIndex = '100003';
+                            setTimeout(() => {
+                                chatbotModal.classList.add('show');
+                                const content = chatbotModal.querySelector('.chatbot-appointment-content');
+                                if (content) {
+                                    content.scrollTop = 0;
+                                }
+                            }, 10);
                         }, 200);
                         return; // Don't send message, just open popup
                     }
@@ -3827,6 +3843,383 @@ Important guidelines:
 
     // Initialize security guards
     initSecurityGuards();
+
+    // ============================================
+    // PREMIUM LUXURY CHATBOT APPOINTMENT POPUP
+    // (Completely independent from adult/kids popups)
+    // ============================================
+    function initChatbotAppointmentPopup() {
+        const chatbotModal = document.getElementById('chatbotAppointmentModal');
+        const chatbotForm = document.getElementById('chatbotAppointmentForm');
+        const chatbotCloseBtn = document.getElementById('chatbotAppointmentClose');
+        const chatbotConfirmationModal = document.getElementById('chatbotAppointmentConfirmationModal');
+        const chatbotConfirmationClose = document.getElementById('chatbotConfirmationClose');
+        const chatbotConfirmationOk = document.getElementById('chatbotConfirmationOk');
+        const chatbotDateInput = document.getElementById('chatbotDate');
+        
+        if (!chatbotModal || !chatbotForm) return;
+
+        // Set minimum date to today (prevent past dates)
+        if (chatbotDateInput) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const minDate = year + '-' + month + '-' + day;
+            chatbotDateInput.setAttribute('min', minDate);
+        }
+
+        // Open chatbot appointment modal
+        function openChatbotAppointmentModal() {
+            if (!chatbotModal) return;
+            
+            // Hide chatbot popup if visible
+            const chatPopup = document.getElementById('question-popup');
+            if (chatPopup && !chatPopup.classList.contains('hidden')) {
+                chatPopup.classList.remove('visible');
+                setTimeout(() => {
+                    chatPopup.classList.add('hidden');
+                }, 150);
+            }
+            
+            // Lock body scroll
+            const scrollY = window.scrollY;
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.top = `-${scrollY}px`;
+            
+            // Show modal
+            chatbotModal.style.display = 'flex';
+            chatbotModal.style.zIndex = '100003';
+            setTimeout(() => {
+                chatbotModal.classList.add('show');
+                // Scroll content to top
+                const content = chatbotModal.querySelector('.chatbot-appointment-content');
+                if (content) {
+                    content.scrollTop = 0;
+                }
+            }, 10);
+        }
+
+        // Close chatbot appointment modal
+        function closeChatbotAppointmentModal() {
+            if (!chatbotModal) return;
+            
+            chatbotModal.classList.remove('show');
+            setTimeout(() => {
+                chatbotModal.style.display = 'none';
+                chatbotModal.style.visibility = 'hidden';
+                chatbotModal.style.opacity = '0';
+                
+                // Restore body scroll
+                const scrollY = document.body.style.top;
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                
+                if (scrollY) {
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                }
+            }, 350);
+        }
+
+        // Validate chatbot form
+        function validateChatbotForm() {
+            const nameInput = document.getElementById('chatbotName');
+            const phoneInput = document.getElementById('chatbotPhone');
+            const serviceInput = document.getElementById('chatbotService');
+            const dateInput = document.getElementById('chatbotDate');
+            const timeInput = document.getElementById('chatbotTime');
+            const emailInput = document.getElementById('chatbotEmail');
+
+            let isValid = true;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            let firstInvalidField = null;
+
+            // Remove previous errors
+            [nameInput, phoneInput, serviceInput, dateInput, timeInput, emailInput].forEach(input => {
+                if (input) {
+                    input.classList.remove('input-error');
+                }
+            });
+
+            // Validate name
+            if (!nameInput || !nameInput.value.trim()) {
+                if (nameInput) {
+                    nameInput.classList.add('input-error');
+                    if (!firstInvalidField) firstInvalidField = nameInput;
+                }
+                isValid = false;
+            }
+
+            // Validate email (optional but if provided, must be valid)
+            if (emailInput && emailInput.value.trim() && !emailRegex.test(emailInput.value.trim())) {
+                emailInput.classList.add('input-error');
+                if (!firstInvalidField) firstInvalidField = emailInput;
+                isValid = false;
+            }
+
+            // Validate phone
+            if (!phoneInput || !phoneInput.value.trim() || phoneInput.value.replace(/\D/g, '').length < 10) {
+                if (phoneInput) {
+                    phoneInput.classList.add('input-error');
+                    if (!firstInvalidField) firstInvalidField = phoneInput;
+                }
+                isValid = false;
+            }
+
+            // Validate service
+            if (!serviceInput || !serviceInput.value) {
+                if (serviceInput) {
+                    serviceInput.classList.add('input-error');
+                    if (!firstInvalidField) firstInvalidField = serviceInput;
+                }
+                isValid = false;
+            }
+
+            // Validate date
+            if (!dateInput || !dateInput.value) {
+                if (dateInput) {
+                    dateInput.classList.add('input-error');
+                    if (!firstInvalidField) firstInvalidField = dateInput;
+                }
+                isValid = false;
+            } else {
+                // Check if date is in the past
+                const selectedDate = new Date(dateInput.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (selectedDate < today) {
+                    dateInput.classList.add('input-error');
+                    if (!firstInvalidField) firstInvalidField = dateInput;
+                    isValid = false;
+                }
+            }
+
+            // Validate time
+            if (!timeInput || !timeInput.value) {
+                if (timeInput) {
+                    timeInput.classList.add('input-error');
+                    if (!firstInvalidField) firstInvalidField = timeInput;
+                }
+                isValid = false;
+            }
+
+            // Scroll to first invalid field
+            if (!isValid && firstInvalidField) {
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalidField.focus();
+            }
+
+            return isValid;
+        }
+
+        // Show chatbot confirmation modal
+        function showChatbotConfirmation() {
+            if (!chatbotConfirmationModal) return;
+            
+            // Lock body scroll
+            const scrollY = window.scrollY;
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.top = `-${scrollY}px`;
+            
+            // Show modal
+            chatbotConfirmationModal.style.display = 'flex';
+            chatbotConfirmationModal.style.zIndex = '100004';
+            setTimeout(() => {
+                chatbotConfirmationModal.classList.add('show');
+            }, 10);
+        }
+
+        // Close chatbot confirmation modal
+        function closeChatbotConfirmation() {
+            if (!chatbotConfirmationModal) return;
+            
+            chatbotConfirmationModal.classList.remove('show');
+            setTimeout(() => {
+                chatbotConfirmationModal.style.display = 'none';
+                chatbotConfirmationModal.style.visibility = 'hidden';
+                chatbotConfirmationModal.style.opacity = '0';
+                
+                // Restore body scroll
+                const scrollY = document.body.style.top;
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                
+                if (scrollY) {
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                }
+            }, 400);
+        }
+
+        // Form submission
+        if (chatbotForm) {
+            chatbotForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Validate form
+                if (!validateChatbotForm()) {
+                    return;
+                }
+
+                // Get form data
+                const formDataObj = new FormData(chatbotForm);
+                const name = formDataObj.get('name') || '';
+                const email = formDataObj.get('email') || '';
+                const phone = formDataObj.get('phone') || '';
+                const service = formDataObj.get('service') || '';
+                const date = formDataObj.get('appointment_date') || '';
+                const time = formDataObj.get('appointment_time') || '';
+                const message = formDataObj.get('message') || '';
+
+                // Disable submit button and show loading
+                const submitBtn = chatbotForm.querySelector('.chatbot-submit-btn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('loading');
+                }
+
+                // Prepare data for submission (using same backend as other forms)
+                const appointmentData = {
+                    name: sanitizeInput(name),
+                    email: sanitizeInput(email),
+                    phone: sanitizeInput(phone),
+                    service: sanitizeInput(service),
+                    appointment_date: date,
+                    appointment_time: time,
+                    message: sanitizeInput(message)
+                };
+
+                // Security validation
+                const validation = validateFormData(appointmentData, 'chatbotAppointmentForm');
+                if (!validation.valid) {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('loading');
+                    }
+                    return;
+                }
+
+                // Submit using same backend function
+                submitAppointment(appointmentData)
+                    .then(() => {
+                        // Success - Close appointment modal and show confirmation
+                        closeChatbotAppointmentModal();
+                        setTimeout(() => {
+                            showChatbotConfirmation();
+                            chatbotForm.reset();
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('loading');
+                            }
+                        }, 350);
+                    })
+                    .catch((error) => {
+                        // Error - Show inline error message
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('loading');
+                        }
+                        
+                        let errorMsg = chatbotForm.querySelector('.chatbot-form-error');
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('div');
+                            errorMsg.className = 'chatbot-form-error';
+                            errorMsg.style.cssText = 'color: #ef4444; margin-top: 1rem; padding: 0.75rem; background: #fee2e2; border-radius: 8px; text-align: center; font-family: Inter, Nunito, Poppins, sans-serif;';
+                            chatbotForm.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'There was an issue sending your request. Please try again or contact us directly.';
+                        
+                        setTimeout(() => {
+                            if (errorMsg && errorMsg.parentNode) {
+                                errorMsg.remove();
+                            }
+                        }, 5000);
+                    });
+            });
+        }
+
+        // Close button handlers
+        if (chatbotCloseBtn) {
+            chatbotCloseBtn.addEventListener('click', closeChatbotAppointmentModal);
+        }
+
+        if (chatbotConfirmationClose) {
+            chatbotConfirmationClose.addEventListener('click', closeChatbotConfirmation);
+        }
+
+        if (chatbotConfirmationOk) {
+            chatbotConfirmationOk.addEventListener('click', closeChatbotConfirmation);
+        }
+
+        // Outside click to close
+        if (chatbotModal) {
+            chatbotModal.addEventListener('click', function(e) {
+                if (e.target === chatbotModal) {
+                    closeChatbotAppointmentModal();
+                }
+            });
+        }
+
+        if (chatbotConfirmationModal) {
+            chatbotConfirmationModal.addEventListener('click', function(e) {
+                if (e.target === chatbotConfirmationModal) {
+                    closeChatbotConfirmation();
+                }
+            });
+        }
+
+        // ESC key to close
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (chatbotModal && chatbotModal.classList.contains('show')) {
+                    closeChatbotAppointmentModal();
+                }
+                if (chatbotConfirmationModal && chatbotConfirmationModal.classList.contains('show')) {
+                    closeChatbotConfirmation();
+                }
+            }
+        });
+
+        // Wire up chatbot button to open new modal (instead of adult popup)
+        // Find all chatbot buttons with data-action="book-appointment"
+        const chatbotButtons = document.querySelectorAll('.qp-chip[data-action="book-appointment"]');
+        chatbotButtons.forEach(btn => {
+            // Remove any existing listeners by cloning
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            // Add new listener to open chatbot modal
+            newBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openChatbotAppointmentModal();
+            });
+        });
+
+        // Also handle dynamically created chatbot buttons
+        const chatContainer = document.getElementById('qp-chat-container');
+        if (chatContainer) {
+            chatContainer.addEventListener('click', function(e) {
+                const chip = e.target.closest('.qp-chip[data-action="book-appointment"]');
+                if (chip) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openChatbotAppointmentModal();
+                }
+            }, true);
+        }
+    }
+
+    // Initialize chatbot appointment popup
+    initChatbotAppointmentPopup();
 
 }); // End of DOMContentLoaded
 

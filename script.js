@@ -991,23 +991,12 @@ Important guidelines:
                     message = "Tell me about kids dentistry";
                     break;
                 case "book-appointment":
-                    // Open NEW chatbot-specific appointment modal (NOT adult popup)
-                    const chatbotModal = document.getElementById('chatbotAppointmentModal');
-                    if (chatbotModal) {
-                        hideQuestionPopupOnModalOpen();
-                        setTimeout(function() {
-                            lockBodyScroll();
-                            // Show chatbot modal
-                            chatbotModal.style.display = 'flex';
-                            chatbotModal.style.zIndex = '100003';
-                            requestAnimationFrame(() => {
-                                chatbotModal.classList.add('show');
-                                const content = chatbotModal.querySelector('.chatbot-appointment-content');
-                                if (content) {
-                                    content.scrollTop = 0;
-                                }
-                            });
-                        }, 200);
+                    // Open chat appointment modal (keeps chat widget open)
+                    const chatAppModal = document.getElementById('chatAppointmentModal');
+                    if (chatAppModal) {
+                        // Keep chat open - just show appointment popup above it
+                        chatAppModal.classList.add("show");
+                        lockBodyScroll();
                         return; // Don't send message, just open popup
                     }
                     message = "I want to book an appointment";
@@ -2274,11 +2263,7 @@ Important guidelines:
         }
         
         // Lock body scroll
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.width = '100%';
-        const scrollY = window.scrollY;
-        document.body.style.top = `-${scrollY}px`;
+        lockBodyScroll();
         
         // Show modal with explicit visibility
         appointmentConfirmationModal.style.display = 'flex';
@@ -4198,6 +4183,161 @@ Important guidelines:
 
     // Initialize chatbot appointment popup
     initChatbotAppointmentPopup();
+
+    // ============================================
+    // CHAT WIDGET APPOINTMENT POPUP
+    // (Appears above chat widget, keeps chat open)
+    // ============================================
+    const chatAppointmentModal = document.getElementById("chatAppointmentModal");
+    const chatAppointmentForm = document.getElementById("chatAppointmentForm");
+    
+    if (chatAppointmentModal && chatAppointmentForm) {
+        // Set minimum date to today (prevent past dates)
+        const chatDateInput = document.getElementById('chatAppointmentDate');
+        if (chatDateInput) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const minDate = year + '-' + month + '-' + day;
+            chatDateInput.setAttribute('min', minDate);
+        }
+
+        // OPEN FROM CHAT BUTTON (keep chat open!)
+        document.querySelectorAll("[data-action='book-appointment']").forEach(btn => {
+            // Remove any existing listeners by cloning
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.addEventListener("click", e => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Keep chat open - just show the appointment popup above it
+                chatAppointmentModal.classList.add("show");
+                lockBodyScroll();
+            });
+        });
+
+        // Also handle dynamically created buttons via event delegation
+        const chatContainer = document.getElementById('qp-chat-container');
+        if (chatContainer) {
+            chatContainer.addEventListener('click', function(e) {
+                const chip = e.target.closest('.qp-chip[data-action="book-appointment"]');
+                if (chip) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    chatAppointmentModal.classList.add("show");
+                    lockBodyScroll();
+                }
+            }, true);
+        }
+
+        // CLOSE POPUP
+        document.querySelectorAll(".chat-appointment-close").forEach(btn => {
+            btn.addEventListener("click", () => {
+                chatAppointmentModal.classList.remove("show");
+                unlockBodyScroll();
+            });
+        });
+
+        // Close on outside click
+        chatAppointmentModal.addEventListener('click', function(e) {
+            if (e.target === chatAppointmentModal) {
+                chatAppointmentModal.classList.remove("show");
+                unlockBodyScroll();
+            }
+        });
+
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && chatAppointmentModal.classList.contains('show')) {
+                chatAppointmentModal.classList.remove("show");
+                unlockBodyScroll();
+            }
+        });
+
+        // SUBMISSION (same backend as main appointment form)
+        chatAppointmentForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const errorBox = chatAppointmentForm.querySelector(".chat-form-error");
+            if (errorBox) errorBox.textContent = "";
+
+            // Get form data
+            const formDataObj = new FormData(chatAppointmentForm);
+            const appointmentData = {
+                name: formDataObj.get('name') || '',
+                email: formDataObj.get('email') || '',
+                phone: formDataObj.get('phone') || '',
+                service: formDataObj.get('service') || '',
+                date: formDataObj.get('date') || '',
+                time: formDataObj.get('time') || '',
+                message: formDataObj.get('message') || ''
+            };
+
+            // Security validation
+            const validation = validateFormData(appointmentData, 'chatAppointmentForm');
+            if (!validation.valid) {
+                if (errorBox) {
+                    errorBox.textContent = validation.errors.length > 0 ? validation.errors[0] : 'Please check your information.';
+                }
+                return;
+            }
+
+            // Disable submit button
+            const submitBtn = chatAppointmentForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.textContent : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Booking...';
+            }
+
+            // Use the same submitAppointment function as main form
+            submitAppointment(appointmentData)
+                .then(() => {
+                    // Success - Close chat appointment modal and show confirmation
+                    chatAppointmentModal.classList.remove("show");
+                    chatAppointmentForm.reset();
+                    
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                    }
+                    
+                    // Show the same confirmation modal as main appointment form
+                    // Use the existing showAppointmentConfirmation function
+                    if (typeof showAppointmentConfirmation === 'function') {
+                        showAppointmentConfirmation(appointmentData);
+                    } else {
+                        // Fallback if function doesn't exist
+                        const confirmationModal = document.getElementById("appointmentConfirmationModal");
+                        if (confirmationModal) {
+                            lockBodyScroll();
+                            confirmationModal.style.display = 'flex';
+                            confirmationModal.style.zIndex = '100005';
+                            confirmationModal.style.visibility = 'visible';
+                            confirmationModal.style.opacity = '1';
+                            setTimeout(() => {
+                                confirmationModal.classList.add('show');
+                            }, 10);
+                        }
+                    }
+                })
+                .catch(() => {
+                    // Error - Show inline error
+                    if (errorBox) {
+                        errorBox.textContent = "Something went wrong. Please try again or contact us directly.";
+                    }
+                    
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                    }
+                });
+        });
+    }
 
 }); // End of DOMContentLoaded
 

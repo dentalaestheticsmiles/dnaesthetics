@@ -1971,6 +1971,43 @@
         </div>
     </div>
 
+    <!-- CHAT WIDGET APPOINTMENT POPUP -->
+    <div id="chatAppointmentModal" class="modal chat-appointment-modal">
+        <div class="modal-content chat-appointment-card">
+            <button class="close-modal chat-appointment-close" aria-label="Close appointment modal">&times;</button>
+            <h2 class="chat-appointment-title">Book Your Appointment</h2>
+            <p class="chat-appointment-subtitle">We'll confirm your slot shortly.</p>
+            <form id="chatAppointmentForm" autocomplete="off">
+                <label for="chatAppointmentName">Full Name*</label>
+                <input type="text" id="chatAppointmentName" name="name" autocomplete="name" required />
+                <label for="chatAppointmentEmail">Email (Optional)</label>
+                <input type="email" id="chatAppointmentEmail" name="email" autocomplete="email" />
+                <label for="chatAppointmentPhone">Phone Number*</label>
+                <input type="tel" id="chatAppointmentPhone" name="phone" autocomplete="tel" required />
+                <label for="chatAppointmentService">Select Service*</label>
+                <select id="chatAppointmentService" name="service" required>
+                    <option value="">Select a service</option>
+                    <option value="Teeth Whitening">Teeth Whitening</option>
+                    <option value="Dental Implants">Dental Implants</option>
+                    <option value="Orthodontics">Orthodontics</option>
+                    <option value="Cosmetic Dentistry">Cosmetic Dentistry</option>
+                    <option value="Botox & Fillers">Botox & Fillers</option>
+                    <option value="Laser Treatments">Laser Treatments</option>
+                    <option value="Pediatric Dental Care">Pediatric Dental Care</option>
+                    <option value="General Consultation">General Consultation</option>
+                </select>
+                <label for="chatAppointmentDate">Preferred Date</label>
+                <input type="date" id="chatAppointmentDate" name="date" />
+                <label for="chatAppointmentTime">Preferred Time</label>
+                <input type="time" id="chatAppointmentTime" name="time" />
+                <label for="chatAppointmentMessage">Message (Optional)</label>
+                <input type="text" id="chatAppointmentMessage" name="message" />
+                <button type="submit" class="btn-primary btn-block">Confirm Booking</button>
+                <p class="chat-form-error"></p>
+            </form>
+        </div>
+    </div>
+
     <script src="script.js" defer></script>
 </body>
 </html>

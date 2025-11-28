@@ -1740,12 +1740,15 @@ Important guidelines:
                 })
                 .finally(function() {
                     // ALWAYS show success modal after form submission (regardless of email status)
-                    try {
-                        showContactSuccessModal();
-                    } catch (modalError) {
-                        // Fallback: Show alert if modal fails
-                        alert('Your appointment request has been sent successfully! Our team will contact you shortly.');
-                    }
+                    // Use setTimeout to ensure DOM is ready and any other modals are closed
+                    setTimeout(function() {
+                        try {
+                            showContactSuccessModal();
+                        } catch (modalError) {
+                            // Fallback: Show alert if modal fails
+                            alert('Your appointment request has been sent successfully! Our team will contact you shortly.');
+                        }
+                    }, 100);
                     
                     // Reset form
                     appointmentForm.reset();
@@ -2206,74 +2209,73 @@ Important guidelines:
 
     // Show premium success modal for contact form
     function showContactSuccessModal() {
+        // FORCE SHOW - Maximum priority
         let modal = document.getElementById('contactSuccessModal');
         if (!modal) {
-            // Try to find it with different selector
-            const altModal = document.querySelector('#contactSuccessModal, .premium-success-modal, [id*="contactSuccess"]');
-            if (altModal) {
-                modal = altModal;
-            } else {
-                alert('Your appointment request has been received! Our team will contact you shortly.');
-                return;
-            }
+            alert('Your appointment request has been received! Our team will contact you shortly.');
+            return;
         }
         
-        try {
-            // Ensure body is not hidden
-            document.body.style.visibility = 'visible';
-            document.body.style.opacity = '1';
-            
-            // Reset checkmark animation by cloning the SVG to force re-render
-            const checkmark = modal.querySelector('.checkmark');
-            if (checkmark) {
-                const checkmarkParent = checkmark.parentElement;
-                const checkmarkClone = checkmark.cloneNode(true);
-                checkmarkParent.replaceChild(checkmarkClone, checkmark);
+        // Close any other modals that might be blocking
+        const otherModals = [
+            'appointmentPopup',
+            'appointmentConfirmationModal',
+            'kidsAppointmentModal',
+            'kidsAppointmentConfirmationModal',
+            'chatbotAppointmentModal',
+            'chatbotAppointmentConfirmationModal'
+        ];
+        otherModals.forEach(function(modalId) {
+            const otherModal = document.getElementById(modalId);
+            if (otherModal) {
+                otherModal.classList.remove('show');
+                otherModal.style.display = 'none';
+                otherModal.style.visibility = 'hidden';
+                otherModal.style.opacity = '0';
             }
-            
-            // Lock body scroll
-            lockBodyScroll();
-            
-            // Remove any existing inline styles that might hide it
-            modal.style.removeProperty('display');
-            modal.style.removeProperty('visibility');
-            modal.style.removeProperty('opacity');
-            
-            // Show modal with explicit styles - use !important via setProperty
-            modal.style.setProperty('display', 'flex', 'important');
-            modal.style.setProperty('visibility', 'visible', 'important');
-            modal.style.setProperty('opacity', '1', 'important');
-            modal.style.setProperty('z-index', '100002', 'important');
-            modal.classList.add('show');
-            
-            // Ensure content is visible
-            const box = modal.querySelector('.premium-success-content');
-            if (box) {
-                box.scrollTop = 0;
-                box.style.setProperty('visibility', 'visible', 'important');
-                box.style.setProperty('opacity', '1', 'important');
-            }
-            
-            // Force a reflow to ensure styles are applied and animations start
-            void modal.offsetHeight;
-            
-            // Trigger animation restart by briefly removing and re-adding animation
-            if (box) {
-                box.style.animation = 'none';
-                void box.offsetHeight; // Trigger reflow
-                box.style.animation = '';
-            }
-        } catch (error) {
-            // Fallback: ensure modal is at least visible with maximum priority
-            try {
-                modal.style.setProperty('display', 'flex', 'important');
-                modal.style.setProperty('visibility', 'visible', 'important');
-                modal.style.setProperty('opacity', '1', 'important');
-                modal.style.setProperty('z-index', '999999', 'important');
-                modal.classList.add('show');
-            } catch (fallbackError) {
-                alert('Your appointment request has been received! Our team will contact you shortly.');
-            }
+        });
+        
+        // Ensure body is visible
+        document.body.style.visibility = 'visible';
+        document.body.style.opacity = '1';
+        document.body.style.overflow = 'hidden';
+        
+        // Reset checkmark animation
+        const checkmark = modal.querySelector('.checkmark');
+        if (checkmark) {
+            const checkmarkParent = checkmark.parentElement;
+            const checkmarkClone = checkmark.cloneNode(true);
+            checkmarkParent.replaceChild(checkmarkClone, checkmark);
+        }
+        
+        // Lock body scroll
+        lockBodyScroll();
+        
+        // FORCE REMOVE all hiding styles
+        modal.style.removeProperty('display');
+        modal.style.removeProperty('visibility');
+        modal.style.removeProperty('opacity');
+        modal.style.removeProperty('z-index');
+        
+        // FORCE SHOW with maximum z-index
+        modal.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 20px !important; background: rgba(0, 0, 0, 0.6) !important; backdrop-filter: blur(8px) !important; z-index: 99999999 !important; overflow-y: auto !important; visibility: visible !important; opacity: 1 !important;';
+        modal.classList.add('show');
+        
+        // Ensure content box is visible
+        const box = modal.querySelector('.premium-success-content');
+        if (box) {
+            box.scrollTop = 0;
+            box.style.cssText = 'width: 100% !important; max-width: 480px !important; max-height: 90vh !important; overflow-y: auto !important; overflow-x: hidden !important; background: linear-gradient(135deg, #ffffff 0%, #f8f5ff 100%) !important; border-radius: 24px !important; padding: 40px 32px !important; box-shadow: 0 24px 80px rgba(124, 58, 237, 0.3), 0 0 0 1px rgba(124, 58, 237, 0.15) !important; position: relative !important; margin: 0 auto !important; text-align: center !important; visibility: visible !important; opacity: 1 !important;';
+        }
+        
+        // Force reflow
+        void modal.offsetHeight;
+        
+        // Restart animation
+        if (box) {
+            box.style.animation = 'none';
+            void box.offsetHeight;
+            box.style.animation = 'successModalFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
         }
     }
     

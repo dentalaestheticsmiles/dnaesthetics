@@ -991,13 +991,33 @@ Important guidelines:
                     message = "Tell me about kids dentistry";
                     break;
                 case "book-appointment":
-                    // Open chat appointment modal (keeps chat widget open)
-                    const chatAppModal = document.getElementById('chatAppointmentModal');
-                    if (chatAppModal) {
-                        // Keep chat open - just show appointment popup above it
-                        chatAppModal.classList.add("show");
-                        lockBodyScroll();
-                        return; // Don't send message, just open popup
+                    // Scroll to contact section instead of opening modal
+                    const contactSection = document.getElementById('contact');
+                    if (contactSection) {
+                        // Close chat popup if open
+                        const chatPopup = document.getElementById('question-popup');
+                        if (chatPopup && !chatPopup.classList.contains('hidden')) {
+                            if (typeof hidePopup === "function") {
+                                hidePopup();
+                            } else {
+                                chatPopup.classList.remove("visible");
+                                setTimeout(function() {
+                                    chatPopup.classList.add("hidden");
+                                }, 150);
+                            }
+                        }
+                        // Scroll to contact section smoothly
+                        setTimeout(function() {
+                            contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // Focus on the form after a short delay
+                            setTimeout(function() {
+                                const nameInput = document.getElementById('contactName');
+                                if (nameInput) {
+                                    nameInput.focus();
+                                }
+                            }, 500);
+                        }, 200);
+                        return; // Don't send message, just scroll
                     }
                     message = "I want to book an appointment";
                     break;
@@ -1172,9 +1192,10 @@ Important guidelines:
                         addMessageToChat("I've opened WhatsApp for you. Our team will respond quickly to help with your questions!", "bot");
                     }, 500);
                 } else if (action === "book-appointment") {
-                    // Open appointment popup directly - FIXED: Use window.openAppointmentPopup
-                    const openPopup = window.openAppointmentPopup || openAppointmentPopup;
-                    if (typeof openPopup === "function") {
+                    // Scroll to contact section instead of opening popup
+                    const contactSection = document.getElementById('contact');
+                    if (contactSection) {
+                        // Close chat popup if open
                         const chatPopup = document.getElementById('question-popup');
                         if (chatPopup && !chatPopup.classList.contains('hidden')) {
                             if (typeof hidePopup === "function") {
@@ -1186,8 +1207,16 @@ Important guidelines:
                                 }, 150);
                             }
                         }
+                        // Scroll to contact section smoothly
                         setTimeout(function() {
-                            openPopup();
+                            contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // Focus on the form after a short delay
+                            setTimeout(function() {
+                                const nameInput = document.getElementById('contactName');
+                                if (nameInput) {
+                                    nameInput.focus();
+                                }
+                            }, 500);
                         }, 200);
                     } else {
                         handleUserMessage("I want to book an appointment");
@@ -1658,10 +1687,11 @@ Important guidelines:
     if (appointmentForm) {
         appointmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             
             // Validate form
             if (!validateContactForm()) {
-                return;
+                return false;
             }
             
             // Get form data with null checks
@@ -1672,7 +1702,8 @@ Important guidelines:
             const messageInput = document.getElementById('contactMessage');
             
             if (!nameInput || !emailInput || !phoneInput || !serviceInput || !messageInput) {
-                return;
+                console.error('Contact form: Missing required input elements');
+                return false;
             }
             
             const name = nameInput.value.trim();
@@ -1705,6 +1736,7 @@ Important guidelines:
                 secureSet('dnaContacts', savedContacts, 24);
             } catch (error) {
                 // localStorage not available or quota exceeded
+                console.warn('Contact form: Could not save to localStorage', error);
             }
 
             // Prepare form data for unified submission
@@ -1720,7 +1752,13 @@ Important guidelines:
             submitAppointment(formData)
                 .then(function(response) {
                     // Email sent successfully - Show premium success modal
-                    showContactSuccessModal();
+                    try {
+                        showContactSuccessModal();
+                    } catch (modalError) {
+                        console.error('Contact form: Error showing success modal', modalError);
+                        // Fallback: Show alert if modal fails
+                        alert('Your appointment request has been sent successfully! Our team will contact you shortly.');
+                    }
                     // Reset form
                     appointmentForm.reset();
                     // Re-enable button
@@ -1730,6 +1768,7 @@ Important guidelines:
                     }
                 })
                 .catch(function(error) {
+                    console.error('Contact form: Submission error', error);
                     // Email sending failed - Show inline error message
                     if (submitBtn) {
                         submitBtn.disabled = false;
@@ -2204,14 +2243,59 @@ Important guidelines:
     // Show premium success modal for contact form
     function showContactSuccessModal() {
         const modal = document.getElementById('contactSuccessModal');
-        if (!modal) return;
-        lockBodyScroll();
-        modal.style.display = 'flex';
-        modal.style.visibility = 'visible';
-        modal.style.opacity = '1';
-        modal.classList.add('show');
-        const box = modal.querySelector('.premium-success-content');
-        if (box) box.scrollTop = 0;
+        if (!modal) {
+            console.error('Contact success modal not found');
+            return;
+        }
+        
+        try {
+            // Ensure body is not hidden
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+            
+            // Reset checkmark animation by cloning the SVG to force re-render
+            const checkmark = modal.querySelector('.checkmark');
+            if (checkmark) {
+                const checkmarkParent = checkmark.parentElement;
+                const checkmarkClone = checkmark.cloneNode(true);
+                checkmarkParent.replaceChild(checkmarkClone, checkmark);
+            }
+            
+            // Lock body scroll
+            lockBodyScroll();
+            
+            // Show modal with explicit styles
+            modal.style.display = 'flex';
+            modal.style.visibility = 'visible';
+            modal.style.opacity = '1';
+            modal.style.zIndex = '100002';
+            modal.classList.add('show');
+            
+            // Ensure content is visible
+            const box = modal.querySelector('.premium-success-content');
+            if (box) {
+                box.scrollTop = 0;
+                box.style.visibility = 'visible';
+                box.style.opacity = '1';
+            }
+            
+            // Force a reflow to ensure styles are applied and animations start
+            void modal.offsetHeight;
+            
+            // Trigger animation restart by briefly removing and re-adding animation
+            if (box) {
+                box.style.animation = 'none';
+                void box.offsetHeight; // Trigger reflow
+                box.style.animation = '';
+            }
+        } catch (error) {
+            console.error('Error showing contact success modal:', error);
+            // Fallback: ensure modal is at least visible
+            modal.style.display = 'flex';
+            modal.style.visibility = 'visible';
+            modal.style.opacity = '1';
+            modal.classList.add('show');
+        }
     }
     
     // Close premium success modal
@@ -4151,7 +4235,7 @@ Important guidelines:
             }
         });
 
-        // Wire up chatbot button to open new modal (instead of adult popup)
+        // Wire up chatbot button to scroll to contact section (instead of opening modal)
         // Find all chatbot buttons with data-action="book-appointment"
         const chatbotButtons = document.querySelectorAll('.qp-chip[data-action="book-appointment"]');
         chatbotButtons.forEach(btn => {
@@ -4159,11 +4243,38 @@ Important guidelines:
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             
-            // Add new listener to open chatbot modal
+            // Add new listener to scroll to contact section
             newBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                openChatbotAppointmentModal();
+                
+                // Scroll to contact section instead of opening modal
+                const contactSection = document.getElementById('contact');
+                if (contactSection) {
+                    // Close chat popup if open
+                    const chatPopup = document.getElementById('question-popup');
+                    if (chatPopup && !chatPopup.classList.contains('hidden')) {
+                        if (typeof hidePopup === "function") {
+                            hidePopup();
+                        } else {
+                            chatPopup.classList.remove("visible");
+                            setTimeout(function() {
+                                chatPopup.classList.add("hidden");
+                            }, 150);
+                        }
+                    }
+                    // Scroll to contact section smoothly
+                    setTimeout(function() {
+                        contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Focus on the form after a short delay
+                        setTimeout(function() {
+                            const nameInput = document.getElementById('contactName');
+                            if (nameInput) {
+                                nameInput.focus();
+                            }
+                        }, 500);
+                    }, 200);
+                }
             });
         });
 
@@ -4175,7 +4286,34 @@ Important guidelines:
                 if (chip) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openChatbotAppointmentModal();
+                    
+                    // Scroll to contact section instead of opening modal
+                    const contactSection = document.getElementById('contact');
+                    if (contactSection) {
+                        // Close chat popup if open
+                        const chatPopup = document.getElementById('question-popup');
+                        if (chatPopup && !chatPopup.classList.contains('hidden')) {
+                            if (typeof hidePopup === "function") {
+                                hidePopup();
+                            } else {
+                                chatPopup.classList.remove("visible");
+                                setTimeout(function() {
+                                    chatPopup.classList.add("hidden");
+                                }, 150);
+                            }
+                        }
+                        // Scroll to contact section smoothly
+                        setTimeout(function() {
+                            contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // Focus on the form after a short delay
+                            setTimeout(function() {
+                                const nameInput = document.getElementById('contactName');
+                                if (nameInput) {
+                                    nameInput.focus();
+                                }
+                            }, 500);
+                        }, 200);
+                    }
                 }
             }, true);
         }
@@ -4203,7 +4341,7 @@ Important guidelines:
             chatDateInput.setAttribute('min', minDate);
         }
 
-        // OPEN FROM CHAT BUTTON (keep chat open!)
+        // OPEN FROM CHAT BUTTON - Scroll to contact section instead
         document.querySelectorAll("[data-action='book-appointment']").forEach(btn => {
             // Remove any existing listeners by cloning
             const newBtn = btn.cloneNode(true);
@@ -4213,9 +4351,33 @@ Important guidelines:
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Keep chat open - just show the appointment popup above it
-                chatAppointmentModal.classList.add("show");
-                lockBodyScroll();
+                // Scroll to contact section instead of opening modal
+                const contactSection = document.getElementById('contact');
+                if (contactSection) {
+                    // Close chat popup if open
+                    const chatPopup = document.getElementById('question-popup');
+                    if (chatPopup && !chatPopup.classList.contains('hidden')) {
+                        if (typeof hidePopup === "function") {
+                            hidePopup();
+                        } else {
+                            chatPopup.classList.remove("visible");
+                            setTimeout(function() {
+                                chatPopup.classList.add("hidden");
+                            }, 150);
+                        }
+                    }
+                    // Scroll to contact section smoothly
+                    setTimeout(function() {
+                        contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Focus on the form after a short delay
+                        setTimeout(function() {
+                            const nameInput = document.getElementById('contactName');
+                            if (nameInput) {
+                                nameInput.focus();
+                            }
+                        }, 500);
+                    }, 200);
+                }
             });
         });
 
@@ -4227,8 +4389,34 @@ Important guidelines:
                 if (chip) {
                     e.preventDefault();
                     e.stopPropagation();
-                    chatAppointmentModal.classList.add("show");
-                    lockBodyScroll();
+                    
+                    // Scroll to contact section instead of opening modal
+                    const contactSection = document.getElementById('contact');
+                    if (contactSection) {
+                        // Close chat popup if open
+                        const chatPopup = document.getElementById('question-popup');
+                        if (chatPopup && !chatPopup.classList.contains('hidden')) {
+                            if (typeof hidePopup === "function") {
+                                hidePopup();
+                            } else {
+                                chatPopup.classList.remove("visible");
+                                setTimeout(function() {
+                                    chatPopup.classList.add("hidden");
+                                }, 150);
+                            }
+                        }
+                        // Scroll to contact section smoothly
+                        setTimeout(function() {
+                            contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // Focus on the form after a short delay
+                            setTimeout(function() {
+                                const nameInput = document.getElementById('contactName');
+                                if (nameInput) {
+                                    nameInput.focus();
+                                }
+                            }, 500);
+                        }, 200);
+                    }
                 }
             }, true);
         }

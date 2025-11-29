@@ -1729,35 +1729,28 @@ Important guidelines:
                 message: message
             };
             
-            // ALWAYS show success modal after valid form submission
-            // Try to send email in background, but show confirmation regardless
+            // Show success modal IMMEDIATELY - don't wait for email
+            // This ensures the modal always appears
+            setTimeout(function() {
+                showContactSuccessModal();
+            }, 50);
+            
+            // Reset form immediately
+            appointmentForm.reset();
+            
+            // Re-enable button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
+            
+            // Try to send email in background (fire and forget)
             submitAppointment(formData)
                 .then(function(response) {
                     // Email sent successfully
                 })
                 .catch(function(error) {
-                    // Email failed but we still show success modal
-                })
-                .finally(function() {
-                    // ALWAYS show success modal after form submission (regardless of email status)
-                    // Use setTimeout to ensure DOM is ready and any other modals are closed
-                    setTimeout(function() {
-                        try {
-                            showContactSuccessModal();
-                        } catch (modalError) {
-                            // Fallback: Show alert if modal fails
-                            alert('Your appointment request has been sent successfully! Our team will contact you shortly.');
-                        }
-                    }, 100);
-                    
-                    // Reset form
-                    appointmentForm.reset();
-                    
-                    // Re-enable button
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = originalBtnText;
-                    }
+                    // Email failed - user already sees success modal, so no error shown
                 });
         });
     }

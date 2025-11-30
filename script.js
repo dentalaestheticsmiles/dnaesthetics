@@ -1729,28 +1729,35 @@ Important guidelines:
                 message: message
             };
             
-            // Show success modal IMMEDIATELY - don't wait for email
-            // This ensures the modal always appears
-            setTimeout(function() {
-                showContactSuccessModal();
-            }, 50);
-            
-            // Reset form immediately
-            appointmentForm.reset();
-            
-            // Re-enable button
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalBtnText;
-            }
-            
-            // Try to send email in background (fire and forget)
+            // Use unified submitAppointment function
             submitAppointment(formData)
                 .then(function(response) {
-                    // Email sent successfully
+                    // Success - Show confirmation modal
+                    showAppointmentConfirmation({
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        service: service,
+                        date: '',
+                        time: '',
+                        message: message
+                    });
+                    
+                    // Reset form
+                    appointmentForm.reset();
+                    
+                    // Re-enable button
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                    }
                 })
                 .catch(function(error) {
-                    // Email failed - user already sees success modal, so no error shown
+                    // Re-enable button on error
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                    }
                 });
         });
     }

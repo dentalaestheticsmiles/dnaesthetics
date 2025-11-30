@@ -1733,15 +1733,24 @@ Important guidelines:
             submitAppointment(formData)
                 .then(function(response) {
                     // Success - Show confirmation modal
-                    showAppointmentConfirmation({
-                        name: name,
-                        email: email,
-                        phone: phone,
-                        service: service,
-                        date: '',
-                        time: '',
-                        message: message
-                    });
+                    showContactSuccessModal();
+                    
+                    // Play soft success sound
+                    const audio = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3");
+                    audio.volume = 0.35;
+                    audio.play().catch(() => { /* ignore autoplay restrictions */ });
+                    
+                    // Auto-close after 4 seconds
+                    setTimeout(() => {
+                        const successModal = document.getElementById("contactSuccessModal");
+                        if (successModal && successModal.classList.contains('show')) {
+                            successModal.classList.remove('show');
+                            successModal.style.display = 'none';
+                            successModal.style.visibility = 'hidden';
+                            successModal.style.opacity = '0';
+                            unlockBodyScroll();
+                        }
+                    }, 4000);
                     
                     // Reset form
                     appointmentForm.reset();

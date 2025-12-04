@@ -1741,18 +1741,6 @@ Important guidelines:
                     audio.volume = 0.35;
                     audio.play().catch(() => { /* ignore autoplay restrictions */ });
                     
-                    // Auto-close after 4 seconds
-                    setTimeout(() => {
-                        const successModal = document.getElementById("contactSuccessModal");
-                        if (successModal && successModal.classList.contains('show')) {
-                            successModal.classList.remove('show');
-                            successModal.style.display = 'none';
-                            successModal.style.visibility = 'hidden';
-                            successModal.style.opacity = '0';
-                            unlockBodyScroll();
-                        }
-                    }, 4000);
-                    
                     // Reset form
                     appointmentForm.reset();
                     
@@ -2271,11 +2259,17 @@ Important guidelines:
         modal.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 20px !important; background: rgba(0, 0, 0, 0.6) !important; backdrop-filter: blur(8px) !important; z-index: 99999999 !important; overflow-y: auto !important; visibility: visible !important; opacity: 1 !important;';
         modal.classList.add('show');
         
-        // Ensure content box is visible
+        // Ensure content box is visible and centered
         const box = modal.querySelector('.premium-success-content');
         if (box) {
             box.scrollTop = 0;
             box.style.cssText = 'width: 100% !important; max-width: 480px !important; max-height: 90vh !important; overflow-y: auto !important; overflow-x: hidden !important; background: linear-gradient(135deg, #ffffff 0%, #f8f5ff 100%) !important; border-radius: 24px !important; padding: 40px 32px !important; box-shadow: 0 24px 80px rgba(124, 58, 237, 0.3), 0 0 0 1px rgba(124, 58, 237, 0.15) !important; position: relative !important; margin: 0 auto !important; text-align: center !important; visibility: visible !important; opacity: 1 !important;';
+        }
+        
+        // Ensure close button is visible and clickable
+        const closeBtn = modal.querySelector('#contactSuccessClose, .premium-close');
+        if (closeBtn) {
+            closeBtn.style.cssText = 'position: absolute !important; top: 16px !important; right: 16px !important; width: 36px !important; height: 36px !important; border-radius: 50% !important; background: rgba(124, 58, 237, 0.1) !important; border: none !important; color: #7C3AED !important; font-size: 24px !important; line-height: 1 !important; cursor: pointer !important; display: flex !important; align-items: center !important; justify-content: center !important; z-index: 100 !important; visibility: visible !important; opacity: 1 !important;';
         }
         
         // Force reflow

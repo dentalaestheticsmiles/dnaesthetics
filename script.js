@@ -1732,8 +1732,16 @@ Important guidelines:
             // Use unified submitAppointment function
             submitAppointment(formData)
                 .then(function(response) {
+                    // Prevent any scrolling - save current position
+                    const currentScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+                    
                     // Success - Close popup and show confirmation
                     closeAppointmentPopup();
+                    
+                    // Prevent scroll before showing modal
+                    window.scrollTo(0, currentScrollY);
+                    document.documentElement.scrollTop = currentScrollY;
+                    
                     showContactSuccessModal();
                     
                     // Play soft success sound
@@ -2233,10 +2241,18 @@ Important guidelines:
             }
         });
         
+        // Prevent any scrolling - save current scroll position first
+        const currentScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+        
         // Ensure body is visible
         document.body.style.visibility = 'visible';
         document.body.style.opacity = '1';
         document.body.style.overflow = 'hidden';
+        
+        // Prevent scrolling immediately
+        window.scrollTo(0, currentScrollY);
+        document.documentElement.scrollTop = currentScrollY;
+        document.body.scrollTop = currentScrollY;
         
         // Reset checkmark animation
         const checkmark = modal.querySelector('.checkmark');
@@ -2246,8 +2262,14 @@ Important guidelines:
             checkmarkParent.replaceChild(checkmarkClone, checkmark);
         }
         
-        // Lock body scroll
+        // Lock body scroll (this preserves scroll position)
         lockBodyScroll();
+        
+        // Ensure we stay at current scroll position after lock
+        setTimeout(function() {
+            window.scrollTo(0, currentScrollY);
+            document.documentElement.scrollTop = currentScrollY;
+        }, 0);
         
         // FORCE REMOVE all hiding styles
         modal.style.removeProperty('display');

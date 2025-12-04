@@ -1732,7 +1732,8 @@ Important guidelines:
             // Use unified submitAppointment function
             submitAppointment(formData)
                 .then(function(response) {
-                    // Success - Show confirmation modal
+                    // Success - Close popup and show confirmation
+                    closeAppointmentPopup();
                     showContactSuccessModal();
                     
                     // Play soft success sound

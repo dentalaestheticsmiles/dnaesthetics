@@ -1749,8 +1749,20 @@ Important guidelines:
                     audio.volume = 0.35;
                     audio.play().catch(() => { /* ignore autoplay restrictions */ });
                     
+                    // Prevent scroll after form reset (form reset might cause scroll)
+                    setTimeout(function() {
+                        window.scrollTo(0, currentScrollY);
+                        document.documentElement.scrollTop = currentScrollY;
+                    }, 0);
+                    
                     // Reset form
                     appointmentForm.reset();
+                    
+                    // Prevent scroll again after reset
+                    setTimeout(function() {
+                        window.scrollTo(0, currentScrollY);
+                        document.documentElement.scrollTop = currentScrollY;
+                    }, 10);
                     
                     // Re-enable button
                     if (submitBtn) {
@@ -2265,21 +2277,41 @@ Important guidelines:
         // Lock body scroll (this preserves scroll position)
         lockBodyScroll();
         
-        // Ensure we stay at current scroll position after lock
-        setTimeout(function() {
-            window.scrollTo(0, currentScrollY);
-            document.documentElement.scrollTop = currentScrollY;
-        }, 0);
-        
         // FORCE REMOVE all hiding styles
         modal.style.removeProperty('display');
         modal.style.removeProperty('visibility');
         modal.style.removeProperty('opacity');
         modal.style.removeProperty('z-index');
         
-        // FORCE SHOW with maximum z-index
+        // FORCE SHOW with maximum z-index - prevent all scrolling
         modal.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 20px !important; background: rgba(0, 0, 0, 0.6) !important; backdrop-filter: blur(8px) !important; z-index: 99999999 !important; overflow-y: auto !important; visibility: visible !important; opacity: 1 !important;';
         modal.classList.add('show');
+        
+        // Continuously prevent scrolling - keep page locked at current position
+        const preventScroll = function() {
+            window.scrollTo(0, currentScrollY);
+            document.documentElement.scrollTop = currentScrollY;
+            document.body.scrollTop = currentScrollY;
+        };
+        
+        // Prevent scroll immediately and repeatedly
+        preventScroll();
+        setTimeout(preventScroll, 0);
+        setTimeout(preventScroll, 10);
+        setTimeout(preventScroll, 50);
+        setTimeout(preventScroll, 100);
+        
+        // Store scroll prevention function on modal for cleanup
+        modal._preventScroll = preventScroll;
+        
+        // Add scroll prevention listener
+        const scrollHandler = function(e) {
+            if (modal.classList.contains('show')) {
+                preventScroll();
+            }
+        };
+        window.addEventListener('scroll', scrollHandler, { passive: false, capture: true });
+        modal._scrollHandler = scrollHandler;
         
         // Ensure content box is visible and centered
         const box = modal.querySelector('.premium-success-content');
@@ -2309,6 +2341,14 @@ Important guidelines:
     function closeContactSuccessModal() {
         const modal = document.getElementById('contactSuccessModal');
         if (!modal) return;
+        
+        // Remove scroll prevention handler
+        if (modal._scrollHandler) {
+            window.removeEventListener('scroll', modal._scrollHandler, { capture: true });
+            delete modal._scrollHandler;
+        }
+        delete modal._preventScroll;
+        
         modal.classList.remove('show');
         modal.style.opacity = '0';
         modal.style.visibility = 'hidden';
